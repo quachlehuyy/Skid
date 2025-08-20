@@ -537,14 +537,13 @@ local harvesteb = false
 Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(Value)
     config.AutoHarvest = Value
     SaveConfig()
-    harvesteb = Value
-    if Value then
-        task.spawn(function()
-            while harvesteb do
-                AutoCollect()
-                task.wait(0.1)
-            end
-        end)
+end)
+task.spawn(function()
+    while true do
+        if config.AutoHarvest then
+            AutoCollect()
+        end
+        task.wait(0.1)
     end
 end)
 
