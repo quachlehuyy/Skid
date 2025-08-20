@@ -257,7 +257,8 @@ local function autoplant()
         end
         if tool and config.PlayerPosition then
             local x, y, z = config.PlayerPosition:match("([^,]+), ([^,]+), ([^,]+)")
-            hrp.CFrame = CFrame.new(tonumber(x), tonumber(y), tonumber(z))
+            local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z)) -- thêm dòng này
+            hrp.CFrame = CFrame.new(psplant
             task.wait(0.1)
             ReplicatedStorage.GameEvents.Plant_RE:FireServer(psplant, seed)
         end
