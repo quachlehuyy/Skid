@@ -196,7 +196,7 @@ local function AutoCollect()
     if myfarm then
         local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
         for _, item in ipairs(fruitharvest) do
-            for _, plant in ipairs(plantsPhysical:GetChildren()) do
+            for _, plant in ipairs(plantsPhysical:GetDescendants()) do
                 if plant.Name == item then
                     local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                     if prompt and prompt.Enabled then
