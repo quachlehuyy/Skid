@@ -473,7 +473,7 @@ end)
 
 Tabs.Farm:AddButton({
     Title = "Save Position",
-    Description = config.PlayerPosition,
+    Description = ps,
     Callback = function()
     ps = hrp.Position
     config.PlayerPosition = ps
