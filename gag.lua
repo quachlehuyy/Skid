@@ -208,6 +208,7 @@ local function AutoCollect()
     local myfarm = GetMyFarm()
     if myfarm then
         local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
+        if not config.AutoHarvest then return end
         for _, item in ipairs(fruitharvest) do
             for _, plant in ipairs(plantsPhysical:GetDescendants()) do
                 if plant.Name == item then
