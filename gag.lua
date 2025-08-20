@@ -255,9 +255,10 @@ local function autoplant()
         if not tool or not string.find(tool.Name, seed) then
             tool = EquipTool(seed)
         end
-        if tool then
-            hrp.Position = ps
-            ReplicatedStorage.GameEvents.Plant_RE:FireServer(ps, seed)
+        if tool and cfplant then
+            hrp.CFrame = cfplant
+            task.wait(0.1)
+            ReplicatedStorage.GameEvents.Plant_RE:FireServer(cfplant, seed)
         end
     end
 end
@@ -474,17 +475,23 @@ end)
 
 Tabs.Farm:AddButton({
     Title = "Save Position",
-    Description = ps,
+    Description = "",
     Callback = function()
-    ps = hrp.Position
-    config.PlayerPosition = ps
+    cfplant = hrp.CFrame
+    config.PlayerPosition = cfplant
     SaveConfig()
 end})
 
+local function formatCFrame(cframeTable)
+    if not cframeTable then return "Chưa lưu" end
+    return string.format("X=%.1f | Y=%.1f | Z=%.1f", cframeTable[1], cframeTable[2], cframeTable[3])
+end
+
 Tabs.Farm:AddParagraph({
     Title = "Saved Position",
-    Content = config.PlayerPosition
-})
+    Content = formatCFrame(config.PlayerPosition)
+}
+
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
     config.AutoPlant = Value
