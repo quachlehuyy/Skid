@@ -255,7 +255,8 @@ local function autoplant()
         if not tool or not string.find(tool.Name, seed) then
             tool = EquipTool(seed)
         end
-        if tool and cfplant then
+        if tool and config.PlayerPosition then
+            local cfplant = CFrame.new(unpack(config.PlayerPosition))
             hrp.CFrame = cfplant
             task.wait(0.1)
             ReplicatedStorage.GameEvents.Plant_RE:FireServer(cfplant, seed)
@@ -459,7 +460,6 @@ Tabs.Farm:AddParagraph({
     Content = "Auto Plant"
 })
 
-
 Tabs.Farm:AddDropdown("Select Seed To Plant", {Title="Select Seed", Values=Seeds, Multi=true, Default=config.SeedToPlant}):OnChanged(function(Value)
     Seedtoplant = {}
     for val, _ in pairs(Value) do
@@ -468,6 +468,7 @@ Tabs.Farm:AddDropdown("Select Seed To Plant", {Title="Select Seed", Values=Seeds
     config.SeedToPlant = Value
     SaveConfig()
 end)
+
 Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"Save Position", "Random"}, Multi=false, Default=config.TypePlant}):OnChanged(function(Value)
     config.TypePlant = Value
     SaveConfig()
@@ -477,20 +478,17 @@ Tabs.Farm:AddButton({
     Title = "Save Position",
     Description = "",
     Callback = function()
-    cfplant = hrp.CFrame
-    config.PlayerPosition = cfplant
+    local cfplant = hrp.CFrame
+    config.PlayerPosition = {cfplant:GetComponents()}
     SaveConfig()
+    savedParagraph:SetDesc(formatCFrame(config.PlayerPosition))
 end})
 
-local function formatCFrame(cframeTable)
-    if not cframeTable then return "Chưa lưu" end
-    return string.format("X=%.1f | Y=%.1f | Z=%.1f", cframeTable[1], cframeTable[2], cframeTable[3])
-end
 
 Tabs.Farm:AddParagraph({
     Title = "Saved Position",
     Content = formatCFrame(config.PlayerPosition)
-}
+})
 
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
