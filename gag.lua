@@ -204,30 +204,24 @@ local function sellallinventory()
 end
 
 
-local function IsHarvestTarget(name)
-    for _, fruit in ipairs(fruitharvest) do
-        if string.find(name, fruit) then
-            return true
-        end
-    end
-    return false
-end
-
 local function AutoCollect()
     local myfarm = GetMyFarm()
     if myfarm then
         local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
-        for _, plant in ipairs(plantsPhysical:GetDescendants()) do
-            if IsHarvestTarget(plant.Name) then
-                local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
-                if prompt and prompt.Enabled then
-                    ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
-                    task.wait(DelayHarvestValue)
+        for _, item in ipairs(fruitharvest) do
+            for _, plant in ipairs(plantsPhysical:GetChildren()) do
+                if plant.Name == item then
+                    local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    if prompt and prompt.Enabled then
+                        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
+                        task.wait(DelayHarvestValue)
+                    end
                 end
             end
         end
     end
 end
+
 
 local function GetRandomPointInSlot(slot)
     if not slot or not slot:IsA("BasePart") then return nil end
@@ -541,14 +535,12 @@ end})
 Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(Value)
     config.AutoHarvest = Value
     SaveConfig()
-end)
-task.spawn(function()
-    while true do
-        if Options.AutoHarvest.Value then
+    task.spawn(function()
+        while Options.AutoHarvest.Value do
             AutoCollect()
+            task.wait(0.1)
         end
-        task.wait(0.1)
-    end
+    end)
 end)
 
 
