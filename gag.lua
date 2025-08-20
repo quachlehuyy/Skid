@@ -486,6 +486,7 @@ Tabs.Farm:AddButton({
     SaveConfig()
     if config.PlayerPosition then
     savedParagraph:SetDesc(config.PlayerPosition)
+    end
 end})
 
 
