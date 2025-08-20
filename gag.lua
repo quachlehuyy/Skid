@@ -30,6 +30,8 @@ local config = {
     NoClip = false,
     AutoBuySeed = false,
     AutoBuyAllSeed = false,
+    AutoBuyAllGear = false,
+    AutoBuyAllEgg = false,
     AutoBuyGear = false,
     AutoBuyAllGear = false,
     AutoBuyEgg = false,
@@ -63,10 +65,11 @@ end
 LoadConfig()
 
 -- Game Data
-local Seeds = { "All", "Carrot", "Strawberry", "Blueberry", "Orange Tulip", "Tomato", "Corn", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember Lily", "Sugar Apple", "Buring Bud", "Giant Pinecone", "Elder Strawberry" }
-local Gears = { "All", "Watering Can", "Trading Ticket", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Grandmaster Sprinkler", "Levelup Lollipop" }
-local Eggs = { "All", "Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg" }
+local Seeds = { "Carrot", "Strawberry", "Blueberry", "Orange Tulip", "Tomato", "Corn", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember Lily", "Sugar Apple", "Buring Bud", "Giant Pinecone", "Elder Strawberry" }
+local Gears = { "Watering Can", "Trading Ticket", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Grandmaster Sprinkler", "Levelup Lollipop" }
+local Eggs = { "Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg" }
 local Goliathshop = { "Sprout Seed Pack", "Sprout Egg", "Mandrake", "Sprout Crate", "Silver Fertilizer", "Canary Melon", "Amberheart", "Spriggan" }
+
 
 -- Runtime tables
 local fruitharvest, fruitdachon, itemdachon, eggdachon, seeddachon, geardachon = {}, {}, {}, {}, {}, {}
@@ -121,17 +124,14 @@ end
 -- Buy / Sell Functions
 local function buyseed()
     for _, seed in ipairs(seeddachon) do
-        if seed ~= "All" then
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
-        end
     end
 end
 
 local function buyallseed()
-    for _, seed in ipairs(allseed) do
-        if seed ~= "All" then
+    for _, seed in ipairs(Seeds) do
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
-        end
+        task.wait(0.05)
     end
 end
 
@@ -141,9 +141,23 @@ local function buygear()
     end
 end
 
+local function buyallgear()
+    for _, gear in ipairs(Gears) do
+        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock"):FireServer(gear)
+        task.wait(0.05)
+    end
+end
+
 local function buyegg()
     for _, egg in ipairs(eggdachon) do
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(egg)
+    end
+end
+
+local function buyallegg()
+    for _, egg in ipairs(Eggs) do
+        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(egg)
+        task.wait(0.05)
     end
 end
 
@@ -286,8 +300,8 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 local Window = Fluent:CreateWindow({
     Title = "GAG Script",
     SubTitle = "by quachlehuy",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(500, 330),
+    TabWidth = 120,
+    Size = UDim2.fromOffset(350, 400),
     Acrylic = true, 
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -303,17 +317,13 @@ local Options = Fluent.Options
 -- Seeds
 Tabs.Shop:AddDropdown("Select Seed", {Title="Select Seed", Values=Seeds, Multi=true, Default=config.Seeds}):OnChanged(function(Value)
     seeddachon = {}
-    SeedToBuy = {}
-    allseed = {}
     for val, _ in pairs(Value) do
         table.insert(seeddachon, val)
-        table.insert(config.Seeds, val)
     end
-    for val, _ in pairs(Value) do
-        table.insert(allseed, val)
-    end
+    config.Seeds = Value
     SaveConfig()
 end)
+
 Tabs.Shop:AddToggle("AutoBuySeed", {Title="Auto Buy Seed", Default=config.AutoBuySeed}):OnChanged(function(Value)
     config.AutoBuySeed = Value
     SaveConfig()
@@ -324,7 +334,8 @@ Tabs.Shop:AddToggle("AutoBuySeed", {Title="Auto Buy Seed", Default=config.AutoBu
         end
     end)
 end)
-Tabs.Shop:AddToggle("AutoBuyAllSeed", {Title="Auto Buy All Seed", Default=config.AutoBuySeed}):OnChanged(function(Value)
+
+Tabs.Shop:AddToggle("AutoBuyAllSeed", {Title="Auto Buy All Seed", Default=config.AutoBuyAllSeed}):OnChanged(function(Value)
     config.AutoBuyAllSeed = Value
     SaveConfig()
     task.spawn(function()
@@ -334,6 +345,7 @@ Tabs.Shop:AddToggle("AutoBuyAllSeed", {Title="Auto Buy All Seed", Default=config
         end
     end)
 end)
+
 -- Gears
 Tabs.Shop:AddDropdown("Select Gear", {Title="Select Gear", Values=Gears, Multi=true, Default=config.Gears}):OnChanged(function(Value)
     geardachon = {}
@@ -341,12 +353,24 @@ Tabs.Shop:AddDropdown("Select Gear", {Title="Select Gear", Values=Gears, Multi=t
     config.Gears = Value
     SaveConfig()
 end)
+
 Tabs.Shop:AddToggle("AutoBuyGear", {Title="Auto Buy Gear", Default=config.AutoBuyGear}):OnChanged(function(Value)
     config.AutoBuyGear = Value
     SaveConfig()
     task.spawn(function()
         while Options.AutoBuyGear.Value do
             if geardachon and #geardachon > 0 then buygear() end
+            task.wait(0.05)
+        end
+    end)
+end)
+
+Tabs.Shop:AddToggle("AutoBuyAllGear", {Title="Auto Buy All Gear", Default=config.AutoBuyAllGear}):OnChanged(function(Value)
+    config.AutoBuyAllGear = Value
+    SaveConfig()
+    task.spawn(function()
+        while Options.AutoBuyAllGear.Value do
+            buyallgear()
             task.wait(0.05)
         end
     end)
@@ -359,12 +383,24 @@ Tabs.Shop:AddDropdown("Select Egg", {Title="Select Egg", Values=Eggs, Multi=true
     config.Eggs = Value
     SaveConfig()
 end)
+
 Tabs.Shop:AddToggle("AutoBuyEgg", {Title="Auto Buy Egg", Default=config.AutoBuyEgg}):OnChanged(function(Value)
     config.AutoBuyEgg = Value
     SaveConfig()
     task.spawn(function()
         while Options.AutoBuyEgg.Value do
             if eggdachon and #eggdachon > 0 then buyegg() end
+            task.wait(0.05)
+        end
+    end)
+end)
+
+Tabs.Shop:AddToggle("AutoBuyAllEgg", {Title="Auto Buy All Egg", Default=config.AutoBuyAllEgg}):OnChanged(function(Value)
+    config.AutoBuyAllEgg = Value
+    SaveConfig()
+    task.spawn(function()
+        while Options.AutoBuyAllEgg.Value do
+            buyallegg()
             task.wait(0.05)
         end
     end)
