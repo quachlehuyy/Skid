@@ -484,7 +484,8 @@ Tabs.Farm:AddButton({
     local psplant = hrp.Position
     config.PlayerPosition = tostring(hrp.Position)
     SaveConfig()
-    savedParagraph:SetDesc("Saved: " .. config.PlayerPosition)
+    if config.PlayerPosition then
+    savedParagraph:SetDesc(config.PlayerPosition)
 end})
 
 
