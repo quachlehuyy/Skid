@@ -1,629 +1,288 @@
--- Services
+--[[
+    GAG Script by quachlehuy
+    Optimized Version
+]]
+
+--// SERVICES
 local Players = game:GetService("Players")
-local lp = Players.LocalPlayer
-local backpack = lp:WaitForChild("Backpack")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local character = lp.Character or lp.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-local humanoid = character:WaitForChild("Humanoid")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
+
+--// LOCAL PLAYER
+local lp = Players.LocalPlayer
+local character = lp.Character or lp.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local hrp = character:WaitForChild("HumanoidRootPart")
+local backpack = lp:WaitForChild("Backpack")
+
+--// CONFIG
 local configFileName = "gag_config.json"
-
-
-
--- Default config
 local config = {
-    Seeds = {},
-    SeedToPlant = {},
-    Gears = {},
-    Eggs = {},
-    Items = {},
-    FruitsToHarvest = {},
-    FruitsToSell = {},
-    TypePlant = "Player Position",
-    DelaySell = 0.2,
-    DelayHarvest = 0.2,
-    Speed = false,
-    SpeedValue = 20,
-    InfinityJump = false,
-    NoClip = false,
-    AutoBuySeed = false,
-    AutoBuyGear = false,
-    AutoBuyEgg = false,
-    AutoBuyItem = false,
-    AutoPlant = false,
-    AutoHarvest = false,
-    AutoSellFruit = false,
-    AutoSellWhenMax = false,
-    OpenGardenGui = false,
-    OpenGoliathShop = false,
+    Seeds = {}, SeedToPlant = {}, Gears = {}, Eggs = {}, Items = {}, FruitsToHarvest = {}, FruitsToSell = {},
+    TypePlant = "Random", DelaySell = 0.2, DelayHarvest = 0.2, SpeedValue = 20,
+    PlayerPosition = nil, Speed = false, InfinityJump = false, NoClip = false,
+    AutoBuySeed = false, AutoBuyAllSeed = false, AutoBuyGear = false, AutoBuyAllGear = false,
+    AutoBuyEgg = false, AutoBuyAllEgg = false, AutoBuyItem = false, AutoPlant = false,
+    AutoHarvest = false, AutoSellFruit = false, AutoSellWhenMax = false, AutoSellInventory = false,
+    OpenGoliathShop = false, OpenGardenGui = false
 }
 
--- Save & Load Config
+--// FUNCTIONS: CONFIG
 local function SaveConfig()
-    if isfile and writefile then
-        writefile(configFileName, HttpService:JSONEncode(config))
-    end
+    if writefile then writefile(configFileName, HttpService:JSONEncode(config)) end
 end
 
 local function LoadConfig()
     if isfile and readfile and isfile(configFileName) then
-        local data = readfile(configFileName)
-        local decoded = HttpService:JSONDecode(data)
-        for k, v in pairs(decoded) do
-            config[k] = v
+        local success, decoded = pcall(HttpService.JSONDecode, readfile(configFileName))
+        if success and type(decoded) == "table" then
+            for k, v in pairs(decoded) do config[k] = v end
         end
     end
 end
-
 LoadConfig()
 
--- Game Data
-local Seeds = { "All", "Carrot", "Strawberry", "Blueberry", "Orange Tulip", "Tomato", "Corn", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember Lily", "Sugar Apple", "Buring Bud", "Giant Pinecone", "Elder Strawberry" }
-local Gears = { "All", "Watering Can", "Trading Ticket", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Grandmaster Sprinkler", "Levelup Lollipop" }
-local Eggs = { "All", "Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg" }
-local Goliathshop = { "Sprout Seed Pack", "Sprout Egg", "Mandrake", "Sprout Crate", "Silver Fertilizer", "Canary Melon", "Amberheart", "Spriggan" }
+--// GAME DATA
+local GameData = {
+    Seeds = { "Carrot", "Strawberry", "Blueberry", "Orange Tulip", "Tomato", "Corn", "Daffodil", "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus", "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk", "Ember Lily", "Sugar Apple", "Buring Bud", "Giant Pinecone", "Elder Strawberry" },
+    Gears = { "Watering Can", "Trading Ticket", "Trowel", "Recall Wrench", "Basic Sprinkler", "Advanced Sprinkler", "Medium Toy", "Medium Treat", "Godly Sprinkler", "Magnifying Glass", "Master Sprinkler", "Cleaning Spray", "Favorite Tool", "Harvest Tool", "Friendship Pot", "Grandmaster Sprinkler", "Levelup Lollipop" },
+    Eggs = { "Common Egg", "Common Summer Egg", "Rare Summer Egg", "Mythical Egg", "Paradise Egg", "Bug Egg" },
+    Goliathshop = { "Sprout Seed Pack", "Sprout Egg", "Mandrake", "Sprout Crate", "Silver Fertilizer", "Canary Melon", "Amberheart", "Spriggan" }
+}
 
--- Runtime tables
-local fruitharvest, fruitdachon, itemdachon, eggdachon, seeddachon, geardachon = {}, {}, {}, {}, {}, {}
-local Seedtoplant = {}
-local autosellfruit_running = false
-local delaySellValue = config.DelaySell
-local DelayHarvestValue = config.DelayHarvest
-local sellfruit = CFrame.new(86.5854721, 2.76619363, 0.426784277, 0, 0, -1, 0, 1, 0, 1, 0, 0)
-local speedchange = config.SpeedValue
-local infinityJumpEnabled = config.InfinityJump
-local connection
+--// RUNTIME VARIABLES
+local myFarmCache = nil
+local isHarvesting = false
+local sellFruitLocation = CFrame.new(86.5854721, 2.76619363, 0.426784277, 0, 0, -1, 0, 1, 0, 1, 0, 0)
 
--- Helper functions
-local function isInventoryFull()
-    return #backpack:GetChildren() >= 200
-end
-
+--// HELPER FUNCTIONS
 local function GetMyFarm()
-    for _, Farm in ipairs(workspace.Farm:GetChildren()) do
-        local Important = Farm:FindFirstChild("Important")
-        if Important then
-            local Data = Important:FindFirstChild("Data")
-            if Data then
-                local Owner = Data:FindFirstChild("Owner")
-                if Owner and Owner.Value == lp.Name then
-                    return Farm
-                end
-            end
+    if myFarmCache and myFarmCache.Parent then return myFarmCache end
+    for _, farm in ipairs(workspace.Farm:GetChildren()) do
+        if farm:FindFirstChild("Important.Data.Owner") and farm.Important.Data.Owner.Value == lp.Name then
+            myFarmCache = farm
+            return farm
         end
     end
 end
 
-local function EquipTool(seed)
-    local tool
-    for _, t in pairs(backpack:GetChildren()) do
-        if string.find(t.Name, seed) and string.find(t.Name, "Seed") then
-            tool = t
-            break
-        end
-    end
-    if not tool then return nil end
-    local currentTool = lp.Character:FindFirstChildWhichIsA("Tool")
-    if currentTool then
-        lp.Character.Humanoid:UnequipTools()
-        task.wait(0.2)
-    end
-    lp.Character.Humanoid:EquipTool(tool)
-    task.wait(0.2)
-    return tool
-end
-
--- Buy / Sell Functions
-local function buyseed()
-    for _, seed in ipairs(seeddachon) do
-        if seed ~= "All" then
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
+local function EquipTool(seedName)
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") and tool.Name:find(seedName) and tool.Name:find("Seed") then
+            humanoid:EquipTool(tool)
+            return tool
         end
     end
 end
 
-local function buygear()
-    for _, gear in ipairs(geardachon) do
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock"):FireServer(gear)
-    end
-end
-
-local function buyegg()
-    for _, egg in ipairs(eggdachon) do
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(egg)
-    end
-end
-
-local function buygoliathshop()
-    for _, item in ipairs(itemdachon) do
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyEventShopStock"):FireServer(item)
-    end
-end
-
-local function autosellfruit()
-    if not autosellfruit_running then return end
-    local originalCFrame = hrp.CFrame
-    while true do
-        local hasFruit = false
-        for _, tool in pairs(backpack:GetChildren()) do
-            for _, fruit in ipairs(fruitdachon) do
-                if string.find(tool.Name, fruit) and not string.find(tool.Name, "Seed") then
-                    hasFruit = true
-                    lp.Character.Humanoid:EquipTool(tool)
-                    task.wait(0.1)
-                    hrp.CFrame = sellfruit
-                    task.wait(delaySellValue)
-                    ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Item"):FireServer()
-                    break
-                end
-            end
-            if hasFruit then break end
-        end
-        if not hasFruit then break end
-    end
-    hrp.CFrame = originalCFrame
-end
-
+--// CORE FUNCTIONS
 local function AutoCollect()
-    local myfarm = GetMyFarm()
-    if myfarm then
-        local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
-        for _, item in ipairs(fruitharvest) do
-            for _, plant in ipairs(plantsPhysical:GetChildren()) do
-                if plant.Name == item then
-                    local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
-                    if prompt and prompt.Enabled then
-                        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
-                        task.wait(DelayHarvestValue)
-                    end
-                end
-            end
-        end
-    end
-end
-
-local function GetRandomPointInSlot(slot)
-    if not slot or not slot:IsA("BasePart") then return nil end
-    local size = slot.Size
-    local cf = slot.CFrame
-    local offsetX = (math.random() - 0.5) * size.X
-    local offsetZ = (math.random() - 0.5) * size.Z
-    return (cf * CFrame.new(offsetX, 0, offsetZ)).Position
-end
-
-local function GetRandomPlantSlot()
-    local myFarm = GetMyFarm()
-    if myFarm then
-        local vitriplant = myFarm.Important:FindFirstChild("Plant_Locations")
-        if vitriplant then
-            local slots = {}
-            for _, v in ipairs(vitriplant:GetChildren()) do
-                if v.Name == "Can_Plant" then
-                    table.insert(slots, v)
-                end
-            end
-            if #slots > 0 then
-                return GetRandomPointInSlot(slots[math.random(1, #slots)])
-            end
-        end
-    end
-end
-
-local function autoplant()
-    for _, seed in ipairs(Seedtoplant) do
-        local tool = lp.Character:FindFirstChildWhichIsA("Tool")
-        if not tool or not string.find(tool.Name, seed) then
-            tool = EquipTool(seed)
-        end
-        if tool then
-            ReplicatedStorage.GameEvents.Plant_RE:FireServer(hrp.Position, seed)
-        end
-    end
-end
-
-local function autoplantrandom()
-    for _, seed in ipairs(Seedtoplant) do
-        local tool = lp.Character:FindFirstChildWhichIsA("Tool")
-        if not tool or not string.find(tool.Name, seed) then
-            tool = EquipTool(seed)
-        end
-        if tool then
-            local randomSlot = GetRandomPlantSlot()
-            if randomSlot then
-                ReplicatedStorage.GameEvents.Plant_RE:FireServer(randomSlot, seed)
-                task.wait(0.1)
-            end
-        end
-    end
-end
-
-local function destroyOtherFarms()
     local myFarm = GetMyFarm()
     if not myFarm then return end
-    for _, Farm in ipairs(workspace.Farm:GetChildren()) do
-        if Farm ~= myFarm then
-            Farm:Destroy()
+    local plantsPhysical = myFarm.Important:WaitForChild("Plants_Physical")
+    if not plantsPhysical then return end
+
+    for _, plant in ipairs(plantsPhysical:GetDescendants()) do
+        if not config.AutoHarvest then return end
+        local isTargetPlant = table.find(config.FruitsToHarvest, plant.Name)
+        if isTargetPlant then
+            local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+            if prompt and prompt.Enabled then
+                ReplicatedStorage.GameEvents.Crops.Collect:FireServer({plant})
+                task.wait(config.DelayHarvest)
+            end
         end
+        task.wait()
     end
 end
 
-
-local function destroyHangRao()
-    local myFarm = GetMyFarm()
-    if not myFarm then return end
-
-    local trai = myFarm:FindFirstChild("CurrentExpansion") 
-        and myFarm.CurrentExpansion:FindFirstChild("Left") 
-        and myFarm.CurrentExpansion.Left:FindFirstChild("Fences")
-
-    local phai = myFarm:FindFirstChild("CurrentExpansion") 
-        and myFarm.CurrentExpansion:FindFirstChild("Right") 
-        and myFarm.CurrentExpansion.Right:FindFirstChild("Fences")
-
-    if trai then trai:Destroy() end
-    if phai then phai:Destroy() end
-end
-
-
-
-
-
--- UI Library
+--// UI LIBRARY
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local Window = Fluent:CreateWindow({
-    Title = "GAG Script",
-    SubTitle = "by quachlehuy",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true, 
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
+    Title = "GAG Script", SubTitle = "by quachlehuy (Optimized)", TabWidth = 120,
+    Size = UDim2.fromOffset(485, 370), Acrylic = true, Theme = "Dark", MinimizeKey = Enum.KeyCode.LeftControl
 })
 local Tabs = {
     Shop = Window:AddTab({ Title = "Shop", Icon = "" }),
     Farm = Window:AddTab({ Title = "Farm", Icon = "" }),
     Player = Window:AddTab({ Title = "Player", Icon = "" })
 }
-local Options = Fluent.Options
 
---[[ --- SHOP --- ]]--
--- Seeds
-Tabs.Shop:AddDropdown("Select Seed", {Title="Select Seed", Values=Seeds, Multi=true, Default=config.Seeds}):OnChanged(function(Value)
-    seeddachon = {}
-    SeedToBuy = {}
-    for val, _ in pairs(Value) do
-        table.insert(seeddachon, val)
-        table.insert(config.Seeds, val)
-    end
-    SaveConfig()
-end)
-Tabs.Shop:AddToggle("AutoBuySeed", {Title="Auto Buy Seed", Default=config.AutoBuySeed}):OnChanged(function(Value)
-    config.AutoBuySeed = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.AutoBuySeed.Value do
-            if seeddachon and #seeddachon > 0 then buyseed() end
-            task.wait(0.05)
-        end
+--- HÀM TỐI ƯU: Tạo một khu vực mua sắm hoàn chỉnh ---
+local function CreateShopSection(tab, options)
+    local title = options.Title
+    local items = options.Items
+    local selectedKey = options.SelectedKey
+    local autoBuyKey = options.AutoBuyKey
+    local autoBuyAllKey = options.AutoBuyAllKey
+    local remoteEvent = options.RemoteEvent
+    local selectedItems = {}
+
+    tab:AddDropdown("Select" .. title, {Title = "Select " .. title, Values = items, Multi = true, Default = config[selectedKey]}):OnChanged(function(value)
+        config[selectedKey] = value
+        selectedItems = {}
+        for item, _ in pairs(value) do table.insert(selectedItems, item) end
+        SaveConfig()
     end)
-end)
 
--- Gears
-Tabs.Shop:AddDropdown("Select Gear", {Title="Select Gear", Values=Gears, Multi=true, Default=config.Gears}):OnChanged(function(Value)
-    geardachon = {}
-    for val, _ in pairs(Value) do table.insert(geardachon, val) end
-    config.Gears = Value
-    SaveConfig()
-end)
-Tabs.Shop:AddToggle("AutoBuyGear", {Title="Auto Buy Gear", Default=config.AutoBuyGear}):OnChanged(function(Value)
-    config.AutoBuyGear = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.AutoBuyGear.Value do
-            if geardachon and #geardachon > 0 then buygear() end
-            task.wait(0.05)
-        end
+    tab:AddToggle(autoBuyKey, {Title = "Auto Buy " .. title, Default = config[autoBuyKey]}):OnChanged(function(value)
+        config[autoBuyKey] = value
+        SaveConfig()
     end)
-end)
-
--- Eggs
-Tabs.Shop:AddDropdown("Select Egg", {Title="Select Egg", Values=Eggs, Multi=true, Default=config.Eggs}):OnChanged(function(Value)
-    eggdachon = {}
-    for val, _ in pairs(Value) do table.insert(eggdachon, val) end
-    config.Eggs = Value
-    SaveConfig()
-end)
-Tabs.Shop:AddToggle("AutoBuyEgg", {Title="Auto Buy Egg", Default=config.AutoBuyEgg}):OnChanged(function(Value)
-    config.AutoBuyEgg = Value
-    SaveConfig()
     task.spawn(function()
-        while Options.AutoBuyEgg.Value do
-            if eggdachon and #eggdachon > 0 then buyegg() end
-            task.wait(0.05)
-        end
-    end)
-end)
-
--- Items
-Tabs.Shop:AddDropdown("Select Item", {Title="Select Item", Values=Goliathshop, Multi=true, Default=config.Items}):OnChanged(function(Value)
-    itemdachon = {}
-    for val, _ in pairs(Value) do table.insert(itemdachon, val) end
-    config.Items = Value
-    SaveConfig()
-end)
-Tabs.Shop:AddToggle("AutoBuyItem", {Title="Auto Buy Item", Default=config.AutoBuyItem}):OnChanged(function(Value)
-    config.AutoBuyItem = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.AutoBuyItem.Value do
-            if itemdachon and #itemdachon > 0 then buygoliathshop() end
-            task.wait(0.05)
-        end
-    end)
-end)
-
-
-Tabs.Shop:AddToggle("OpenGoliathShop", {Title="Open Goliath Shop", Default=config.OpenGoliathShop}):OnChanged(function(Value)
-    config.OpenGoliathShop = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.OpenGoliathShop.Value do
-            lp.PlayerGui.EventShop_UI.Enabled = true
-            task.wait(1)
-        end
-        lp.PlayerGui.EventShop_UI.Enabled = false
-    end)
-end)
-
---[[ --- FARM --- ]]--
-
-Tabs.Farm:AddParagraph({
-    Title = "Automatic Plant Seeds",
-    Content = "Auto Plant"
-})
-
-
-Tabs.Farm:AddDropdown("Select Seed To Plant", {Title="Select Seed", Values=Seeds, Multi=true, Default=config.SeedToPlant}):OnChanged(function(Value)
-    Seedtoplant = {}
-    for val, _ in pairs(Value) do
-        table.insert(Seedtoplant, val)
-    end
-    config.SeedToPlant = Value
-    SaveConfig()
-end)
-Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"Player Position", "Random"}, Multi=false, Default=config.TypePlant}):OnChanged(function(Value)
-    config.TypePlant = Value
-    SaveConfig()
-end)
-Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
-    config.AutoPlant = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.AutoPlant.Value do
-            if config.TypePlant == "Player Position" then autoplant()
-            else autoplantrandom() end
+        while true do
+            if config[autoBuyKey] then
+                for _, item in ipairs(selectedItems) do remoteEvent:FireServer(item) end
+            end
             task.wait(0.1)
         end
     end)
-end)
 
-Tabs.Farm:AddParagraph({
-    Title = "Automatic Harvest Fruits",
-    Content = "Auto Harvest"
-})
-
-
-Tabs.Farm:AddDropdown("Chon Fruit", {Title="Select Fruit To Harvest", Values=Seeds, Multi=true, Default=config.FruitsToHarvest}):OnChanged(function(Value)
-    fruitharvest = {}
-    for val,_ in pairs(Value) do table.insert(fruitharvest,val) end
-    config.FruitsToHarvest = Value
-    SaveConfig()
-end)
-Tabs.Farm:AddInput("DelayHarvest", {Title="Delay Harvest (seconds)", Default=tostring(config.DelayHarvest), Numeric=true, Finished=true, Callback=function(Value)
-    local num = tonumber(Value)
-    if num then
-        DelayHarvestValue = num
-        config.DelayHarvest = num
+    tab:AddToggle(autoBuyAllKey, {Title = "Auto Buy All " .. title, Default = config[autoBuyAllKey]}):OnChanged(function(value)
+        config[autoBuyAllKey] = value
         SaveConfig()
-    end
-end})
-Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(Value)
-    config.AutoHarvest = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.AutoHarvest.Value do
-            AutoCollect()
-            task.wait(0.02)
-        end
     end)
-end)
-
-
-Tabs.Farm:AddParagraph({
-    Title = "Automatic Sell Fruits",
-    Content = "Auto Sell"
-})
-
-
-Tabs.Farm:AddDropdown("Select Fruit", {Title="Select Fruit", Values=Seeds, Multi=true, Default=config.FruitsToSell}):OnChanged(function(Value)
-    fruitdachon = {}
-    for val,_ in pairs(Value) do table.insert(fruitdachon,val) end
-    config.FruitsToSell = Value
-    SaveConfig()
-end)
-Tabs.Farm:AddInput("DelaySell", {Title="Delay Sell (seconds)", Default=tostring(config.DelaySell), Numeric=true, Finished=true, Callback=function(Value)
-    local num = tonumber(Value)
-    if num then
-        delaySellValue = num
-        config.DelaySell = num
-        SaveConfig()
-    end
-end})
-Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.AutoSellFruit}):OnChanged(function(Value)
-    config.AutoSellFruit = Value
-    SaveConfig()
-    autosellfruit_running = Value
     task.spawn(function()
-        while autosellfruit_running do
-            local shouldSell = Options.AutoSellFruit.Value and (Options.AutoSellWhenMax.Value and isInventoryFull() or true)
-            if shouldSell then
-                autosellfruit()
-                task.wait(delaySellValue)
-            else
-                task.wait(0.1)
+        while true do
+            if config[autoBuyAllKey] then
+                for _, item in ipairs(items) do remoteEvent:FireServer(item); task.wait() end
             end
+            task.wait(0.1)
         end
     end)
-end)
-Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", Default=config.AutoSellWhenMax}):OnChanged(function(Value)
-    config.AutoSellWhenMax = Value
+end
+
+--[[ --- SHOP TAB --- ]]
+CreateShopSection(Tabs.Shop, {
+    Title = "Seed", Items = GameData.Seeds, SelectedKey = "Seeds", AutoBuyKey = "AutoBuySeed",
+    AutoBuyAllKey = "AutoBuyAllSeed", RemoteEvent = ReplicatedStorage.GameEvents.BuySeedStock
+})
+CreateShopSection(Tabs.Shop, {
+    Title = "Gear", Items = GameData.Gears, SelectedKey = "Gears", AutoBuyKey = "AutoBuyGear",
+    AutoBuyAllKey = "AutoBuyAllGear", RemoteEvent = ReplicatedStorage.GameEvents.BuyGearStock
+})
+CreateShopSection(Tabs.Shop, {
+    Title = "Egg", Items = GameData.Eggs, SelectedKey = "Eggs", AutoBuyKey = "AutoBuyEgg",
+    AutoBuyAllKey = "AutoBuyAllEgg", RemoteEvent = ReplicatedStorage.GameEvents.BuyPetEgg
+})
+CreateShopSection(Tabs.Shop, {
+    Title = "Item", Items = GameData.Goliathshop, SelectedKey = "Items", AutoBuyKey = "AutoBuyItem",
+    AutoBuyAllKey = "AutoBuyAllItem", RemoteEvent = ReplicatedStorage.GameEvents.BuyEventShopStock
+})
+Tabs.Shop:AddToggle("OpenGoliathShop", {Title="Open Goliath Shop", Default=config.OpenGoliathShop}):OnChanged(function(v) config.OpenGoliathShop = v; SaveConfig(); lp.PlayerGui.EventShop_UI.Enabled = v end)
+
+--[[ --- FARM TAB --- ]]
+Tabs.Farm:AddParagraph({ Title = "Automatic Plant Seeds" })
+Tabs.Farm:AddDropdown("Select Seed To Plant", {Title="Select Seed", Values=GameData.Seeds, Multi=true, Default=config.SeedToPlant}):OnChanged(function(v) config.SeedToPlant = v; SaveConfig() end)
+Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"Random", "Saved Position"}, Multi=false, Default=config.TypePlant}):OnChanged(function(v) config.TypePlant = v; SaveConfig() end)
+local savedPosParagraph = Tabs.Farm:AddParagraph({ Title = "Saved Position", Content = config.PlayerPosition or "None" })
+Tabs.Farm:AddButton({ Title = "Save Position", Callback = function()
+    config.PlayerPosition = tostring(hrp.Position)
+    savedPosParagraph:SetDesc(config.PlayerPosition)
     SaveConfig()
+end})
+Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(v) config.AutoPlant = v; SaveConfig() end)
+
+Tabs.Farm:AddParagraph({ Title = "Automatic Harvest Fruits" })
+Tabs.Farm:AddDropdown("Select Fruit To Harvest", {Title="Select Fruit To Harvest", Values=GameData.Seeds, Multi=true, Default=config.FruitsToHarvest}):OnChanged(function(v) config.FruitsToHarvest = {}; for val,_ in pairs(v) do table.insert(config.FruitsToHarvest, val) end; SaveConfig() end)
+Tabs.Farm:AddInput("DelayHarvest", {Title="Delay Harvest (s)", Default=tostring(config.DelayHarvest), Numeric=true, Finished=true, Callback=function(v) config.DelayHarvest = tonumber(v) or 0.2; SaveConfig() end})
+Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(v) config.AutoHarvest = v; SaveConfig() end)
+
+Tabs.Farm:AddParagraph({ Title = "Automatic Sell Fruits" })
+Tabs.Farm:AddDropdown("Select Fruit", {Title="Select Fruit", Values=GameData.Seeds, Multi=true, Default=config.FruitsToSell}):OnChanged(function(v) config.FruitsToSell = {}; for val,_ in pairs(v) do table.insert(config.FruitsToSell,val) end; SaveConfig() end)
+Tabs.Farm:AddInput("DelaySell", {Title="Delay Sell (s)", Default=tostring(config.DelaySell), Numeric=true, Finished=true, Callback=function(v) config.DelaySell = tonumber(v) or 0.2; SaveConfig() end})
+Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.AutoSellFruit}):OnChanged(function(v) config.AutoSellFruit = v; SaveConfig() end)
+Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Sell only when inventory is full", Default=config.AutoSellWhenMax}):OnChanged(function(v) config.AutoSellWhenMax = v; SaveConfig() end)
+
+--[[ --- PLAYER TAB --- ]]
+Tabs.Player:AddInput("Speed", {Title="Speed", Default=tostring(config.SpeedValue), Numeric=true, Finished=true, Callback=function(v)
+    config.SpeedValue = tonumber(v) or 20; SaveConfig(); if config.Speed then humanoid.WalkSpeed = config.SpeedValue end
+end})
+Tabs.Player:AddToggle("SpeedToggle", {Title="Speed", Default=config.Speed}):OnChanged(function(v)
+    config.Speed = v; SaveConfig(); humanoid.WalkSpeed = v and config.SpeedValue or 20
+end)
+Tabs.Player:AddToggle("InfinityJump", {Title="Infinity Jump", Default=config.InfinityJump}):OnChanged(function(v) config.InfinityJump = v; SaveConfig() end)
+local noclipConnection
+Tabs.Player:AddToggle("NoClip", {Title="No Clip", Default=config.NoClip}):OnChanged(function(v)
+    config.NoClip = v; SaveConfig()
+    if v and not noclipConnection then
+        noclipConnection = RunService.Stepped:Connect(function()
+            for _, part in ipairs(character:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = false end end
+        end)
+    elseif not v and noclipConnection then
+        noclipConnection:Disconnect(); noclipConnection = nil
+    end
+end)
+Tabs.Player:AddButton({ Title = "Destroy Other Farms", Description = "Improve FPS", Callback = function() for _, farm in ipairs(workspace.Farm:GetChildren()) do if farm ~= GetMyFarm() then farm:Destroy() end end end})
+Tabs.Player:AddButton({ Title = "Destroy Fences", Description = "Improve FPS", Callback = function() local myFarm = GetMyFarm() if myFarm then for _, child in ipairs(myFarm:GetDescendants()) do if child.Name == "Fences" then child:Destroy() end end end end})
+
+--[[ --- BACKGROUND LOOPS --- ]]
+-- Infinity Jump Handler
+UserInputService.JumpRequest:Connect(function()
+    if config.InfinityJump then humanoid:ChangeState(Enum.HumanoidStateType.Jumping) end
 end)
 
---[[ --- PLAYER --- ]]--
-Tabs.Player:AddInput("Speed", {Title="Speed", Default=tostring(config.SpeedValue), Numeric=true, Finished=true, Callback=function(Value)
-    local num = tonumber(Value)
-    if num then
-        speedchange = num
-        config.SpeedValue = num
-        SaveConfig()
-        if config.Speed then humanoid.WalkSpeed = speedchange end
+--- CÁC VÒNG LẶP TỰ ĐỘNG ĐÃ ĐƯỢC CHUẨN HÓA ---
+task.spawn(function()
+    while true do
+        if config.AutoHarvest and not isHarvesting then
+            isHarvesting = true
+            pcall(AutoCollect)
+            isHarvesting = false
+        end
+        task.wait(0.1)
     end
-end})
-Tabs.Player:AddToggle("SpeedToggle", {Title="Speed", Default=config.Speed}):OnChanged(function(Value)
-    config.Speed = Value
-    SaveConfig()
-    humanoid.WalkSpeed = Value and speedchange or 20
 end)
-Tabs.Player:AddToggle("InfinityJump", {Title="Infinity Jump", Default=config.InfinityJump}):OnChanged(function(Value)
-    config.InfinityJump = Value
-    SaveConfig()
-    infinityJumpEnabled = Value
-end)
-Tabs.Player:AddToggle("NoClip", {Title="No Clip", Default=config.NoClip}):OnChanged(function(Value)
-    config.NoClip = Value
-    SaveConfig()
-    if Value then
-        connection = RunService.Stepped:Connect(function()
-            local character1 = lp.Character
-            if character1 then
-                for _, part in pairs(character1:GetDescendants()) do
-                    if part:IsA("BasePart") then part.CanCollide = false end
+
+task.spawn(function()
+    while true do
+        if config.AutoPlant then
+            local myFarm = GetMyFarm()
+            if myFarm then
+                local plantLocations = myFarm.Important:FindFirstChild("Plant_Locations")
+                if plantLocations then
+                    for _, seedName in pairs(config.SeedToPlant) do
+                        local tool = EquipTool(seedName)
+                        if tool then
+                            if config.TypePlant == "Saved Position" and config.PlayerPosition then
+                                local pos = Vector3.new(config.PlayerPosition:match("([^,]+), ([^,]+), ([^,]+)"))
+                                ReplicatedStorage.GameEvents.Plant_RE:FireServer(pos, seedName)
+                            else -- Random
+                                local slots = plantLocations:GetChildren()
+                                local randomSlot = slots[math.random(#slots)]
+                                if randomSlot.Name == "Can_Plant" then
+                                    local randomPoint = (randomSlot.CFrame * CFrame.new((math.random() - 0.5) * randomSlot.Size.X, 0, (math.random() - 0.5) * randomSlot.Size.Z)).Position
+                                    ReplicatedStorage.GameEvents.Plant_RE:FireServer(randomPoint, seedName)
+                                end
+                            end
+                            task.wait(0.1)
+                        end
+                    end
                 end
             end
-        end)
-    else
-        if connection then connection:Disconnect() connection = nil end
+        end
+        task.wait(0.1)
     end
 end)
 
--- Infinity Jump
-UserInputService.JumpRequest:Connect(function()
-    if infinityJumpEnabled then
-        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+task.spawn(function()
+    while true do
+        local isInventoryFull = #backpack:GetChildren() >= 200
+        if config.AutoSellFruit and (not config.AutoSellWhenMax or isInventoryFull) then
+            local originalCFrame = hrp.CFrame
+            hrp.CFrame = sellFruitLocation
+            for _, tool in ipairs(backpack:GetChildren()) do
+                if not config.AutoSellFruit then break end -- Stop if toggled off mid-sell
+                if table.find(config.FruitsToSell, tool.Name:gsub(" Seed", "")) then
+                    humanoid:EquipTool(tool)
+                    ReplicatedStorage.GameEvents.Sell_Item:FireServer()
+                    task.wait(config.DelaySell)
+                end
+            end
+            hrp.CFrame = originalCFrame
+        end
+        task.wait(0.5) -- Check to sell every 0.5s
     end
-end)
-
-
-Tabs.Player:AddButton({
-    Title = "Destroy Other Farm",
-    Description = "Improve Fps",
-    Callback = function()
-    destroyOtherFarms()
-end})
-
-
-
-Tabs.Player:AddButton({
-    Title = "Destroy Hang Rao",
-    Description = "Improve Fps",
-    Callback = function()
-    destroyHangRao()
-end})
-
-
-
-
-
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local ImageLabel = Instance.new("ImageLabel")
-local UICorner = Instance.new("UICorner")
-local TextButton = Instance.new("TextButton")
-
-ScreenGui.Parent = game:GetService("CoreGui")  
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-Frame.Parent = ScreenGui
-Frame.AnchorPoint = Vector2.new(0.1, 0.1)
-Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Frame.BackgroundTransparency = 0
-Frame.BorderColor3 = Color3.fromRGB(27, 42, 53)
-Frame.BorderSizePixel = 1
-Frame.Position = UDim2.new(0, 20, 0.1, -6)  
-Frame.Size = UDim2.new(0, 50, 0, 50)
-Frame.Name = "dut dit"
-
-ImageLabel.Parent = Frame
-ImageLabel.Name = "Banana Test"
-ImageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-ImageLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-ImageLabel.Size = UDim2.new(0, 40, 0, 40)
-ImageLabel.BackgroundColor3 = Color3.fromRGB(163, 162, 165)
-ImageLabel.BackgroundTransparency = 1
-ImageLabel.BorderSizePixel = 1
-ImageLabel.BorderColor3 = Color3.fromRGB(27, 42, 53)
-ImageLabel.ImageColor3 = Color3.fromRGB(255, 255, 255)
-ImageLabel.Image = "http://www.roblox.com/asset/?id=5009915795"
-
-UICorner.CornerRadius = UDim.new(1, 0)
-UICorner.Parent = Frame
-
-TextButton.Name = "TextButton"
-TextButton.Parent = Frame
-TextButton.AnchorPoint = Vector2.new(0, 0)
-TextButton.Position = UDim2.new(0, 0, 0, 0)
-TextButton.Size = UDim2.new(1, 0, 1, 0)
-TextButton.BackgroundColor3 = Color3.fromRGB(163, 162, 165)
-TextButton.BackgroundTransparency = 1
-TextButton.BorderSizePixel = 1
-TextButton.BorderColor3 = Color3.fromRGB(27, 42, 53)
-TextButton.TextColor3 = Color3.fromRGB(27, 42, 53)
-TextButton.Text = ""
-TextButton.Font = Enum.Font.SourceSans
-TextButton.TextSize = 8
-TextButton.TextTransparency = 0
-
-local TweenService = game:GetService("TweenService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-
-local zoomedIn = false
-local originalSize = UDim2.new(0, 40, 0, 40)
-local zoomedSize = UDim2.new(0, 30, 0, 30)
-local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-local faded = false
-local fadeInTween = TweenService:Create(Frame, tweenInfo, {BackgroundTransparency = 0.25})
-local fadeOutTween = TweenService:Create(Frame, tweenInfo, {BackgroundTransparency = 0})
-
-TextButton.MouseButton1Down:Connect(function()
-
-    if zoomedIn then
-        TweenService:Create(ImageLabel, tweenInfo, {Size = originalSize}):Play()
-    else
-        TweenService:Create(ImageLabel, tweenInfo, {Size = zoomedSize}):Play()
-    end
-    zoomedIn = not zoomedIn
-
-    if faded then
-        fadeOutTween:Play()
-    else
-        fadeInTween:Play()
-    end
-    faded = not faded
-
-    VirtualInputManager:SendKeyEvent(true, "LeftControl", false, game)
 end)
