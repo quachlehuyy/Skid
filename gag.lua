@@ -489,7 +489,7 @@ Tabs.Farm:AddButton({
 end})
 
 
-Tabs.Farm:AddParagraph({
+local savedParagraph = Tabs.Farm:AddParagraph({
     Title = "Saved Position",
     Content = formatCFrame(config.PlayerPosition)
 })
