@@ -258,7 +258,7 @@ local function autoplant()
         if tool and config.PlayerPosition then
             local x, y, z = config.PlayerPosition:match("([^,]+), ([^,]+), ([^,]+)")
             local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z)) -- thêm dòng này
-            hrp.CFrame = CFrame.new(psplant
+            hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
             ReplicatedStorage.GameEvents.Plant_RE:FireServer(psplant, seed)
         end
@@ -309,10 +309,6 @@ local function destroyHangRao()
 end
 
 
-local function formatCFrame(cframeTable)
-    if not cframeTable then return "Chưa lưu" end
-    return string.format("X=%.1f | Y=%.1f | Z=%.1f", cframeTable[1], cframeTable[2], cframeTable[3])
-end
 
 
 
