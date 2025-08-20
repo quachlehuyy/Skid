@@ -256,10 +256,10 @@ local function autoplant()
             tool = EquipTool(seed)
         end
         if tool and config.PlayerPosition then
-            local cfplant = CFrame.new(unpack(config.PlayerPosition))
-            hrp.CFrame = cfplant
+            local psplant = Vector3.new(unpack(config.PlayerPosition))
+            hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
-            ReplicatedStorage.GameEvents.Plant_RE:FireServer(cfplant, seed)
+            ReplicatedStorage.GameEvents.Plant_RE:FireServer(psplant, seed)
         end
     end
 end
@@ -478,20 +478,25 @@ Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"
     SaveConfig()
 end)
 
+local savedParagraph
+
 Tabs.Farm:AddButton({
     Title = "Save Position",
     Description = "",
     Callback = function()
-    local cfplant = hrp.CFrame
-    config.PlayerPosition = {cfplant:GetComponents()}
+    local psplant = hrp.Position
+    config.PlayerPosition = {hrp.Position.X, hrp.Position.Y, hrp.Position.Z}
     SaveConfig()
-    savedParagraph:SetDesc(formatCFrame(config.PlayerPosition))
+    savedParagraph:Set({
+            Title = "Saved Position",
+            Content = string.format("X: %.2f, Y: %.2f, Z: %.2f", unpack(config.PlayerPosition))
+        })
 end})
 
 
-local savedParagraph = Tabs.Farm:AddParagraph({
+savedParagraph = Tabs.Farm:AddParagraph({
     Title = "Saved Position",
-    Content = formatCFrame(config.PlayerPosition)
+    Content = "nil"
 })
 
 
