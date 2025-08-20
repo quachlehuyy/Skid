@@ -83,6 +83,7 @@ local sellfruit = CFrame.new(86.5854721, 2.76619363, 0.426784277, 0, 0, -1, 0, 1
 local speedchange = config.SpeedValue
 local infinityJumpEnabled = config.InfinityJump
 local connection
+local isHarvesting = false
 
 -- Helper functions
 local function isInventoryFull()
@@ -206,19 +207,35 @@ end
 
 local function AutoCollect()
     local myfarm = GetMyFarm()
-    if myfarm then
-        local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
-        if not config.AutoHarvest then return end
-        for _, item in ipairs(fruitharvest) do
-            for _, plant in ipairs(plantsPhysical:GetDescendants()) do
-                if plant.Name == item then
-                    local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
-                    if prompt and prompt.Enabled then
-                        if not config.AutoHarvest then return end
-                        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
-                        task.wait(DelayHarvestValue)
-                    end
-                end
+    if not myfarm then return end
+
+    local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
+    if not plantsPhysical then return end
+
+    -- Lấy danh sách cây một lần duy nhất
+    local allPlants = plantsPhysical:GetDescendants()
+
+    for _, plant in ipairs(allPlants) do
+        -- KIỂM TRA 1: Nếu người dùng tắt toggle thì DỪNG NGAY LẬP TỨC
+        if not config.AutoHarvest then
+            print("Auto-Harvest stopped by user.")
+            return -- Thoát khỏi hàm
+        end
+
+        local isTargetPlant = false
+        for _, fruitName in ipairs(fruitharvest) do
+            if plant.Name == fruitName then
+                isTargetPlant = true
+                break
+            end
+        end
+
+        if isTargetPlant then
+            local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+            if prompt and prompt.Enabled then
+                ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
+                -- Đợi một chút SAU KHI gửi yêu cầu để server có thời gian xử lý
+                task.wait(DelayHarvestValue)
             end
         end
     end
@@ -539,10 +556,17 @@ Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHar
     config.AutoHarvest = Value
     SaveConfig()
 end)
+
 task.spawn(function()
     while true do
-        if config.AutoHarvest then
-            AutoCollect()
+        -- THÊM KIỂM TRA: Chỉ chạy khi toggle BẬT và đang KHÔNG thu hoạch
+        if config.AutoHarvest and not isHarvesting then
+            isHarvesting = true -- Khóa lại, báo hiệu đang thu hoạch
+            -- Dùng pcall để đảm bảo isHarvesting luôn được trả về false nếu có lỗi
+            pcall(function()
+                AutoCollect()
+            end)
+            isHarvesting = false -- Mở khóa khi thu hoạch xong hoặc bị dừng
         end
         task.wait(0.1)
     end
