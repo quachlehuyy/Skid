@@ -477,7 +477,10 @@ Tabs.Farm:AddParagraph({
 
 Tabs.Farm:AddDropdown("Chon Fruit", {Title="Select Fruit To Harvest", Values=Seeds, Multi=true, Default=config.FruitsToHarvest}):OnChanged(function(Value)
     fruitharvest = {}
-    for val,_ in pairs(Value) do table.insert(fruitharvest,val) table.insert(config.FruitsToHarvest,val) end
+    for val,_ in pairs(Value) do 
+        table.insert(fruitharvest,val) 
+    end
+    config.FruitsToHarvest = Value
     SaveConfig()
 end)
 Tabs.Farm:AddInput("DelayHarvest", {Title="Delay Harvest (seconds)", Default=tostring(config.DelayHarvest), Numeric=true, Finished=true, Callback=function(Value)
