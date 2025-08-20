@@ -533,7 +533,6 @@ Tabs.Farm:AddInput("DelayHarvest", {Title="Delay Harvest (seconds)", Default=tos
 end})
 
 
-local harvesteb = false
 Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(Value)
     config.AutoHarvest = Value
     SaveConfig()
