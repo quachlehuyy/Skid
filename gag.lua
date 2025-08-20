@@ -535,15 +535,12 @@ end})
 Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(Value)
     config.AutoHarvest = Value
     SaveConfig()
-end)
-
-task.spawn(function()
-    while true do
-        if Options.AutoHarvest.Value then
+    task.spawn(function()
+        while Options.AutoHarvest.Value do
             AutoCollect()
+            task.wait(0.1)
         end
-        task.wait(0.1)
-    end
+    end)
 end)
 
 
