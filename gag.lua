@@ -128,7 +128,7 @@ local function buyseed()
 end
 
 local function buyallseed()
-    for _, seed in ipairs(Seeds) do
+    for _, seed in ipairs(allseed) do
         if seed ~= "All" then
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
         end
@@ -308,6 +308,9 @@ Tabs.Shop:AddDropdown("Select Seed", {Title="Select Seed", Values=Seeds, Multi=t
         table.insert(seeddachon, val)
         table.insert(config.Seeds, val)
     end
+    for val, _ in pairs(Value) do
+        table.insert(allseed, val)
+    end
     SaveConfig()
 end)
 Tabs.Shop:AddToggle("AutoBuySeed", {Title="Auto Buy Seed", Default=config.AutoBuySeed}):OnChanged(function(Value)
@@ -325,7 +328,7 @@ Tabs.Shop:AddToggle("AutoBuyAllSeed", {Title="Auto Buy All Seed", Default=config
     SaveConfig()
     task.spawn(function()
         while Options.AutoBuyAllSeed.Value do
-            if seeddachon and #seeddachon > 0 then buyallseed() end
+            if allseed then buyallseed() end
             task.wait(0.05)
         end
     end)
