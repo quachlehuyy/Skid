@@ -481,6 +481,10 @@ Tabs.Farm:AddButton({
     SaveConfig()
 end})
 
+Tabs.Farm:AddParagraph({
+    Title = "Saved Position",
+    Content = config.PlayerPosition
+})
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
     config.AutoPlant = Value
