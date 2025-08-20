@@ -487,7 +487,7 @@ Tabs.Farm:AddButton({
     local psplant = hrp.Position
     config.PlayerPosition = {hrp.Position.X, hrp.Position.Y, hrp.Position.Z}
     SaveConfig()
-    savedParagraph:Set({
+    savedParagraph:SetDesc({
             Title = "Saved Position",
             Content = string.format("X: %.2f, Y: %.2f, Z: %.2f", unpack(config.PlayerPosition))
         })
