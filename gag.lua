@@ -287,7 +287,7 @@ local Window = Fluent:CreateWindow({
     Title = "GAG Script",
     SubTitle = "by quachlehuy",
     TabWidth = 160,
-    Size = UDim2.fromOffset(400, 450),
+    Size = UDim2.fromOffset(500, 330),
     Acrylic = true, 
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
@@ -304,6 +304,7 @@ local Options = Fluent.Options
 Tabs.Shop:AddDropdown("Select Seed", {Title="Select Seed", Values=Seeds, Multi=true, Default=config.Seeds}):OnChanged(function(Value)
     seeddachon = {}
     SeedToBuy = {}
+    allseed = {}
     for val, _ in pairs(Value) do
         table.insert(seeddachon, val)
         table.insert(config.Seeds, val)
@@ -328,7 +329,7 @@ Tabs.Shop:AddToggle("AutoBuyAllSeed", {Title="Auto Buy All Seed", Default=config
     SaveConfig()
     task.spawn(function()
         while Options.AutoBuyAllSeed.Value do
-            if allseed then buyallseed() end
+            buyallseed()
             task.wait(0.05)
         end
     end)
