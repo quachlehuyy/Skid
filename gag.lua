@@ -492,7 +492,7 @@ end})
 
 savedParagraph = Tabs.Farm:AddParagraph({
     Title = "Saved Position",
-    Content = "nil"
+    Content = config.PlayerPosition or "nil"
 })
 
 
