@@ -529,16 +529,20 @@ Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.Au
     autosellfruit_running = Value
     task.spawn(function()
         while autosellfruit_running do
-            local shouldSell = Options.AutoSellFruit.Value and (Options.AutoSellWhenMax.Value and isInventoryFull() or true)
-            if shouldSell then
-                autosellfruit()
-                task.wait(delaySellValue)
-            else
-                task.wait(0.1)
+            if Options.AutoSellFruit.Value then
+                local shouldSell = true
+                if Options.AutoSellWhenMax.Value then
+                    shouldSell = isInventoryFull()
+                end
+                if shouldSell then
+                    autosellfruit()
+                end
             end
+            task.wait(delaySellValue)
         end
     end)
 end)
+
 Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", Default=config.AutoSellWhenMax}):OnChanged(function(Value)
     config.AutoSellWhenMax = Value
     SaveConfig()
