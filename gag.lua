@@ -204,9 +204,13 @@ local function sellallinventory()
 end
 
 
-local harvestSet = {}
-for _, item in ipairs(fruitharvest) do
-    harvestSet[item] = true
+local function IsHarvestTarget(name)
+    for _, fruit in ipairs(fruitharvest) do
+        if string.find(name, fruit) then
+            return true
+        end
+    end
+    return false
 end
 
 local function AutoCollect()
@@ -214,7 +218,7 @@ local function AutoCollect()
     if myfarm then
         local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
         for _, plant in ipairs(plantsPhysical:GetDescendants()) do
-            if harvestSet[plant.Name] then
+            if IsHarvestTarget(plant.Name) then
                 local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                 if prompt and prompt.Enabled then
                     ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
