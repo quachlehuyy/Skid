@@ -45,7 +45,6 @@ local config = {
     AutoSellInventory = false,
     OpenGardenGui = false,
     OpenGoliathShop = false,
-    UseSavePs = false,
 }
 
 -- Save & Load Config
@@ -468,7 +467,7 @@ Tabs.Farm:AddDropdown("Select Seed To Plant", {Title="Select Seed", Values=Seeds
     config.SeedToPlant = Value
     SaveConfig()
 end)
-Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"Player Position", "Random"}, Multi=false, Default=config.TypePlant}):OnChanged(function(Value)
+Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"Save Position", "Random"}, Multi=false, Default=config.TypePlant}):OnChanged(function(Value)
     config.TypePlant = Value
     SaveConfig()
 end)
@@ -482,17 +481,13 @@ Tabs.Farm:AddButton({
     SaveConfig()
 end})
 
-Tabs.Farm:AddToggle("UseSavePs", {Title="Use Save Position", Default=config.UseSavePs}):OnChanged(function(Value)
-    config.UseSavePs = Value
-    SaveConfig()
-end)
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
     config.AutoPlant = Value
     SaveConfig()
     task.spawn(function()
         while Options.AutoPlant.Value do
-            if config.TypePlant == "Player Position" then autoplant()
+            if config.TypePlant == "Save Position" then autoplant()
             else autoplantrandom() end
             task.wait(0.1)
         end
