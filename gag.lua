@@ -45,6 +45,7 @@ local config = {
     AutoSellInventory = false,
     OpenGardenGui = false,
     OpenGoliathShop = false,
+    UseSavePs = false,
 }
 
 -- Save & Load Config
@@ -256,7 +257,8 @@ local function autoplant()
             tool = EquipTool(seed)
         end
         if tool then
-            ReplicatedStorage.GameEvents.Plant_RE:FireServer(hrp.Position, seed)
+            hrp.Position = ps
+            ReplicatedStorage.GameEvents.Plant_RE:FireServer(ps, seed)
         end
     end
 end
@@ -479,6 +481,11 @@ Tabs.Farm:AddButton({
     config.PlayerPosition = ps
     SaveConfig()
 end})
+
+Tabs.Farm:AddToggle("UseSavePs", {Title="Use Save Position", Default=config.UseSavePs}):OnChanged(function(Value)
+    config.UseSavePs = Value
+    SaveConfig()
+end)
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
     config.AutoPlant = Value
