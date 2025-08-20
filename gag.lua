@@ -114,10 +114,10 @@ local function EquipTool(seed)
     local currentTool = lp.Character:FindFirstChildWhichIsA("Tool")
     if currentTool then
         lp.Character.Humanoid:UnequipTools()
-        task.wait(0.2)
+        task.wait(0.1)
     end
     lp.Character.Humanoid:EquipTool(tool)
-    task.wait(0.2)
+    task.wait(0.1)
     return tool
 end
 
@@ -131,7 +131,7 @@ end
 local function buyallseed()
     for _, seed in ipairs(Seeds) do
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
-        task.wait(0.05)
+        task.wait(0.01)
     end
 end
 
@@ -144,7 +144,7 @@ end
 local function buyallgear()
     for _, gear in ipairs(Gears) do
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock"):FireServer(gear)
-        task.wait(0.05)
+        task.wait(0.01)
     end
 end
 
@@ -157,7 +157,7 @@ end
 local function buyallegg()
     for _, egg in ipairs(Eggs) do
         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyPetEgg"):FireServer(egg)
-        task.wait(0.05)
+        task.wait(0.01)
     end
 end
 
