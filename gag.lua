@@ -308,6 +308,10 @@ local function destroyHangRao()
 end
 
 
+local function formatCFrame(cframeTable)
+    if not cframeTable then return "Chưa lưu" end
+    return string.format("X=%.1f | Y=%.1f | Z=%.1f", cframeTable[1], cframeTable[2], cframeTable[3])
+end
 
 
 
