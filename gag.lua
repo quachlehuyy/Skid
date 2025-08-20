@@ -41,6 +41,7 @@ local config = {
     AutoHarvest = false,
     AutoSellFruit = false,
     AutoSellWhenMax = false,
+    AutoSellInventory = false,
     OpenGardenGui = false,
     OpenGoliathShop = false,
 }
@@ -190,6 +191,17 @@ local function autosellfruit()
     end
     hrp.CFrame = originalCFrame
 end
+
+
+local function sellallinventory()
+    if not isInventoryFull() then return end
+    local originalCFrame = hrp.CFrame
+    hrp.CFrame = sellfruit
+    ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
+    task.wait(0.2)
+    hrp.CFrame = originalCFrame
+end
+
 
 local function AutoCollect()
     local myfarm = GetMyFarm()
@@ -535,7 +547,11 @@ Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.Au
                     shouldSell = isInventoryFull()
                 end
                 if shouldSell then
-                    autosellfruit()
+                    if Options.AutoSellInventory.Value and isInventoryFull() then
+                        sellallinventory()
+                    else
+                        autosellfruit()
+                    end
                 end
             end
             task.wait(delaySellValue)
@@ -548,6 +564,13 @@ Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", De
     SaveConfig()
 end)
 
+Tabs.Farm:AddToggle("AutoSellInventory", {
+    Title = "Auto Sell Whole Inventory When Full",
+    Default = config.AutoSellInventory
+}):OnChanged(function(Value)
+    config.AutoSellInventory = Value
+    SaveConfig()
+end)
 --[[ --- PLAYER --- ]]--
 Tabs.Player:AddInput("Speed", {Title="Speed", Default=tostring(config.SpeedValue), Numeric=true, Finished=true, Callback=function(Value)
     local num = tonumber(Value)
