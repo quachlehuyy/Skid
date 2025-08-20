@@ -537,13 +537,16 @@ Tabs.Farm:AddInput("DelayHarvest", {Title="Delay Harvest (seconds)", Default=tos
         SaveConfig()
     end
 end})
+
 Tabs.Farm:AddToggle("AutoHarvest", {Title="Auto Harvest", Default=config.AutoHarvest}):OnChanged(function(Value)
     config.AutoHarvest = Value
     SaveConfig()
     task.spawn(function()
-        while Options.AutoHarvest.Value do
+        while true do
+            if Options.AutoHarvest.Value then
             AutoCollect()
-            task.wait(0.02)
+            end
+            task.wait(0.1)
         end
     end)
 end)
