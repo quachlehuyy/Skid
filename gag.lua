@@ -256,8 +256,8 @@ local function autoplant()
             tool = EquipTool(seed)
         end
         if tool and config.PlayerPosition then
-            local psplant = Vector3.new(unpack(config.PlayerPosition))
-            hrp.CFrame = CFrame.new(psplant)
+            local x, y, z = config.PlayerPosition:match("([^,]+), ([^,]+), ([^,]+)")
+            hrp.CFrame = CFrame.new(tonumber(x), tonumber(y), tonumber(z))
             task.wait(0.1)
             ReplicatedStorage.GameEvents.Plant_RE:FireServer(psplant, seed)
         end
@@ -485,13 +485,9 @@ Tabs.Farm:AddButton({
     Description = "",
     Callback = function()
     local psplant = hrp.Position
-    config.PlayerPosition = {hrp.Position.X, hrp.Position.Y, hrp.Position.Z}
+    config.PlayerPosition = tostring(hrp.Position)
     SaveConfig()
-    if config.PlayerPosition and #config.PlayerPosition == 3 then
-    savedParagraph:SetDesc(
-        string.format("X: %.2f, Y: %.2f, Z: %.2f", unpack(config.PlayerPosition))
-    )
-end
+    savedParagraph:SetDesc("Saved: " .. config.PlayerPosition)
 end})
 
 
