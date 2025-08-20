@@ -26,6 +26,7 @@ local config = {
     DelayHarvest = 0.2,
     Speed = false,
     SpeedValue = 20,
+    PlayerPosition = nil,
     InfinityJump = false,
     NoClip = false,
     AutoBuySeed = false,
@@ -469,6 +470,16 @@ Tabs.Farm:AddDropdown("Select Type Plant", {Title="Select Type Plant", Values={"
     config.TypePlant = Value
     SaveConfig()
 end)
+
+Tabs.Farm:AddButton({
+    Title = "Save Position",
+    Description = config.PlayerPosition,
+    Callback = function()
+    ps = hrp.Position
+    config.PlayerPosition = ps
+    SaveConfig()
+end})
+
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
     config.AutoPlant = Value
     SaveConfig()
