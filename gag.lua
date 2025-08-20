@@ -195,15 +195,14 @@ local function AutoCollect()
     local myfarm = GetMyFarm()
     if myfarm then
         local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
-        for _, plant in ipairs(plantsPhysical:GetChildren()) do
-            if table.find(config.FruitsToHarvest, plant.Name) then
-                local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
-                if prompt and prompt.Enabled then
-                    ReplicatedStorage:WaitForChild("GameEvents")
-                        :WaitForChild("Crops")
-                        :WaitForChild("Collect")
-                        :FireServer({plant})
-                    task.wait(config.DelayHarvest)
+        for _, item in ipairs(fruitharvest) do
+            for _, plant in ipairs(plantsPhysical:GetChildren()) do
+                if plant.Name == item then
+                    local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                    if prompt and prompt.Enabled then
+                        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
+                        task.wait(DelayHarvestValue)
+                    end
                 end
             end
         end
