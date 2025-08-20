@@ -214,6 +214,7 @@ local function AutoCollect()
                 if plant.Name == item then
                     local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                     if prompt and prompt.Enabled then
+                        if not config.AutoHarvest then return end
                         ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
                         task.wait(DelayHarvestValue)
                     end
