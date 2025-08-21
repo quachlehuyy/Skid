@@ -610,10 +610,10 @@ Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.Au
                         autosellfruit()
                     end
                 end
-            task.wait(delaySellValue)
-        end
-    end)
-end)
+                task.wait(delaySellValue)
+             end
+         end)
+     end)
 
 Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", Default=config.AutoSellWhenMax}):OnChanged(function(Value)
     config.AutoSellWhenMax = Value
