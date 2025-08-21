@@ -200,12 +200,13 @@ local function sellallinventory()
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
     ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
-    task.wait(0.2)
+    task.wait(0.5)
     hrp.CFrame = originalCFrame
 end
 
 
 local function AutoCollect()
+    if not config.AutoHarvest then return end
     local myfarm = GetMyFarm()
     if not myfarm then return end
 
@@ -218,24 +219,11 @@ local function AutoCollect()
     end
 
     for _, plant in ipairs(plantsPhysical:GetDescendants()) do
-        if not config.AutoHarvest then
-            return
-        end
-
+        if not config.AutoHarvest then break end
         if harvestSet[plant.Name] then
-        for _, fruitName in ipairs(fruitharvest) do
-            if plant.Name == fruitName then
-                isTargetPlant = true
-                break
-            end
-        end
-    end
-
-        if isTargetPlant then
             local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
             if prompt and prompt.Enabled then
-                ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Crops"):WaitForChild("Collect"):FireServer({plant})
-                -- Đợi một chút SAU KHI gửi yêu cầu để server có thời gian xử lý
+                ReplicatedStorage.GameEvents.Crops.Collect:FireServer({plant})
                 task.wait(DelayHarvestValue)
             end
         end
@@ -627,6 +615,7 @@ Tabs.Farm:AddToggle("AutoSellInventory", {
     config.AutoSellInventory = Value
     SaveConfig()
 end)
+
 --[[ --- PLAYER --- ]]--
 Tabs.Player:AddInput("Speed", {Title="Speed", Default=tostring(config.SpeedValue), Numeric=true, Finished=true, Callback=function(Value)
     local num = tonumber(Value)
