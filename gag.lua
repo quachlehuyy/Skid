@@ -199,9 +199,9 @@ local function sellallinventory()
     if not isInventoryFull() then return end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
-    task.wait(0.5)
+    task.wait(0.2)
     ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
-    task.wait(0.5)
+    task.wait(0.1)
     hrp.CFrame = originalCFrame
 end
 
