@@ -598,7 +598,7 @@ Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.Au
     autosellfruit_running = Value
     task.spawn(function()
         while autosellfruit_running do
-            if Options.AutoSellFruit.Value then
+            if not Options.AutoSellFruit.Value then break end
                 local shouldSell = true
                 if Options.AutoSellWhenMax.Value then
                     shouldSell = isInventoryFull()
