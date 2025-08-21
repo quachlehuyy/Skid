@@ -171,7 +171,7 @@ local function buygoliathshop()
 end
 
 local function autosellfruit()
-    if not autosellfruit_running then return end
+    if not config.AutoSellFruit then return end
     local originalCFrame = hrp.CFrame
     while true do
         local hasFruit = false
@@ -196,7 +196,7 @@ end
 
 
 local function sellallinventory()
-    if not isInventoryFull() then return end
+    if not isInventoryFull() and config.AutoSellFruit then return end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
     task.wait(0.2)
