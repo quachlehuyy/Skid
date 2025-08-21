@@ -21,7 +21,7 @@ local config = {
     Items = {},
     FruitsToHarvest = {},
     FruitsToSell = {},
-    TypePlant = "Player Position",
+    TypePlant = "Save Position",
     DelaySell = 0.2,
     DelayHarvest = 0.2,
     Speed = false,
@@ -31,12 +31,10 @@ local config = {
     NoClip = false,
     AutoBuySeed = false,
     AutoBuyAllSeed = false,
-    AutoBuyAllGear = false,
     AutoBuyAllEgg = false,
     AutoBuyGear = false,
     AutoBuyAllGear = false,
     AutoBuyEgg = false,
-    AutoBuyAllEgg = false,
     AutoBuyItem = false,
     AutoPlant = false,
     AutoHarvest = false,
@@ -173,8 +171,7 @@ end
 local function autosellfruit()
     if not config.AutoSellFruit then return end
     local originalCFrame = hrp.CFrame
-    while true do
-        if not config.AutoSellFruit then break end
+    while config.AutoSellFruit do
         local hasFruit = false
         for _, tool in pairs(backpack:GetChildren()) do
             for _, fruit in ipairs(fruitdachon) do
@@ -184,24 +181,25 @@ local function autosellfruit()
                     task.wait(0.1)
                     hrp.CFrame = sellfruit
                     task.wait(delaySellValue)
-                    ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Item"):FireServer()
+                    ReplicatedStorage.GameEvents.Sell_Item:FireServer()
                     break
                 end
             end
             if hasFruit then break end
         end
         if not hasFruit then break end
+        task.wait(0.1)
     end
     hrp.CFrame = originalCFrame
 end
 
 
 local function sellallinventory()
-    if not isInventoryFull() and config.AutoSellInventory then break end
+    if not isInventoryFull() and config.AutoSellInventory then return end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
     task.wait(0.2)
-    ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
+    ReplicatedStorage.GameEvents.Sell_Inventory:FireServer()
     task.wait(0.2)
     hrp.CFrame = originalCFrame
 end
@@ -527,7 +525,7 @@ Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant})
     task.spawn(function()
         while Options.AutoPlant.Value do
             if config.TypePlant == "Save Position" then autoplant()
-            else autoplantrandom() end
+            elseif config.TypePlant == "Random" then autoplantrandom() end
             task.wait(0.1)
         end
     end)
@@ -596,28 +594,27 @@ Tabs.Farm:AddInput("DelaySell", {Title="Delay Sell (seconds)", Default=tostring(
         SaveConfig()
     end
 end})
-Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.AutoSellFruit}):OnChanged(function(Value)
+Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.AutoSellFruit})
+:OnChanged(function(Value)
     config.AutoSellFruit = Value
     SaveConfig()
-    autosellfruit_running = Value
     task.spawn(function()
-        while autosellfruit_running do
-            if not Options.AutoSellFruit.Value then break end
-                local shouldSell = true
-                if Options.AutoSellWhenMax.Value then
-                    shouldSell = isInventoryFull()
+        while Options.AutoSellFruit.Value do
+            local shouldSell = true
+            if Options.AutoSellWhenMax.Value then shouldSell = isInventoryFull() end
+            if Options.AutoSellInventory.Value then
+                Options.AutoSellFruit:SetValue(false)
+                Options.AutoSellWhenMax:SetValue(false)
+                if Options.AutoSellInventory.Value and isInventoryFull() then
+                    sellallinventory()
                 end
-                if Options.AutoSellInventory.Value then
-                    Options.AutoSellFruit:SetValue(false)
-                    Options.AutoSellWhenMax:SetValue(false)
-                    if Options.AutoSellInventory.Value and isInventoryFull() then
-                        sellallinventory()
-                    end
-                end
-                task.wait(delaySellValue)
-             end
-         end)
-     end)
+            elseif shouldSell then
+                autosellfruit()
+            end
+            task.wait(delaySellValue)
+        end
+    end)
+end)
 
 Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", Default=config.AutoSellWhenMax}):OnChanged(function(Value)
     config.AutoSellWhenMax = Value
