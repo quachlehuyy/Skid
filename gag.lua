@@ -212,23 +212,24 @@ local function AutoCollect()
     local plantsPhysical = myfarm.Important:WaitForChild("Plants_Physical")
     if not plantsPhysical then return end
 
-    -- Lấy danh sách cây một lần duy nhất
-    local allPlants = plantsPhysical:GetDescendants()
+    local harvestSet = {}
+    for _, fruit in ipairs(fruitharvest) do
+        harvestSet[fruit] = true
+    end
 
-    for _, plant in ipairs(allPlants) do
-        -- KIỂM TRA 1: Nếu người dùng tắt toggle thì DỪNG NGAY LẬP TỨC
+    for _, plant in ipairs(plantsPhysical:GetDescendants()) do
         if not config.AutoHarvest then
-            print("Auto-Harvest stopped by user.")
-            return -- Thoát khỏi hàm
+            return
         end
 
-        local isTargetPlant = false
+        if harvestSet[plant.Name] then
         for _, fruitName in ipairs(fruitharvest) do
             if plant.Name == fruitName then
                 isTargetPlant = true
                 break
             end
         end
+    end
 
         if isTargetPlant then
             local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
@@ -542,6 +543,7 @@ Tabs.Farm:AddDropdown("Chon Fruit", {Title="Select Fruit To Harvest", Values=See
     config.FruitsToHarvest = Value
     SaveConfig()
 end)
+
 Tabs.Farm:AddInput("DelayHarvest", {Title="Delay Harvest (seconds)", Default=tostring(config.DelayHarvest), Numeric=true, Finished=true, Callback=function(Value)
     local num = tonumber(Value)
     if num then
@@ -559,14 +561,12 @@ end)
 
 task.spawn(function()
     while true do
-        -- THÊM KIỂM TRA: Chỉ chạy khi toggle BẬT và đang KHÔNG thu hoạch
         if config.AutoHarvest and not isHarvesting then
-            isHarvesting = true -- Khóa lại, báo hiệu đang thu hoạch
-            -- Dùng pcall để đảm bảo isHarvesting luôn được trả về false nếu có lỗi
+            isHarvesting = true
             pcall(function()
                 AutoCollect()
             end)
-            isHarvesting = false -- Mở khóa khi thu hoạch xong hoặc bị dừng
+            isHarvesting = false
         end
         task.wait(0.1)
     end
