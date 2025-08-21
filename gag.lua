@@ -610,7 +610,6 @@ Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.Au
                         autosellfruit()
                     end
                 end
-            end
             task.wait(delaySellValue)
         end
     end)
