@@ -199,9 +199,18 @@ local function sellallinventory()
     if not isInventoryFull() then return end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
+    task.wait(0.5)
     ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
     task.wait(0.5)
     hrp.CFrame = originalCFrame
+end
+
+
+local function shuffle(tbl)
+    for i = #tbl, 2, -1 do
+        local j = math.random(i)
+        tbl[i], tbl[j] = tbl[j], tbl[i]
+    end
 end
 
 
@@ -218,15 +227,21 @@ local function AutoCollect()
         harvestSet[fruit] = true
     end
 
+    local candidates = {}
     for _, plant in ipairs(plantsPhysical:GetDescendants()) do
-        if not config.AutoHarvest then break end
         if harvestSet[plant.Name] then
             local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
             if prompt and prompt.Enabled then
-                ReplicatedStorage.GameEvents.Crops.Collect:FireServer({plant})
-                task.wait(DelayHarvestValue)
+                table.insert(candidates, plant)
             end
         end
+    end
+
+
+    for _, plant in ipairs(candidates) do
+        if not config.AutoHarvest then break end
+        ReplicatedStorage.GameEvents.Crops.Collect:FireServer({plant})
+        task.wait(DelayHarvestValue)
     end
 end
 
