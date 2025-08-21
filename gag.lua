@@ -174,6 +174,7 @@ local function autosellfruit()
     if not config.AutoSellFruit then return end
     local originalCFrame = hrp.CFrame
     while true do
+        if not config.AutoSellFruit then break end
         local hasFruit = false
         for _, tool in pairs(backpack:GetChildren()) do
             for _, fruit in ipairs(fruitdachon) do
@@ -196,7 +197,7 @@ end
 
 
 local function sellallinventory()
-    if not isInventoryFull() and config.AutoSellFruit then return end
+    if not isInventoryFull() and config.AutoSellInventory then break end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
     task.wait(0.2)
@@ -606,11 +607,11 @@ Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.Au
                 if Options.AutoSellWhenMax.Value then
                     shouldSell = isInventoryFull()
                 end
-                if shouldSell then
+                if Options.AutoSellInventory.Value then
+                    Options.AutoSellFruit:SetValue(false)
+                    Options.AutoSellWhenMax:SetValue(false)
                     if Options.AutoSellInventory.Value and isInventoryFull() then
                         sellallinventory()
-                    else
-                        autosellfruit()
                     end
                 end
                 task.wait(delaySellValue)
@@ -624,7 +625,7 @@ Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", De
 end)
 
 Tabs.Farm:AddToggle("AutoSellInventory", {
-    Title = "Auto Sell Whole Inventory When Full",
+    Title = "Auto All Inventory When Full",
     Default = config.AutoSellInventory
 }):OnChanged(function(Value)
     config.AutoSellInventory = Value
