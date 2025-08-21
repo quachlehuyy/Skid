@@ -596,19 +596,16 @@ Tabs.Farm:AddInput("DelaySell", {Title="Delay Sell (seconds)", Default=tostring(
 end})
 Tabs.Farm:AddToggle("AutoSellFruit", {Title="Auto Sell Fruit", Default=config.AutoSellFruit})
 :OnChanged(function(Value)
+    if Options.AutoSellFruit.Value then
+        Options.AutoSellInventory:SetValue(false)
+    end
     config.AutoSellFruit = Value
     SaveConfig()
     task.spawn(function()
         while Options.AutoSellFruit.Value do
             local shouldSell = true
             if Options.AutoSellWhenMax.Value then shouldSell = isInventoryFull() end
-            if Options.AutoSellInventory.Value then
-                Options.AutoSellFruit:SetValue(false)
-                Options.AutoSellWhenMax:SetValue(false)
-                if Options.AutoSellInventory.Value and isInventoryFull() then
-                    sellallinventory()
-                end
-            elseif shouldSell then
+            if shouldSell then
                 autosellfruit()
             end
             task.wait(delaySellValue)
@@ -621,12 +618,21 @@ Tabs.Farm:AddToggle("AutoSellWhenMax", {Title="Auto Sell When Max Inventory", De
     SaveConfig()
 end)
 
-Tabs.Farm:AddToggle("AutoSellInventory", {
-    Title = "Auto All Inventory When Full",
-    Default = config.AutoSellInventory
-}):OnChanged(function(Value)
-    config.AutoSellInventory = Value
+Tabs.Farm:AddToggle("AutoSellInventory", {Title="Auto Sell Inventory", Default=config.AutoSellInventory})
+:OnChanged(function()
+    if Options.AutoSellInventory.Value then
+        Options.AutoSellFruit:SetValue(false)
+        Options.AutoSellWhenMax:SetValue(false)
+    end
+    
+    config.AutoSellInventory = Options.AutoSellInventory.Value
     SaveConfig()
+    task.spawn(function()
+        while Options.AutoSellInventory.Value do
+            sellallinventory()
+            task.wait(delaySellValue)
+        end
+    end)
 end)
 
 --[[ --- PLAYER --- ]]--
