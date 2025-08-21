@@ -201,7 +201,7 @@ local function sellallinventory()
     hrp.CFrame = sellfruit
     task.wait(0.2)
     ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Sell_Inventory"):FireServer()
-    task.wait(0.1)
+    task.wait(0.2)
     hrp.CFrame = originalCFrame
 end
 
