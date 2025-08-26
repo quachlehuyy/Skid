@@ -116,10 +116,10 @@ local function GetMyFarm()
 end
 
 local function EquipTool(seed)
-    local toolName = seed .. " Seed"
+    local pattern = "^" .. seedName .. " Seed %[%w+%]$"
     local tool
     for _, t in pairs(backpack:GetChildren()) do
-        if t.Name == toolName then
+        if string.match(t.Name, pattern) then
             tool = t
             break
         end
@@ -281,8 +281,9 @@ end
 
 local function autoplant()
     for _, seed in ipairs(Seedtoplant) do
+        local pattern = "^" .. seedName .. " Seed %[%w+%]$"
         local tool = lp.Character:FindFirstChildWhichIsA("Tool")
-        if not tool or tool.Name ~= seed then
+        if not tool or not string.match(tool.Name, pattern) then
             tool = EquipTool(seed)
         end
         if tool and psplant then
@@ -295,8 +296,9 @@ end
 
 local function autoplantrandom()
     for _, seed in ipairs(Seedtoplant) do
+        local pattern = "^" .. seedName .. " Seed %[%w+%]$"
         local tool = lp.Character:FindFirstChildWhichIsA("Tool")
-        if not tool or tool.Name ~= seed then
+        if not tool or not string.match(tool.Name, pattern) then
             tool = EquipTool(seed)
         end
         if tool then
