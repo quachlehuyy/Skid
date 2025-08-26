@@ -489,7 +489,6 @@ Tabs.Farm:AddButton({
     Callback = function()
         local psplant = hrp.Position
         savedParagraph:SetDesc(tostring(psplant))
-        end
     end
 })
 
