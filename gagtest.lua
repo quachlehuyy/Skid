@@ -285,7 +285,7 @@ local function autoplant()
             tool = EquipTool(seed)
         end
         if tool and psplant then
-            local x, y, z = psplant:match("([^,]+), ([^,]+), ([^,]+)")
+            local x, y, z = tostring(psplant):match("([^,]+), ([^,]+), ([^,]+)")
             local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
             hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
