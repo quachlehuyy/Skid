@@ -198,7 +198,7 @@ local function sellallinventory()
     if not isInventoryFull() and config.AutoSellInventory then return end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
-    task.wait(0.2)
+    task.wait(0.3)
     ReplicatedStorage.GameEvents.Sell_Inventory:FireServer()
     task.wait(0.2)
     hrp.CFrame = originalCFrame
@@ -280,7 +280,7 @@ local function autoplant()
         end
         if tool and config.PlayerPosition then
             local x, y, z = config.PlayerPosition:match("([^,]+), ([^,]+), ([^,]+)")
-            local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z)) -- thêm dòng này
+            local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
             hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
             ReplicatedStorage.GameEvents.Plant_RE:FireServer(psplant, seed)
