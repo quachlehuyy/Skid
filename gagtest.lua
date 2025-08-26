@@ -24,7 +24,6 @@ local config = {
     DelayHarvest = 0.2,
     Speed = false,
     SpeedValue = 20,
-    PlayerPosition = nil,
     InfinityJump = false,
     NoClip = false,
     AutoBuySeed = false,
@@ -488,17 +487,15 @@ Tabs.Farm:AddButton({
     Description = "",
     Callback = function()
         local psplant = hrp.Position
-        config.PlayerPosition = tostring(hrp.Position)
-        SaveConfig()
-        if config.PlayerPosition then
-            savedParagraph:SetDesc(config.PlayerPosition)
+        if psplant then
+            savedParagraph:SetDesc(psplant)
         end
     end
 })
 
 savedParagraph = Tabs.Farm:AddParagraph({
     Title = "Saved Position",
-    Content = config.PlayerPosition or "nil"
+    Content = psplant or "nil"
 })
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
