@@ -487,8 +487,7 @@ Tabs.Farm:AddButton({
     Description = "",
     Callback = function()
         local psplant = hrp.Position
-        if psplant then
-            savedParagraph:SetDesc(psplant)
+        savedParagraph:SetDesc(psplant)
         end
     end
 })
