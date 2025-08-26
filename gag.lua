@@ -195,7 +195,7 @@ end
 
 
 local function sellallinventory()
-    if not isInventoryFull() and config.AutoSellInventory then return end
+    if not isInventoryFull() then return end
     local originalCFrame = hrp.CFrame
     hrp.CFrame = sellfruit
     task.wait(0.3)
