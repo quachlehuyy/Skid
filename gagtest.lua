@@ -118,7 +118,7 @@ end
 local function EquipTool(seed)
     local tool
     for _, t in pairs(backpack:GetChildren()) do
-        if t.Name == (seed .. " Seed") then
+        if t.Name == seed then
             tool = t
             break
         end
@@ -281,11 +281,11 @@ end
 local function autoplant()
     for _, seed in ipairs(Seedtoplant) do
         local tool = lp.Character:FindFirstChildWhichIsA("Tool")
-        if not tool or not string.find(tool.Name, seed) then
+        if not tool or tool.Name ~= seed then
             tool = EquipTool(seed)
         end
         if tool and psplant then
-            local x, y, z = tostring(psplant):match("([^,]+), ([^,]+), ([^,]+)")
+            local x, y, z = psplant:match("([^,]+), ([^,]+), ([^,]+)")
             local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
             hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
@@ -297,7 +297,7 @@ end
 local function autoplantrandom()
     for _, seed in ipairs(Seedtoplant) do
         local tool = lp.Character:FindFirstChildWhichIsA("Tool")
-        if not tool or not string.find(tool.Name, seed) then
+        if not tool or tool.Name ~= seed then
             tool = EquipTool(seed)
         end
         if tool then
@@ -487,8 +487,9 @@ Tabs.Farm:AddButton({
     Title = "Save Position",
     Description = "",
     Callback = function()
-        psplant = hrp.Position
-        savedParagraph:SetDesc(tostring(psplant))
+        psplant = tostring(hrp.Position)
+        
+        savedParagraph:SetDesc(psplant)
     end
 })
 
