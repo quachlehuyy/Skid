@@ -118,7 +118,7 @@ end
 local function EquipTool(seed)
     local tool
     for _, t in pairs(backpack:GetChildren()) do
-        if string.find(t.Name, seed) and string.find(t.Name, "Seed") then
+        if t.Name == (seed .. " Seed") then
             tool = t
             break
         end
