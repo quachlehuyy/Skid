@@ -77,6 +77,7 @@ local speedchange = config.SpeedValue
 local infinityJumpEnabled = config.InfinityJump
 local connection
 local isHarvesting = false
+local psplant = nil
 
 -- Table quản lý trạng thái vòng lặp cho auto
 local AutoLoopFlags = {}
@@ -283,8 +284,8 @@ local function autoplant()
         if not tool or not string.find(tool.Name, seed) then
             tool = EquipTool(seed)
         end
-        if tool and config.PlayerPosition then
-            local x, y, z = config.PlayerPosition:match("([^,]+), ([^,]+), ([^,]+)")
+        if tool and psplant then
+            local x, y, z = psplant:match("([^,]+), ([^,]+), ([^,]+)")
             local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
             hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
@@ -487,14 +488,14 @@ Tabs.Farm:AddButton({
     Description = "",
     Callback = function()
         local psplant = hrp.Position
-        savedParagraph:SetDesc(psplant)
+        savedParagraph:SetDesc(tostring(psplant))
         end
     end
 })
 
 savedParagraph = Tabs.Farm:AddParagraph({
     Title = "Saved Position",
-    Content = psplant or "nil"
+    Content = "nil"
 })
 
 Tabs.Farm:AddToggle("AutoPlant", {Title="Auto Plant", Default=config.AutoPlant}):OnChanged(function(Value)
