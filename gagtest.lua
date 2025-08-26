@@ -116,9 +116,10 @@ local function GetMyFarm()
 end
 
 local function EquipTool(seed)
+    local toolName = seed .. " Seed"
     local tool
     for _, t in pairs(backpack:GetChildren()) do
-        if t.Name == seed then
+        if t.Name == toolName then
             tool = t
             break
         end
