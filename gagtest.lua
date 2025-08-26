@@ -285,8 +285,6 @@ local function autoplant()
             tool = EquipTool(seed)
         end
         if tool and psplant then
-            local x, y, z = psplant:match("([^,]+), ([^,]+), ([^,]+)")
-            local psplant = Vector3.new(tonumber(x), tonumber(y), tonumber(z))
             hrp.CFrame = CFrame.new(psplant)
             task.wait(0.1)
             ReplicatedStorage.GameEvents.Plant_RE:FireServer(psplant, seed)
@@ -487,9 +485,8 @@ Tabs.Farm:AddButton({
     Title = "Save Position",
     Description = "",
     Callback = function()
-        psplant = tostring(hrp.Position)
-        
-        savedParagraph:SetDesc(psplant)
+        psplant = hrp.Position
+        savedParagraph:SetDesc(tostring(psplant))
     end
 })
 
