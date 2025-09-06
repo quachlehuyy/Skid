@@ -125,13 +125,13 @@ end
 -- Buy / Sell Functions
 local function buyseed()
     for _, seed in ipairs(seeddachon) do
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
+        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer("Tier 1", seed)
     end
 end
 
 local function buyallseed()
     for _, seed in ipairs(Seeds) do
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(seed)
+        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer("Tier 1", seed)
         task.wait(0.01)
     end
 end
@@ -162,11 +162,7 @@ local function buyallegg()
     end
 end
 
-local function buygoliathshop()
-    for _, item in ipairs(itemdachon) do
-        ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyEventShopStock"):FireServer(item)
-    end
-end
+
 
 local function autosellfruit()
     if not config.AutoSellFruit then return end
@@ -336,7 +332,7 @@ end
 
 
 -- UI Library
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/discoart/FluentPlus/refs/heads/main/Beta.lua"))()
 local Window = Fluent:CreateWindow({
     Title = "GAG Script",
     SubTitle = "by quachlehuy",
@@ -446,36 +442,6 @@ Tabs.Shop:AddToggle("AutoBuyAllEgg", {Title="Auto Buy All Egg", Default=config.A
     end)
 end)
 
--- Items
-Tabs.Shop:AddDropdown("Select Item", {Title="Select Item", Values=Goliathshop, Multi=true, Default=config.Items}):OnChanged(function(Value)
-    itemdachon = {}
-    for val, _ in pairs(Value) do table.insert(itemdachon, val) end
-    config.Items = Value
-    SaveConfig()
-end)
-Tabs.Shop:AddToggle("AutoBuyItem", {Title="Auto Buy Item", Default=config.AutoBuyItem}):OnChanged(function(Value)
-    config.AutoBuyItem = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.AutoBuyItem.Value do
-            if itemdachon and #itemdachon > 0 then buygoliathshop() end
-            task.wait(0.05)
-        end
-    end)
-end)
-
-
-Tabs.Shop:AddToggle("OpenGoliathShop", {Title="Open Goliath Shop", Default=config.OpenGoliathShop}):OnChanged(function(Value)
-    config.OpenGoliathShop = Value
-    SaveConfig()
-    task.spawn(function()
-        while Options.OpenGoliathShop.Value do
-            lp.PlayerGui.EventShop_UI.Enabled = true
-            task.wait(1)
-        end
-        lp.PlayerGui.EventShop_UI.Enabled = false
-    end)
-end)
 
 --[[ --- FARM --- ]]--
 
