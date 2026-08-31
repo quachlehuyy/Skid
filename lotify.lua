@@ -14,7 +14,9 @@ local WORKER_URL = "https://nf.quachlehuyy.workers.dev/notify"
 local RareBosses = {
     "rip_indra True Form",
     "Dough King",
-    "Soul Reaper"
+    "Soul Reaper",
+    "Darkbeard"
+    
 }
 
 local LastHaki
