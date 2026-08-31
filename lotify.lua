@@ -9,7 +9,7 @@ local Player = Players.LocalPlayer
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local CommF = Remotes:WaitForChild("CommF_")
 
-local WORKER_URL = "https://nf.quachlehuyy.workers.dev"
+local WORKER_URL = "https://nf.quachlehuyy.workers.dev/notify"
 
 local RareBosses = {
     "rip_indra True Form",
