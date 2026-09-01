@@ -11,14 +11,7 @@ local CommF = Remotes:WaitForChild("CommF_")
 
 local WORKER_URL = "https://nf.quachlehuyy.workers.dev/notify"
 
-local RareBosses = {
-    "rip_indra True Form",
-    "Dough King",
-    "Soul Reaper",
-    "Darkbeard"
-    
-}
-
+local RareBosses = {'rip_indra True Form', 'Dough King', 'Cake Prince', 'Soul Reaper', 'Cursed Captain'}
 local LastHaki
 local LastMoon = 0
 local LastStates = {}
