@@ -110,7 +110,7 @@ end
 local function GetFullMoon()
     local phase = Lighting:GetAttribute("MoonPhase")
     local clock = math.floor(Lighting.ClockTime)
-    if phase == 5 and (clock >= 12 or clock < 5) then
+    if (clock >= 12 or clock < 5) and game.Lighting.Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149431" then
         return "Full Moon"
     end
     if phase == 4 then
