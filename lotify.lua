@@ -108,10 +108,25 @@ local function HasPrehistoric()
 end
 
 local function GetFullMoon()
+    local sky =
+        Lighting:FindFirstChild("Sky")
+        or Lighting:FindFirstChild("Space_Skybox")
+
+    if not sky then
+        return false
+    end
+
+    local texture = sky.MoonTextureId:gsub(
+        "rbxassetid://",
+        "http://www.roblox.com/asset/?id="
+    )
+
+    local is88 = texture == "http://www.roblox.com/asset/?id=9709149431"
     local phase = Lighting:GetAttribute("MoonPhase")
     local clock = Lighting.ClockTime
 
-    return phase == 5
+    return is88
+        and phase == 5
         and (clock >= 12 or clock < 6)
 end
 
