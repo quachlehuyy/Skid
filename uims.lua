@@ -14,6 +14,8 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
 local Themes = {
 	Names = {
+		"Liquid Glass",
+		"Liquid Glass Dark",
 		"Midnight Blue",
 		"Obsidian White",
 		"Crimson Dark",
@@ -37,6 +39,117 @@ local Themes = {
 		"BlackGlass",
 		"RoyalGold",
 		"Emerald"
+	},
+	-- ─────────────────────────────────────────────────────────────
+	-- Liquid Glass (iOS) - kinh trong, sang, vien sang bo tron
+	-- ─────────────────────────────────────────────────────────────
+	["Liquid Glass"] = {
+		Name = "Liquid Glass",
+		Accent = Color3.fromRGB(10, 132, 255), -- iOS system blue
+
+		AcrylicMain = Color3.fromRGB(232, 237, 246),
+		AcrylicBorder = Color3.fromRGB(255, 255, 255),
+		AcrylicGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(252, 253, 255)),
+			ColorSequenceKeypoint.new(0.55, Color3.fromRGB(240, 244, 251)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(218, 226, 240)),
+		}),
+		AcrylicNoise = 0.97,
+
+		-- Vien: dung xam-lam nhat de canh element van hien tren nen sang.
+		-- (AcrylicBorder giu trang vi lop kinh chinh lay sang tu do)
+		TitleBarLine = Color3.fromRGB(206, 214, 228),
+		Tab = Color3.fromRGB(255, 255, 255),
+
+		Element = Color3.fromRGB(255, 255, 255),
+		ElementBorder = Color3.fromRGB(196, 206, 222),
+		InElementBorder = Color3.fromRGB(196, 206, 222),
+		ElementTransparency = 0.55,
+
+		ToggleSlider = Color3.fromRGB(10, 132, 255),
+		ToggleToggled = Color3.fromRGB(255, 255, 255),
+		TransparenToggle = 0.1,
+
+		SliderRail = Color3.fromRGB(140, 150, 170),
+
+		DropdownFrame = Color3.fromRGB(255, 255, 255),
+		DropdownHolder = Color3.fromRGB(244, 247, 252),
+		DropdownBorder = Color3.fromRGB(196, 206, 222),
+		DropdownOption = Color3.fromRGB(206, 230, 255),
+
+		Keybind = Color3.fromRGB(255, 255, 255),
+
+		Input = Color3.fromRGB(255, 255, 255),
+		InputFocused = Color3.fromRGB(255, 255, 255),
+		InputIndicator = Color3.fromRGB(150, 160, 180),
+		InputIndicatorFocus = Color3.fromRGB(10, 132, 255),
+
+		Dialog = Color3.fromRGB(246, 249, 253),
+		DialogHolder = Color3.fromRGB(238, 243, 250),
+		DialogHolderLine = Color3.fromRGB(206, 214, 228),
+		DialogButton = Color3.fromRGB(255, 255, 255),
+		DialogButtonBorder = Color3.fromRGB(196, 206, 222),
+		DialogBorder = Color3.fromRGB(196, 206, 222),
+		DialogInput = Color3.fromRGB(255, 255, 255),
+		DialogInputLine = Color3.fromRGB(10, 132, 255),
+
+		Text = Color3.fromRGB(24, 27, 34),
+		SubText = Color3.fromRGB(104, 112, 128),
+		Hover = Color3.fromRGB(255, 255, 255),
+		HoverChange = 0.12,
+	},
+	["Liquid Glass Dark"] = {
+		Name = "Liquid Glass Dark",
+		Accent = Color3.fromRGB(100, 210, 255), -- iOS cyan glow
+
+		AcrylicMain = Color3.fromRGB(16, 18, 24),
+		AcrylicBorder = Color3.fromRGB(255, 255, 255),
+		AcrylicGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(58, 64, 78)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(28, 32, 40)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(14, 16, 20)),
+		}),
+		AcrylicNoise = 0.95,
+
+		TitleBarLine = Color3.fromRGB(255, 255, 255),
+		Tab = Color3.fromRGB(255, 255, 255),
+
+		Element = Color3.fromRGB(236, 242, 255),
+		ElementBorder = Color3.fromRGB(255, 255, 255),
+		InElementBorder = Color3.fromRGB(255, 255, 255),
+		ElementTransparency = 0.9,
+
+		ToggleSlider = Color3.fromRGB(100, 210, 255),
+		ToggleToggled = Color3.fromRGB(255, 255, 255),
+		TransparenToggle = 0.12,
+
+		SliderRail = Color3.fromRGB(215, 228, 245),
+
+		DropdownFrame = Color3.fromRGB(236, 242, 255),
+		DropdownHolder = Color3.fromRGB(20, 23, 30),
+		DropdownBorder = Color3.fromRGB(255, 255, 255),
+		DropdownOption = Color3.fromRGB(236, 242, 255),
+
+		Keybind = Color3.fromRGB(236, 242, 255),
+
+		Input = Color3.fromRGB(236, 242, 255),
+		InputFocused = Color3.fromRGB(255, 255, 255),
+		InputIndicator = Color3.fromRGB(180, 195, 215),
+		InputIndicatorFocus = Color3.fromRGB(100, 210, 255),
+
+		Dialog = Color3.fromRGB(20, 23, 30),
+		DialogHolder = Color3.fromRGB(16, 18, 24),
+		DialogHolderLine = Color3.fromRGB(255, 255, 255),
+		DialogButton = Color3.fromRGB(30, 34, 44),
+		DialogButtonBorder = Color3.fromRGB(255, 255, 255),
+		DialogBorder = Color3.fromRGB(255, 255, 255),
+		DialogInput = Color3.fromRGB(24, 27, 35),
+		DialogInputLine = Color3.fromRGB(100, 210, 255),
+
+		Text = Color3.fromRGB(245, 248, 255),
+		SubText = Color3.fromRGB(168, 180, 200),
+		Hover = Color3.fromRGB(255, 255, 255),
+		HoverChange = 0.06,
 	},
 	["VSC Dark High Contrast"] = {
 		Accent = Color3.fromHex("#569cd6"), -- Based on keyword color
@@ -2199,6 +2312,204 @@ local Spring = Flipper.Spring.new
 local Instant = Flipper.Instant.new
 local AddSignal = Creator.AddSignal
 
+-- ─────────────────────────────────────────────────────────────────────
+-- LIQUID GLASS (iOS) STYLE HELPERS
+-- Chi thay doi PHAN NHIN cua UI: bo goc lon hon, vien sang (rim light),
+-- lop bong kinh (specular sheen) va quang sang mem (glow).
+--
+-- QUY TAC de KHONG lam xe dich layout / khong chan chuot:
+--   1. Container dung AutomaticSize (element row, keybind, slider display):
+--      TUYET DOI khong them Frame overlay. Chi dung UIGradient / UIStroke
+--      (khong phai GuiObject) -> khong the anh huong kich thuoc tu dong.
+--   2. Container kich thuoc CO DINH: duoc dung overlay Frame, nhung phai
+--      dat lam child DAU TIEN va ZIndex <= ZIndex cua control. Voi
+--      ZIndexBehavior.Sibling, sibling cung ZIndex thi child TAO SAU ve
+--      TREN -> control luon nam tren lop kinh.
+--   3. Moi overlay set Interactable = false: du sai thu tu cung khong
+--      "an" chuot cua nut ben duoi.
+--   4. Glow dung Size co offset nen CHI gan vao container kich thuoc co
+--      dinh (Window.Root, Dialog, Notification, Dropdown holder...).
+-- ─────────────────────────────────────────────────────────────────────
+local Glass = {
+	-- ban kinh bo goc theo tung cap do (pixel)
+	Radius = {
+		Window  = 22, -- cua so / dialog
+		Card    = 18, -- panel noi: dropdown list, notification
+		Element = 14, -- hang element trong tab
+		Control = 12, -- o input, nut, o hien thi gia tri
+		Chip    = 10, -- nut nho tren title bar
+	},
+}
+
+-- Vien kinh: sang ro o canh tren, mo dan xuong duoi (giong rim light iOS)
+function Glass.Rim(Props)
+	Props = Props or {}
+	return New("UIStroke", {
+		Thickness       = Props.Thickness or 1,
+		Transparency    = Props.Transparency or 0.28,
+		ApplyStrokeMode = Props.Mode or Enum.ApplyStrokeMode.Border,
+		Color           = Color3.fromRGB(255, 255, 255),
+		ThemeTag        = { Color = Props.Tag or "AcrylicBorder" },
+	}, {
+		New("UIGradient", {
+			Rotation = Props.Rotation or 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, Props.Top or 0.05),
+				NumberSequenceKeypoint.new(0.50, Props.Mid or 0.72),
+				NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.35),
+			}),
+		}),
+	})
+end
+
+-- Lop bong kinh phu tren be mat: dam o dinh, tan dan xuong duoi
+function Glass.Sheen(Radius, Props)
+	Props = Props or {}
+	return New("Frame", {
+		Name                   = "GlassSheen",
+		Size                   = UDim2.fromScale(1, 1),
+		BackgroundColor3       = Props.Color or Color3.fromRGB(255, 255, 255),
+		BackgroundTransparency = 0,
+		Interactable           = false, -- khong hut chuot cua control ben duoi
+		ZIndex                 = Props.ZIndex or 0,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Control) }),
+		New("UIGradient", {
+			Rotation = Props.Rotation or 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, Props.Top or 0.72),
+				NumberSequenceKeypoint.new(0.32, Props.Mid or 0.88),
+				NumberSequenceKeypoint.new(0.70, 0.97),
+				NumberSequenceKeypoint.new(1.00, Props.Bottom or 1),
+			}),
+		}),
+	})
+end
+
+-- Bien ban pill (bo goc tron hoan toan) cua Sheen
+function Glass.SheenPill(Props)
+	Props = Props or {}
+	local Frame = Glass.Sheen(0, Props)
+	Frame.UICorner.CornerRadius = UDim.new(1, 0)
+	return Frame
+end
+
+-- Quang sang mem phia sau (dung asset slice-shadow co san trong file)
+function Glass.Glow(Props)
+	Props = Props or {}
+	local Spread = Props.Spread or 56
+	return New("ImageLabel", {
+		Name                   = "GlassGlow",
+		Image                  = "rbxassetid://8992230677",
+		ScaleType              = Enum.ScaleType.Slice,
+		SliceCenter            = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
+		AnchorPoint            = Vector2.new(0.5, 0.5),
+		Position               = UDim2.new(0.5, Props.OffsetX or 0, 0.5, Props.OffsetY or 4),
+		Size                   = UDim2.new(1, Spread, 1, Spread),
+		BackgroundTransparency = 1,
+		ImageColor3            = Props.Color or Color3.fromRGB(0, 0, 0),
+		ImageTransparency      = Props.Transparency or 0.62,
+		Interactable           = false,
+		ZIndex                 = Props.ZIndex or 0,
+	})
+end
+
+-- Vien sang trang doc lap (specular rim) - nam TREN cac lop kinh khac.
+-- Ly do can frame rieng: moi GuiObject chi nhan 1 UIStroke, ma UIStroke chinh
+-- da dung mau theme (AcrylicBorder). Lop nay bo sung anh sang trang de canh
+-- kinh luon sang tren MOI theme (ke ca theme toi).
+-- CHI dung cho container kich thuoc co dinh (khong AutomaticSize).
+function Glass.RimLayer(Radius, Props)
+	Props = Props or {}
+	return New("Frame", {
+		Name                   = "GlassRim",
+		Size                   = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Interactable           = false,
+		ZIndex                 = Props.ZIndex or 5,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+		New("UIStroke", {
+			Thickness       = Props.Thickness or 1,
+			Transparency    = Props.Transparency or 0.4,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color           = Color3.fromRGB(255, 255, 255),
+		}, {
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, Props.Top or 0.00),
+					NumberSequenceKeypoint.new(0.50, Props.Mid or 0.80),
+					NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.45),
+				}),
+			}),
+		}),
+	})
+end
+
+-- Vach sang mong o canh tren (specular line) - dac trung cua liquid glass.
+-- An toan cho layout: cao 1px, dung Size scale theo be ngang, dat lam child
+-- DAU TIEN nen luon ve DUOI cac control -> khong chan input.
+function Glass.TopLight(Props)
+	Props = Props or {}
+	local Inset = Props.Inset or 14
+	return New("Frame", {
+		Name                   = "GlassTopLight",
+		Size                   = UDim2.new(1, -Inset * 2, 0, Props.Thickness or 1),
+		Position               = UDim2.new(0, Inset, 0, Props.Offset or 1),
+		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
+		BackgroundTransparency = 0,
+		Interactable           = false,
+		ZIndex                 = Props.ZIndex or 4,
+	}, {
+		New("UIGradient", {
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 1),
+				NumberSequenceKeypoint.new(0.50, Props.Transparency or 0.25),
+				NumberSequenceKeypoint.new(1.00, 1),
+			}),
+		}),
+	})
+end
+
+-- Lop mau nen kinh (tint) - dung cho cua so / panel lon
+function Glass.Tint(Radius, Props)
+	Props = Props or {}
+	return New("Frame", {
+		Name                   = "GlassTint",
+		Size                   = UDim2.fromScale(1, 1),
+		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
+		BackgroundTransparency = Props.Transparency or 0.55,
+		Interactable           = false,
+		ZIndex                 = Props.ZIndex or 1,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+		New("UIGradient", {
+			Rotation = Props.Rotation or 90,
+			ThemeTag = { Color = "AcrylicGradient" },
+		}),
+	})
+end
+
+-- Lop nhieu hat mo phong be mat kinh nham (frosted)
+function Glass.Frost(Radius, Props)
+	Props = Props or {}
+	return New("ImageLabel", {
+		Name                   = "GlassFrost",
+		Image                  = "rbxassetid://9968344227",
+		ImageTransparency      = 0.95,
+		ScaleType              = Enum.ScaleType.Tile,
+		TileSize               = UDim2.fromOffset(128, 128),
+		Size                   = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Interactable           = false,
+		ZIndex                 = Props.ZIndex or 2,
+		ThemeTag               = { ImageTransparency = "AcrylicNoise" },
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+	})
+end
+
 -- LayoutOrder duy nhat cho moi element/section.
 -- Truoc day tat ca deu = 7 -> UIListLayout phai dua vao thu tu child de xep,
 -- khi search di chuyen element sang khung ket qua roi tra ve (re-parent ve cuoi
@@ -2307,12 +2618,22 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	})
 
 	Element.Border = New("UIStroke", {
-		Transparency = 0.5,
+		Transparency = 0.34,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		Color = Color3.fromRGB(0, 0, 0),
+		Color = Color3.fromRGB(255, 255, 255),
 		ThemeTag = {
 			Color = "ElementBorder",
 		},
+	}, {
+		-- vien sang o canh tren, nhat dan xuong duoi (liquid glass rim)
+		New("UIGradient", {
+			Rotation = 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 0.05),
+				NumberSequenceKeypoint.new(0.55, 0.68),
+				NumberSequenceKeypoint.new(1.00, 0.30),
+			}),
+		}),
 	})
 
 	local ElementOrder = NextLayoutOrder()
@@ -2332,7 +2653,18 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		},
 	}, {
 		New("UICorner", {
-			CornerRadius = UDim.new(0, 4),
+			CornerRadius = UDim.new(0, Glass.Radius.Element),
+		}),
+		-- Do dai element duoc tinh boi AutomaticSize.Y nen KHONG them frame
+		-- overlay o day. Dung UIGradient (khong phai GuiObject) de tao do
+		-- chuyen sang cua kinh -> tuyet doi khong anh huong chieu cao.
+		New("UIGradient", {
+			Rotation = 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 0.00),
+				NumberSequenceKeypoint.new(0.55, 0.16),
+				NumberSequenceKeypoint.new(1.00, 0.34),
+			}),
 		}),
 		Element.Border,
 		Element.LabelHolder,
@@ -2512,13 +2844,38 @@ Components.Tab = (function()
 		end
 
 		-- ── Pill background (hidden when unselected) ──────────
+		local PillStroke = New("UIStroke", {
+			Thickness       = 1,
+			Transparency    = 1,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color           = Color3.fromRGB(255, 255, 255),
+			ThemeTag        = { Color = "AcrylicBorder" },
+		}, {
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.02),
+					NumberSequenceKeypoint.new(0.60, 0.62),
+					NumberSequenceKeypoint.new(1.00, 0.28),
+				}),
+			}),
+		})
+
+		-- lop bong kinh tren pill (an khi chua chon)
+		local PillSheen = Glass.Sheen(Glass.Radius.Control, {
+			Top = 0.55, Mid = 0.82, Bottom = 1, ZIndex = 2,
+		})
+		PillSheen.BackgroundTransparency = 1
+
 		local PillBg = New("Frame", {
 			Size             = UDim2.fromScale(1, 1),
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BackgroundTransparency = 1,
 			ThemeTag         = { BackgroundColor3 = "Accent" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
+			PillSheen,
+			PillStroke,
 		})
 
 		-- ── Left accent bar ───────────────────────────────────
@@ -2572,7 +2929,7 @@ Components.Tab = (function()
 			Parent           = Parent,
 			ThemeTag         = { BackgroundColor3 = "Tab" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
 			PillBg,
 			AccentBar,
 			IconLabel,
@@ -2593,12 +2950,16 @@ Components.Tab = (function()
 			BottomImage            = "rbxassetid://6889812791",
 			MidImage               = "rbxassetid://6889812721",
 			TopImage               = "rbxassetid://6276641225",
+			-- Scrollbar theo theme: truoc day co dinh mau trang nen tren theme
+			-- sang (Liquid Glass) hoan toan khong thay. ScrollBarThickness giu
+			-- nguyen 3px -> khong doi layout.
 			ScrollBarImageColor3   = Color3.fromRGB(255, 255, 255),
-			ScrollBarImageTransparency = 0.95,
+			ScrollBarImageTransparency = 0.75,
 			ScrollBarThickness     = 3,
 			BorderSizePixel        = 0,
 			CanvasSize             = UDim2.fromScale(0, 0),
 			ScrollingDirection     = Enum.ScrollingDirection.Y,
+			ThemeTag               = { ScrollBarImageColor3 = "SubText" },
 		}, {
 			ContainerLayout,
 			New("UIPadding", {
@@ -2622,8 +2983,11 @@ Components.Tab = (function()
 		local function applySelected()
 			-- pill fades in
 			TweenService:Create(PillBg, TI_NORM, {
-				BackgroundTransparency = 0.88,
+				BackgroundTransparency = 0.82,
 			}):Play()
+			-- lop kinh + vien sang len
+			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 0 }):Play()
+			TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.25 }):Play()
 			-- accent bar grows
 			TweenService:Create(AccentBar, TI_BACK, {
 				Size                   = UDim2.new(0, 3, 0.55, 0),
@@ -2638,6 +3002,8 @@ Components.Tab = (function()
 			TweenService:Create(PillBg, TI_NORM, {
 				BackgroundTransparency = 1,
 			}):Play()
+			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 1 }):Play()
+			TweenService:Create(PillStroke, TI_NORM, { Transparency = 1 }):Play()
 			TweenService:Create(AccentBar, TI_NORM, {
 				Size                   = UDim2.new(0, 3, 0, 0),
 				BackgroundTransparency = 1,
@@ -2649,7 +3015,9 @@ Components.Tab = (function()
 		-- ── Hover (only when not selected) ───────────────────
 		Creator.AddSignal(Tab.Frame.MouseEnter, function()
 			if not Tab.Selected then
-				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.94 }):Play()
+				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.9 }):Play()
+				TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 0.45 }):Play()
+				TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.55 }):Play()
 				TweenService:Create(TitleLabel, TI_NORM, { TextTransparency = 0.15 }):Play()
 				TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0.15 }):Play()
 			end
@@ -2657,15 +3025,17 @@ Components.Tab = (function()
 		Creator.AddSignal(Tab.Frame.MouseLeave, function()
 			if not Tab.Selected then
 				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 1 }):Play()
+				TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 1 }):Play()
+				TweenService:Create(PillStroke, TI_NORM, { Transparency = 1 }):Play()
 				TweenService:Create(TitleLabel, TI_NORM, { TextTransparency = 0.35 }):Play()
 				TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0.35 }):Play()
 			end
 		end)
 		Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
-			TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.82 }):Play()
+			TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.74 }):Play()
 		end)
 		Creator.AddSignal(Tab.Frame.MouseButton1Up, function()
-			local t = Tab.Selected and 0.88 or 0.94
+			local t = Tab.Selected and 0.82 or 0.9
 			TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = t }):Play()
 		end)
 
@@ -2788,7 +3158,7 @@ Components.Button = function(Theme, Parent, DialogCheck)
 		},
 	}, {
 		New("UICorner", {
-			CornerRadius = UDim.new(0, 4),
+			CornerRadius = UDim.new(0, Glass.Radius.Control),
 		}),
 	})
 
@@ -2800,15 +3170,10 @@ Components.Button = function(Theme, Parent, DialogCheck)
 		},
 	}, {
 		New("UICorner", {
-			CornerRadius = UDim.new(0, 4),
+			CornerRadius = UDim.new(0, Glass.Radius.Control),
 		}),
-		New("UIStroke", {
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency = 0.65,
-			ThemeTag = {
-				Color = "DialogButtonBorder",
-			},
-		}),
+		Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.88, Bottom = 1 }),
+		Glass.Rim({ Transparency = 0.4, Tag = "DialogButtonBorder" }),
 		Button.HoverFrame,
 		Button.Title,
 	})
@@ -2856,7 +3221,7 @@ Components.Dialog = (function()
 			Parent = Dialog.Window.Root,
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 8),
+				CornerRadius = UDim.new(0, Glass.Radius.Window),
 			}),
 		})
 
@@ -2879,12 +3244,14 @@ Components.Dialog = (function()
 		NewDialog.ButtonHolderFrame = New("Frame", {
 			Size = UDim2.new(1, 0, 0, 70),
 			Position = UDim2.new(0, 0, 1, -70),
+			BackgroundTransparency = 0.15,
 			ThemeTag = {
 				BackgroundColor3 = "DialogHolder",
 			},
 		}, {
 			New("Frame", {
 				Size = UDim2.new(1, 0, 0, 1),
+				BackgroundTransparency = 0.55,
 				ThemeTag = {
 					BackgroundColor3 = "DialogHolderLine",
 				},
@@ -2929,14 +3296,18 @@ Components.Dialog = (function()
 			},
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 8),
+				CornerRadius = UDim.new(0, Glass.Radius.Window),
 			}),
-			New("UIStroke", {
-				Transparency = 0.5,
-				ThemeTag = {
-					Color = "DialogBorder",
-				},
-			}),
+			-- Lop kinh: dat lam child DAU TIEN va ZIndex = 0 -> luon ve DUOI
+			-- Title/ButtonHolderFrame. Neu de ZIndex > 0, frame trang suot van
+			-- CHAN chuot cho cac nut trong dialog.
+			Glass.Sheen(Glass.Radius.Window, { Top = 0.62, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
+			Glass.Frost(Glass.Radius.Window, { ZIndex = 0 }),
+			Glass.TopLight({ Inset = 16, Transparency = 0.22, ZIndex = 0 }),
+			Glass.RimLayer(Glass.Radius.Window, { Transparency = 0.5, ZIndex = 0 }),
+			-- UIStroke nay phai la con TRUC TIEP cua Root: Dialog:Close()
+			-- goi Root.UIStroke:Destroy() (FindFirstChild chi tim con truc tiep).
+			Glass.Rim({ Transparency = 0.3, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			NewDialog.Scale,
 			NewDialog.Title,
 			NewDialog.ButtonHolderFrame,
@@ -3117,16 +3488,20 @@ Components.Notification = (function()
 		})
 
 		NewNotification.Root = New("Frame", {
-		    BackgroundTransparency = 0,
+		    BackgroundTransparency = 0.08,
 		    Size = UDim2.new(1, 0, 1, 0),
 		    Position = UDim2.fromScale(1, 0),
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
-		    New("UICorner", { CornerRadius = UDim.new(0, 8) }),
-		    New("UIStroke", {
-		        Transparency = 0.5,
-		        ThemeTag = { Color = "AcrylicBorder" },
-		    }),
+		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
+		    -- Lop kinh: ZIndex = 0 va la child DAU TIEN -> luon ve DUOI
+		    -- Title/CloseButton/LabelHolder (cung ZIndex, ve sau nam tren).
+		    -- Neu de ZIndex > 0 chung se phu len nut dong.
+		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.85, Bottom = 1, ZIndex = 0 }),
+		    Glass.Frost(Glass.Radius.Card, { ZIndex = 0 }),
+		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.5, ZIndex = 0 }),
+		    Glass.Rim({ Transparency = 0.3, Mode = Enum.ApplyStrokeMode.Contextual }),
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
 		    NewNotification.LabelHolder,
@@ -3241,21 +3616,19 @@ Components.Textbox = function(Parent, Acrylic)
 
 	Textbox.Frame = New("Frame", {
 		Size = UDim2.new(0, 0, 0, 30),
-		BackgroundTransparency = Acrylic and 0.9 or 0,
+		BackgroundTransparency = Acrylic and 0.9 or 0.05,
 		Parent = Parent,
 		ThemeTag = {
 			BackgroundColor3 = Acrylic and "Input" or "DialogInput",
 		},
 	}, {
 		New("UICorner", {
-			CornerRadius = UDim.new(0, 4),
+			CornerRadius = UDim.new(0, Glass.Radius.Control),
 		}),
-		New("UIStroke", {
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency = Acrylic and 0.5 or 0.65,
-			ThemeTag = {
-				Color = Acrylic and "InElementBorder" or "DialogButtonBorder",
-			},
+		Glass.Sheen(Glass.Radius.Control, { Top = 0.72, Mid = 0.9, Bottom = 1 }),
+		Glass.Rim({
+			Transparency = Acrylic and 0.35 or 0.45,
+			Tag = Acrylic and "InElementBorder" or "DialogButtonBorder",
 		}),
 		Textbox.Indicator,
 		Textbox.Container,
@@ -3328,7 +3701,15 @@ Components.TitleBar = function(Config)
 			Text             = "",
 			ThemeTag         = { BackgroundColor3 = "Text" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Chip) }),
+			-- nut nho: chi dung gradient (khong frame con) de khong chan chuot
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.00),
+					NumberSequenceKeypoint.new(1.00, 0.35),
+				}),
+			}),
 			New("ImageLabel", {
 				Image       = Icon,
 				Size        = UDim2.fromOffset(14, 14),
@@ -3497,13 +3878,24 @@ Components.TitleBar = function(Config)
 		}),
 	})
 
-	-- divider
+	-- divider: giu nguyen kich thuoc/vi tri (1, 0 / 0, 1) - chi doi phan nhin
+	-- bang UIGradient de vach mo dan ve 2 dau nhu kinh.
 	New("Frame", {
-		BackgroundTransparency = 0.5,
+		Name             = "TitleBarDivider",
+		BackgroundTransparency = 0.35,
 		Size             = UDim2.new(1, 0, 0, 1),
 		Position         = UDim2.new(0, 0, 1, 0),
 		Parent           = TitleBar.Frame,
 		ThemeTag         = { BackgroundColor3 = "TitleBarLine" },
+	}, {
+		New("UIGradient", {
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 1),
+				NumberSequenceKeypoint.new(0.14, 0.15),
+				NumberSequenceKeypoint.new(0.86, 0.15),
+				NumberSequenceKeypoint.new(1.00, 1),
+			}),
+		}),
 	})
 
 	-- window buttons
@@ -3574,6 +3966,15 @@ Components.Window = (function()
 		}, {
 			New("UICorner", {
 				CornerRadius = UDim.new(0, 2),
+			}),
+			-- do bong doc thanh selector cho giong thanh kinh phat sang
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.25),
+					NumberSequenceKeypoint.new(0.50, 0.00),
+					NumberSequenceKeypoint.new(1.00, 0.25),
+				}),
 			}),
 		})
 
@@ -3656,18 +4057,29 @@ Components.Window = (function()
 
 		local SearchStroke = New("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency    = 0.5,
+			Transparency    = 0.35,
+			Color           = Color3.fromRGB(255, 255, 255),
 			ThemeTag        = { Color = "InElementBorder" },
+		}, {
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.05),
+					NumberSequenceKeypoint.new(0.55, 0.65),
+					NumberSequenceKeypoint.new(1.00, 0.28),
+				}),
+			}),
 		})
 
 		local SearchBox = New("Frame", {
 			Size     = UDim2.new(0, Window.TabWidth, 0, 30),
 			Position = UDim2.new(0, 12, 0, 52),
-			BackgroundTransparency = 0.9,
+			BackgroundTransparency = 0.88,
 			Visible  = UseSearchBar,
 			ThemeTag = { BackgroundColor3 = "Input" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
+			Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.9, Bottom = 1 }),
 			SearchStroke,
 			SearchIcon,
 			SearchInput,
@@ -3677,13 +4089,13 @@ Components.Window = (function()
 		Creator.AddSignal(SearchInput.Focused, function()
 			TweenService:Create(SearchStroke,
 				TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-				{ Transparency = 0.1 }
+				{ Transparency = 0.05 }
 			):Play()
 		end)
 		Creator.AddSignal(SearchInput.FocusLost, function()
 			TweenService:Create(SearchStroke,
 				TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-				{ Transparency = 0.5 }
+				{ Transparency = 0.35 }
 			):Play()
 		end)
 
@@ -3702,11 +4114,12 @@ Components.Window = (function()
 			MidImage = "rbxassetid://6889812721",
 			TopImage = "rbxassetid://6276641225",
 			ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
-			ScrollBarImageTransparency = 0.95,
+			ScrollBarImageTransparency = 0.75,
 			ScrollBarThickness = 3,
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
+			ThemeTag = { ScrollBarImageColor3 = "SubText" },
 		}, {
 			SearchLayout,
 			New("UIPadding", {
@@ -3890,12 +4303,36 @@ Components.Window = (function()
 			Window.ContainerHolder,
 		})
 
+		-- ── Liquid glass surface (khong doi kich thuoc/vi tri) ──
+		-- Cung ZIndex (0) nen thu tu ve theo thu tu child:
+		-- Glow -> AcrylicFrame (kinh) -> TabDisplay/Container/Search/Tab...
+		local WindowGlow = Glass.Glow({
+			Spread = 64,
+			Transparency = 0.68,
+			OffsetY = 6,
+			ZIndex = 0,
+		})
+
 		local AcrylicFrame = New("Frame", {
 		    Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.12,										
+			BackgroundTransparency = 0.12,
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
-		    New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+		    -- lop mau kinh theo theme (AcrylicGradient)
+		    Glass.Tint(Glass.Radius.Window, { Transparency = 0.62, ZIndex = 1 }),
+		    -- bong sang tren be mat kinh (dam o canh tren, tat nhanh xuong duoi)
+		    Glass.Sheen(Glass.Radius.Window, { Top = 0.7, Mid = 0.9, Bottom = 1, ZIndex = 2 }),
+		    -- hat nhieu mo phong kinh nham
+		    Glass.Frost(Glass.Radius.Window, { ZIndex = 3 }),
+		    -- vach sang mong sat canh tren
+		    Glass.TopLight({ Inset = 18, Transparency = 0.2, ZIndex = 4 }),
+		    -- vien trang bo sung (sang tren moi theme, ke ca theme toi)
+		    Glass.RimLayer(Glass.Radius.Window, {
+		        Thickness = 1, Transparency = 0.45, ZIndex = 5,
+		    }),
+		    -- vien sang bo tron
+		    Glass.Rim({ Transparency = 0.22, Thickness = 1.4, Mode = Enum.ApplyStrokeMode.Contextual }),
 		})
 		
 		Window.AcrylicPaint = {
@@ -3911,6 +4348,7 @@ Components.Window = (function()
 		    Position = Window.Position,
 		    Parent = Config.Parent,
 		}, {
+		    WindowGlow,     -- quang sang phia sau khung kinh
 		    AcrylicFrame,   -- ใช้ตัวแปร แทน Window.AcrylicPaint.Frame
 		    Window.TabDisplay,
 		    Window.ContainerCanvas,
@@ -4262,20 +4700,37 @@ ElementsTable.Toggle = (function()
 		Toggle.Elements        = ToggleFrame
 
 		-- ── Track (pill) ──────────────────────────────────────
+		-- BackgroundTransparency 0.72: track la kinh mo (khong dac). Truoc day
+		-- de 0 (dac) nen voi theme kinh (Element = mau sang) track se thanh
+		-- 1 vien thuoc trang choi mat. De mo thi ca theme sang va toi deu dep;
+		-- trang thai ON khong bi anh huong vi Fill (Accent) dac phu kin.
 		local Track = New("Frame", {
 			Size             = UDim2.fromOffset(44, 24),
 			AnchorPoint      = Vector2.new(1, 0.5),
 			Position         = UDim2.new(1, -10, 0.5, 0),
 			BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+			BackgroundTransparency = 0.72,
 			Parent           = ToggleFrame.Frame,
 			ThemeTag         = { BackgroundColor3 = "Element" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			-- bong kinh tren track (nam duoi Fill/Thumb vi ZIndex = 0)
+			Glass.SheenPill({ Top = 0.68, Mid = 0.9, Bottom = 1 }),
 			New("UIStroke", {
-				Transparency    = 0.6,
+				Transparency    = 0.4,
 				Thickness       = 1,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color           = Color3.fromRGB(255, 255, 255),
 				ThemeTag        = { Color = "InElementBorder" },
+			}, {
+				New("UIGradient", {
+					Rotation = 90,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.55, 0.6),
+						NumberSequenceKeypoint.new(1.00, 0.25),
+					}),
+				}),
 			}),
 		})
 
@@ -4283,10 +4738,19 @@ ElementsTable.Toggle = (function()
 		local Fill = New("Frame", {
 			Size             = UDim2.new(0, 0, 1, 0),   -- starts empty
 			BackgroundColor3 = Color3.fromRGB(96, 205, 255),
+			ZIndex           = 2,
 			ThemeTag         = { BackgroundColor3 = "Accent" },
 			Parent           = Track,
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			-- do bong tren mang mau accent
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.00),
+					NumberSequenceKeypoint.new(1.00, 0.22),
+				}),
+			}),
 		})
 
 		-- ── Thumb ─────────────────────────────────────────────
@@ -4299,6 +4763,20 @@ ElementsTable.Toggle = (function()
 			Parent           = Track,
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			-- vien sang mem quanh thumb cho cam giac kinh 3D
+			New("UIStroke", {
+				Thickness       = 1,
+				Transparency    = 0.72,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color           = Color3.fromRGB(255, 255, 255),
+			}),
+			New("UIGradient", {
+				Rotation = 90,
+				Color = ColorSequence.new({
+					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
+					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(226, 233, 244)),
+				}),
+			}),
 		})
 
 		-- ── Easing helpers ────────────────────────────────────
@@ -4453,12 +4931,14 @@ ElementsTable.Dropdown = (function()
 			Size            = UDim2.fromOffset(160, 28),
 			Position        = UDim2.new(1, -10, 0.5, 0),
 			AnchorPoint     = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.9,
+			BackgroundTransparency = 0.88,
 			Parent          = DropdownFrame.Frame,
 			AutoLocalize    = false,
 			ThemeTag        = { BackgroundColor3 = "DropdownFrame" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 10) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
+			Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.9, Bottom = 1 }),
+			Glass.Rim({ Transparency = 0.4, Tag = "InElementBorder" }),
 			DropdownIco,
 			DropdownDisplay,
 		})
@@ -4475,12 +4955,12 @@ ElementsTable.Dropdown = (function()
 		end)
 
 		-- เพิ่ม hover effect สำหรับ dropdown
-		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.9, DropdownInner, "BackgroundTransparency")
+		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.88, DropdownInner, "BackgroundTransparency")
 		Creator.AddSignal(DropdownInner.MouseEnter, function()
-			SetDropdownHover(0.8)
+			SetDropdownHover(0.76)
 		end)
 		Creator.AddSignal(DropdownInner.MouseLeave, function()
-			SetDropdownHover(0.9)
+			SetDropdownHover(0.88)
 		end)
 
 		-- เพิ่ม hover effect สำหรับ clear button
@@ -4542,27 +5022,32 @@ ElementsTable.Dropdown = (function()
 			MidImage = "rbxassetid://6889812721",
 			TopImage = "rbxassetid://6276641225",
 			ScrollBarImageColor3 = Color3.fromRGB(120, 120, 120),
-			ScrollBarImageTransparency = 0.6,
+			ScrollBarImageTransparency = 0.5,
 			ScrollBarThickness = 6,
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
+			ThemeTag = { ScrollBarImageColor3 = "SubText" },
 		}, {
 			DropdownListLayout,
 		})
 
 		local DropdownHolderFrame = New("Frame", {
 		    Size             = UDim2.fromScale(1, 0.6),
+		    BackgroundTransparency = 0.06,
 		    ThemeTag         = { BackgroundColor3 = "DropdownHolder" },
 		}, {
 		    New("UICorner", {
-		        CornerRadius = UDim.new(0, 20),
+		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    New("UIStroke", {
-		        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		        Transparency    = 0.5,
-		        ThemeTag        = { Color = "InElementBorder" },
-		    }),
+		    -- Lop kinh: ZIndex = 0 va dat TRUOC DropdownScrollFrame -> scroll
+		    -- frame (cung ZIndex, ve sau) nam tren, nen cac nut option van bam
+		    -- duoc. Neu de ZIndex > 0 thi lop trong suot se chan chuot.
+		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
+		    Glass.Frost(Glass.Radius.Card, { ZIndex = 0 }),
+		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.5, ZIndex = 0 }),
+		    Glass.Rim({ Transparency = 0.3, Tag = "DropdownBorder" }),
 		    DropdownScrollFrame,
 		})
 
@@ -4586,6 +5071,7 @@ ElementsTable.Dropdown = (function()
 			Parent = DropdownScrollFrame,
 			Name = "LoadingIndicator",
 			Visible = false,
+			ThemeTag = { BackgroundColor3 = "Element" },
 		}, {
 			New("TextLabel", {
 				FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
@@ -4596,9 +5082,10 @@ ElementsTable.Dropdown = (function()
 				BackgroundTransparency = 1,
 				Size = UDim2.fromScale(1, 1),
 				AutoLocalize = false,
+				ThemeTag = { TextColor3 = "SubText" },
 			}),
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 8),
+				CornerRadius = UDim.new(0, Glass.Radius.Control),
 			}),
 		})
  
@@ -4606,12 +5093,21 @@ ElementsTable.Dropdown = (function()
 
 		local Border = New("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color = Color3.fromRGB(100, 100, 120),
+			Color = Color3.fromRGB(255, 255, 255),
 			Transparency = 0.3,
-			Thickness = 1.5,
+			Thickness = 1,
 			ThemeTag = {
 				Color = "ElementBorder",
 			},
+		}, {
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.05),
+					NumberSequenceKeypoint.new(0.55, 0.62),
+					NumberSequenceKeypoint.new(1.00, 0.26),
+				}),
+			}),
 		})
 
 		local searchIcon = New("ImageLabel", {
@@ -4631,27 +5127,31 @@ ElementsTable.Dropdown = (function()
 			Size = UDim2.new(0, 170, 0, 35), -- เพิ่มความสูง
 			Parent = Library.GUI,
 			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 0.06,
 			ThemeTag = {
 				BackgroundColor3 = "DropdownHolder",
 			},
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 8), -- เพิ่มขนาด corner
+				CornerRadius = UDim.new(0, Glass.Radius.Control), -- bo goc kinh
 			}),
 			searchIcon,
 			Border,
 		})
 
-		-- เพิ่ม gradient effect สำหรับ search box
+		-- Do bong kinh cho search box.
+		-- Truoc day Transparency 0.95/0.98 lam nen gan nhu vo hinh (chi con
+		-- vien), khong khop voi cac panel kinh khac. Doi thanh do chuyen doc
+		-- vua phai de o tim kiem doc duoc tren moi theme.
 		local SearchGradient = New("UIGradient", {
 			Color = ColorSequence.new{
 				ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-				ColorSequenceKeypoint.new(1.0, Color3.fromRGB(240, 240, 250))
+				ColorSequenceKeypoint.new(1.0, Color3.fromRGB(236, 240, 248))
 			},
-			Rotation = 45,
+			Rotation = 90,
 			Transparency = NumberSequence.new{
-				NumberSequenceKeypoint.new(0.0, 0.95),
-				NumberSequenceKeypoint.new(1.0, 0.98)
+				NumberSequenceKeypoint.new(0.0, 0.0),
+				NumberSequenceKeypoint.new(1.0, 0.25)
 			},
 			Parent = SearchBase,
 		})
@@ -5008,6 +5508,29 @@ ElementsTable.Dropdown = (function()
 				New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 			})
 
+			-- lop bong kinh + vien sang (an khi chua chon)
+			local ButtonSheen = Glass.Sheen(Glass.Radius.Element, {
+				Top = 0.6, Mid = 0.86, Bottom = 1, ZIndex = 0,
+			})
+			ButtonSheen.BackgroundTransparency = 1
+
+			local ButtonStroke = New("UIStroke", {
+				Thickness       = 1,
+				Transparency    = 1,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color           = Color3.fromRGB(255, 255, 255),
+				ThemeTag        = { Color = "DropdownBorder" },
+			}, {
+				New("UIGradient", {
+					Rotation = 90,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.02),
+						NumberSequenceKeypoint.new(0.60, 0.62),
+						NumberSequenceKeypoint.new(1.00, 0.28),
+					}),
+				}),
+			})
+
 			local Button = New("TextButton", {
 				Size             = UDim2.new(1, -10, 0, 34),   -- padding กว้างขึ้น
 				BackgroundTransparency = 1,
@@ -5017,7 +5540,9 @@ ElementsTable.Dropdown = (function()
 				LayoutOrder      = Idx,
 				ThemeTag         = { BackgroundColor3 = "DropdownOption" },
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 14) }),  -- มนขึ้นจาก 6
+				New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Element) }),
+				ButtonSheen,
+				ButtonStroke,
 				ButtonAccent,
 				ButtonLabel,
 				SelectDot,
@@ -5034,7 +5559,13 @@ ElementsTable.Dropdown = (function()
 
 			local function applyState(sel)
 				TweenService:Create(Button, TI, {
-					BackgroundTransparency = sel and 0.82 or 1,
+					BackgroundTransparency = sel and 0.78 or 1,
+				}):Play()
+				TweenService:Create(ButtonSheen, TI, {
+					BackgroundTransparency = sel and 0 or 1,
+				}):Play()
+				TweenService:Create(ButtonStroke, TI, {
+					Transparency = sel and 0.3 or 1,
 				}):Play()
 				TweenService:Create(ButtonAccent, TI, {
 					BackgroundTransparency = sel and 0 or 1,
@@ -5050,24 +5581,32 @@ ElementsTable.Dropdown = (function()
 
 			Creator.AddSignal(Button.MouseEnter, function()
 				if not Selected then
-					TweenService:Create(Button, TI, { BackgroundTransparency = 0.90 }):Play()
+					TweenService:Create(Button, TI, { BackgroundTransparency = 0.88 }):Play()
+					TweenService:Create(ButtonSheen, TI, { BackgroundTransparency = 0.5 }):Play()
+					TweenService:Create(ButtonStroke, TI, { Transparency = 0.6 }):Play()
 					TweenService:Create(ButtonLabel, TI, { TextTransparency = 0 }):Play()
 				end
 			end)
 			Creator.AddSignal(Button.MouseLeave, function()
 				TweenService:Create(Button, TI, {
-					BackgroundTransparency = Selected and 0.82 or 1,
+					BackgroundTransparency = Selected and 0.78 or 1,
+				}):Play()
+				TweenService:Create(ButtonSheen, TI, {
+					BackgroundTransparency = Selected and 0 or 1,
+				}):Play()
+				TweenService:Create(ButtonStroke, TI, {
+					Transparency = Selected and 0.3 or 1,
 				}):Play()
 				TweenService:Create(ButtonLabel, TI, {
 					TextTransparency = Selected and 0 or 0.15,
 				}):Play()
 			end)
 			Creator.AddSignal(Button.MouseButton1Down, function()
-				TweenService:Create(Button, TI, { BackgroundTransparency = 0.72 }):Play()
+				TweenService:Create(Button, TI, { BackgroundTransparency = 0.7 }):Play()
 			end)
 			Creator.AddSignal(Button.MouseButton1Up, function()
 				TweenService:Create(Button, TI, {
-					BackgroundTransparency = Selected and 0.82 or 0.90,
+					BackgroundTransparency = Selected and 0.78 or 0.88,
 				}):Play()
 			end)
 
@@ -5444,7 +5983,7 @@ ElementsTable.Paragraph = (function()
 
 		local Paragraph = Components.Element(Config.Title, Config.Content, Paragraph.Container, false, Config)
 		Paragraph.Frame.BackgroundTransparency = 0.92
-		Paragraph.Border.Transparency = 0.6
+		Paragraph.Border.Transparency = 0.45
 
 		Paragraph.SetTitle = Paragraph.SetTitle
 		Paragraph.SetDesc = Paragraph.SetDesc
@@ -5507,12 +6046,24 @@ ElementsTable.Slider = (function()
 			Parent           = SliderFrame.Frame,
 			ThemeTag         = { TextColor3 = "SubText", BackgroundColor3 = "Element" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 4) }),
+			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			-- KHONG dat overlay/gradient len TextBox nay: gradient se lam mo
+			-- chinh chu so ben trong. Chi dung vien sang.
 			New("UIStroke", {
 				Thickness       = 1,
-				Transparency    = 0.5,
+				Transparency    = 0.4,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color           = Color3.fromRGB(255, 255, 255),
 				ThemeTag        = { Color = "InElementBorder" },
+			}, {
+				New("UIGradient", {
+					Rotation = 90,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.55, 0.6),
+						NumberSequenceKeypoint.new(1.00, 0.26),
+					}),
+				}),
 			}),
 		})
 
@@ -5730,7 +6281,7 @@ ElementsTable.Keybind = (function()
 			Size = UDim2.fromOffset(0, 30),
 			Position = UDim2.new(1, -10, 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.9,
+			BackgroundTransparency = 0.88,
 			Parent = KeybindFrame.Frame,
 			AutomaticSize = Enum.AutomaticSize.X,
 			ThemeTag = {
@@ -5738,18 +6289,37 @@ ElementsTable.Keybind = (function()
 			},
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 10),
+				CornerRadius = UDim.new(0, Glass.Radius.Control),
+			}),
+			-- AutomaticSize.X: dung UIGradient (khong phai frame con) de khong
+			-- lam thay doi be rong tu dong cua nut.
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.00),
+					NumberSequenceKeypoint.new(1.00, 0.3),
+				}),
 			}),
 			New("UIPadding", {
 				PaddingLeft = UDim.new(0, 8),
 				PaddingRight = UDim.new(0, 8),
 			}),
 			New("UIStroke", {
-				Transparency = 0.5,
+				Transparency = 0.4,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = Color3.fromRGB(255, 255, 255),
 				ThemeTag = {
 					Color = "InElementBorder",
 				},
+			}, {
+				New("UIGradient", {
+					Rotation = 90,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.55, 0.6),
+						NumberSequenceKeypoint.new(1.00, 0.26),
+					}),
+				}),
 			}),
 			KeybindDisplayLabel,
 		})
@@ -5925,7 +6495,7 @@ ElementsTable.Colorpicker = (function()
 			Parent = ColorpickerFrame.Frame,
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 4),
+				CornerRadius = UDim.new(0, 8),
 			}),
 		})
 
@@ -5940,9 +6510,25 @@ ElementsTable.Colorpicker = (function()
 			TileSize = UDim2.fromOffset(40, 40),
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 4),
+				CornerRadius = UDim.new(0, 8),
 			}),
 			DisplayFrameColor,
+			-- vien kinh quanh o mau
+			New("UIStroke", {
+				Thickness = 1,
+				Transparency = 0.45,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = Color3.fromRGB(255, 255, 255),
+			}, {
+				New("UIGradient", {
+					Rotation = 90,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.55, 0.6),
+						NumberSequenceKeypoint.new(1.00, 0.26),
+					}),
+				}),
+			}),
 		})
 
 		local function CreateColorDialog()
@@ -6005,7 +6591,7 @@ ElementsTable.Colorpicker = (function()
 				Parent = Dialog.Root,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 4),
+					CornerRadius = UDim.new(0, 8),
 				}),
 				SatCursor,
 			})
@@ -6016,7 +6602,7 @@ ElementsTable.Colorpicker = (function()
 				BackgroundTransparency = Colorpicker.Transparency,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 4),
+					CornerRadius = UDim.new(0, 8),
 				}),
 			})
 
@@ -6031,11 +6617,12 @@ ElementsTable.Colorpicker = (function()
 				Parent = Dialog.Root,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 4),
+					CornerRadius = UDim.new(0, 8),
 				}),
 				New("UIStroke", {
-					Thickness = 2,
-					Transparency = 0.75,
+					Thickness = 1.5,
+					Transparency = 0.55,
+					Color = Color3.fromRGB(255, 255, 255),
 				}),
 				OldColorFrame,
 			})
@@ -6046,7 +6633,7 @@ ElementsTable.Colorpicker = (function()
 				BackgroundTransparency = 0,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 4),
+					CornerRadius = UDim.new(0, 8),
 				}),
 			})
 
@@ -6061,11 +6648,12 @@ ElementsTable.Colorpicker = (function()
 				Parent = Dialog.Root,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 4),
+					CornerRadius = UDim.new(0, 8),
 				}),
 				New("UIStroke", {
-					Thickness = 2,
-					Transparency = 0.75,
+					Thickness = 1.5,
+					Transparency = 0.55,
+					Color = Color3.fromRGB(255, 255, 255),
 				}),
 				DialogDisplayFrame,
 			})
@@ -8004,12 +8592,44 @@ function Library:CreateWindow(Config)
 	Main.Size = UDim2.new(0, 50, 0, 50)
 	Main.Image = "http://www.roblox.com/asset/?id=115743955187199"
 
-	-- vien theo theme
+	-- vien kinh theo theme (rim light: sang tren, mo dan xuong duoi)
 	local MainStroke = Instance.new("UIStroke")
-	MainStroke.Thickness = 1
-	MainStroke.Transparency = 0.5
+	MainStroke.Thickness = 1.2
+	MainStroke.Transparency = 0.3
+	MainStroke.Color = Color3.fromRGB(255, 255, 255)
 	MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	MainStroke.Parent = Main
+
+	local MainStrokeGradient = Instance.new("UIGradient")
+	MainStrokeGradient.Rotation = 90
+	MainStrokeGradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0.00, 0.05),
+		NumberSequenceKeypoint.new(0.55, 0.68),
+		NumberSequenceKeypoint.new(1.00, 0.3),
+	})
+	MainStrokeGradient.Parent = MainStroke
+
+	-- lop bong kinh phu len icon minimize (khong doi kich thuoc)
+	local MainSheen = Instance.new("Frame")
+	MainSheen.Name = "GlassSheen"
+	MainSheen.Size = UDim2.fromScale(1, 1)
+	MainSheen.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	MainSheen.BackgroundTransparency = 0
+	MainSheen.BorderSizePixel = 0
+	MainSheen.Parent = Main
+
+	local MainSheenCorner = Instance.new("UICorner")
+	MainSheenCorner.CornerRadius = UDim.new(0, 12)
+	MainSheenCorner.Parent = MainSheen
+
+	local MainSheenGradient = Instance.new("UIGradient")
+	MainSheenGradient.Rotation = 90
+	MainSheenGradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0.00, 0.72),
+		NumberSequenceKeypoint.new(0.45, 0.9),
+		NumberSequenceKeypoint.new(1.00, 1),
+	})
+	MainSheenGradient.Parent = MainSheen
 
 	-- dang ky vao Creator.Registry de tu doi mau khi Library:SetTheme()
 	Creator.AddThemeObject(Main, { BackgroundColor3 = "AcrylicMain" })
