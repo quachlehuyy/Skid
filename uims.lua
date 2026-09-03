@@ -2362,12 +2362,19 @@ function Glass.Rim(Props)
 	})
 end
 
--- Lop bong kinh phu tren be mat: dam o dinh, tan dan xuong duoi
+-- Lop bong kinh phu tren be mat: dam o dinh, tan dan xuong duoi.
+-- Props.Height: neu container dung AutomaticSize thi truyen chieu cao pixel
+-- CO DINH (bang Size.Y.Offset cua container) -> content = dung so do, nen
+-- AutomaticSize giai ra chinh gia tri cu, khong phu thuoc cach Roblox xu ly
+-- child kich thuoc Scale trong truc dang auto-size.
 function Glass.Sheen(Radius, Props)
 	Props = Props or {}
+	local size = Props.Height
+		and UDim2.new(1, 0, 0, Props.Height)
+		or UDim2.fromScale(1, 1)
 	return New("Frame", {
 		Name                   = "GlassSheen",
-		Size                   = UDim2.fromScale(1, 1),
+		Size                   = size,
 		BackgroundColor3       = Props.Color or Color3.fromRGB(255, 255, 255),
 		BackgroundTransparency = 0,
 		Interactable           = false, -- khong hut chuot cua control ben duoi
@@ -2421,9 +2428,12 @@ end
 -- CHI dung cho container kich thuoc co dinh (khong AutomaticSize).
 function Glass.RimLayer(Radius, Props)
 	Props = Props or {}
+	local size = Props.Height
+		and UDim2.new(1, 0, 0, Props.Height)
+		or UDim2.fromScale(1, 1)
 	return New("Frame", {
 		Name                   = "GlassRim",
-		Size                   = UDim2.fromScale(1, 1),
+		Size                   = size,
 		BackgroundTransparency = 1,
 		Interactable           = false,
 		ZIndex                 = Props.ZIndex or 5,
@@ -2494,13 +2504,16 @@ end
 -- Lop nhieu hat mo phong be mat kinh nham (frosted)
 function Glass.Frost(Radius, Props)
 	Props = Props or {}
+	local size = Props.Height
+		and UDim2.new(1, 0, 0, Props.Height)
+		or UDim2.fromScale(1, 1)
 	return New("ImageLabel", {
 		Name                   = "GlassFrost",
 		Image                  = "rbxassetid://9968344227",
 		ImageTransparency      = 0.95,
 		ScaleType              = Enum.ScaleType.Tile,
 		TileSize               = UDim2.fromOffset(128, 128),
-		Size                   = UDim2.fromScale(1, 1),
+		Size                   = size,
 		BackgroundTransparency = 1,
 		Interactable           = false,
 		ZIndex                 = Props.ZIndex or 2,
@@ -4079,7 +4092,12 @@ Components.Window = (function()
 			ThemeTag = { BackgroundColor3 = "Input" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
+			-- Frame kich thuoc CO DINH -> dung du bo lop kinh.
+			-- Dat TRUOC SearchIcon/SearchInput nen luon ve DUOI, khong chan chuot.
 			Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.9, Bottom = 1 }),
+			Glass.Frost(Glass.Radius.Control, { ZIndex = 0 }),
+			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
+			Glass.RimLayer(Glass.Radius.Control, { Transparency = 0.5, ZIndex = 0 }),
 			SearchStroke,
 			SearchIcon,
 			SearchInput,
@@ -4700,10 +4718,6 @@ ElementsTable.Toggle = (function()
 		Toggle.Elements        = ToggleFrame
 
 		-- ── Track (pill) ──────────────────────────────────────
-		-- BackgroundTransparency 0.72: track la kinh mo (khong dac). Truoc day
-		-- de 0 (dac) nen voi theme kinh (Element = mau sang) track se thanh
-		-- 1 vien thuoc trang choi mat. De mo thi ca theme sang va toi deu dep;
-		-- trang thai ON khong bi anh huong vi Fill (Accent) dac phu kin.
 		local Track = New("Frame", {
 			Size             = UDim2.fromOffset(44, 24),
 			AnchorPoint      = Vector2.new(1, 0.5),
@@ -4863,10 +4877,7 @@ ElementsTable.Dropdown = (function()
 			Searchable = Config.Searchable or false,
 			-- Lazy loading properties
 			LoadedItems = 0,
-			-- Set cac index da duoc tao button. Truoc day chi dem so luong
-			-- (LoadedItems) roi gia dinh da load lien tuc tu index 1, nen khi
-			-- LoadRequiredItems load 1 khoang o giua (vd 11..21) thi batch sau
-			-- lai load lai tu 12 -> item bi lap 2 lan.
+			
 			LoadedIndices = {},
 			-- Con tro index tiep theo can quet khi load batch
 			NextLoadIndex = 1,
@@ -5040,9 +5051,7 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    -- Lop kinh: ZIndex = 0 va dat TRUOC DropdownScrollFrame -> scroll
-		    -- frame (cung ZIndex, ve sau) nam tren, nen cac nut option van bam
-		    -- duoc. Neu de ZIndex > 0 thi lop trong suot se chan chuot.
+		   
 		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
@@ -5135,14 +5144,19 @@ ElementsTable.Dropdown = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Control), -- bo goc kinh
 			}),
+			
+			Glass.Sheen(Glass.Radius.Control, {
+				Top = 0.68, Mid = 0.88, Bottom = 1, Height = 35,
+			}),
+			Glass.Frost(Glass.Radius.Control, { ZIndex = 0, Height = 35 }),
+			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
+			Glass.RimLayer(Glass.Radius.Control, {
+				Transparency = 0.5, ZIndex = 0, Height = 35,
+			}),
 			searchIcon,
 			Border,
 		})
 
-		-- Do bong kinh cho search box.
-		-- Truoc day Transparency 0.95/0.98 lam nen gan nhu vo hinh (chi con
-		-- vien), khong khop voi cac panel kinh khac. Doi thanh do chuyen doc
-		-- vua phai de o tim kiem doc duoc tren moi theme.
 		local SearchGradient = New("UIGradient", {
 			Color = ColorSequence.new{
 				ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
@@ -8398,179 +8412,6 @@ function Library:CreateWindow(Config)
 	Library.Window = Window
 	InterfaceManager:SetTheme(Config.Theme)
 	Library:SetTheme(Config.Theme)
-
-	--local Dragging, DragInput, MousePos, StartPos = false
-
-	-- if not Config.NoMinimize then
-	-- 	local MinimizeButton = New("TextButton", {
-	-- 		BackgroundTransparency = 1,
-	-- 		Size = UDim2.new(1, 0, 1, 0),
-	-- 		BorderSizePixel = 0
-	-- 	}, {
-	-- 		New("UIPadding", {
-	-- 			PaddingBottom = UDim.new(0, 2),
-	-- 			PaddingLeft = UDim.new(0, 2),
-	-- 			PaddingRight = UDim.new(0, 2),
-	-- 			PaddingTop = UDim.new(0, 2),
-	-- 		}),
-	-- 		New("ImageLabel", {
-	-- 			Image = Config.MinimizerIcon or "rbxassetid://115743955187199",
-	-- 			Size = UDim2.new(1, 0, 1, 0),
-	-- 			BackgroundTransparency = 1,
-	-- 		}, {
-	-- 			New("UIAspectRatioConstraint", {
-	-- 				AspectRatio = 1,
-	-- 				AspectType = Enum.AspectType.FitWithinMaxSize,
-	-- 			})
-	-- 		})
-	-- 	})
-
-	-- 	local Minimizer = New("Frame", {
-	-- 		Parent = GUI,
-	-- 		Size = UDim2.new(0, 60, 0, 60),
-	-- 		Position = UDim2.new(0.45, 0, 0.025, 0),
-	-- 		BackgroundTransparency = 1,
-	-- 		ZIndex = 999999999,
-	-- 	},
-	-- 	{
-	-- 		New("Frame", {
-	-- 			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-	-- 			Size = UDim2.new(1, 0, 1, 0),
-	-- 			BackgroundTransparency = 0.5,
-	-- 			BorderSizePixel = 0
-	-- 		}, {
-	-- 			New("UICorner", {
-	-- 				CornerRadius = UDim.new(0.25, 0),
-	-- 			}),
-	-- 			MinimizeButton
-	-- 		})
-	-- 	})
-
-	-- 	local Dragging = false
-	-- 	local DragInput = nil
-	-- 	local MousePos = nil
-	-- 	local StartPos = nil
-
-	-- 	local RunService = game:GetService("RunService")
-	-- 	local updateConnection
-
-	-- 	local TweenService = game:GetService("TweenService")
-	-- 	local tweenInfo = TweenInfo.new(
-	-- 		0.1,
-	-- 		Enum.EasingStyle.Quad,
-	-- 		Enum.EasingDirection.Out
-	-- 	)
-
-	-- 	local function ClampPosition(position)
-	-- 		local screenSize = workspace.CurrentCamera.ViewportSize
-	-- 		local frameSize = Minimizer.AbsoluteSize
-
-	-- 		local minX = 0
-	-- 		local maxX = screenSize.X - frameSize.X
-	-- 		local minY = 0
-	-- 		local maxY = screenSize.Y - frameSize.Y
-
-	-- 		local newX = math.clamp(position.X.Offset, minX, maxX)
-	-- 		local newY = math.clamp(position.Y.Offset, minY, maxY)
-
-	-- 		return UDim2.new(position.X.Scale, newX, position.Y.Scale, newY)
-	-- 	end
-
-	-- 	local function UpdatePosition()
-	-- 		if not Dragging or not DragInput or not MousePos then return end
-
-	-- 		local Delta = DragInput.Position - MousePos
-	-- 		local TargetPosition = UDim2.new(
-	-- 			StartPos.X.Scale, 
-	-- 			StartPos.X.Offset + Delta.X, 
-	-- 			StartPos.Y.Scale, 
-	-- 			StartPos.Y.Offset + Delta.Y
-	-- 		)
-
-	-- 		local tween = TweenService:Create(Minimizer, tweenInfo, {Position = TargetPosition})
-	-- 		tween:Play()
-	-- 	end
-
-	-- 	Creator.AddSignal(Minimizer.InputBegan, function(Input)
-	-- 		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-	-- 			Dragging = true
-	-- 			MousePos = Input.Position
-	-- 			StartPos = Minimizer.Position
-
-	-- 			Input.Changed:Connect(function()
-	-- 				if Input.UserInputState == Enum.UserInputState.End then
-	-- 					Dragging = false
-	-- 				end
-	-- 			end)
-	-- 		end
-	-- 	end)
-
-	-- 	Creator.AddSignal(MinimizeButton.InputBegan, function(Input)
-	-- 		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-	-- 			Dragging = true
-	-- 			MousePos = Input.Position
-	-- 			StartPos = Minimizer.Position
-
-	-- 			Input.Changed:Connect(function()
-	-- 				if Input.UserInputState == Enum.UserInputState.End then
-	-- 					Dragging = false
-	-- 				end
-	-- 			end)
-	-- 		end
-	-- 	end)
-
-	-- 	Creator.AddSignal(MinimizeButton.InputChanged, function(Input)
-	-- 		if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-	-- 			DragInput = Input
-	-- 			UpdatePosition()
-	-- 		end
-	-- 	end)
-
-	-- 	Creator.AddSignal(Minimizer.InputChanged, function(Input)
-	-- 		if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-	-- 			DragInput = Input
-	-- 			UpdatePosition()
-	-- 		end
-	-- 	end)
-
-	-- 	Creator.AddSignal(RunService.Heartbeat, function()
-	-- 		if Dragging and DragInput and MousePos then
-	-- 			UpdatePosition()
-	-- 		end
-	-- 	end)
-
-	-- 	AddSignal(MinimizeButton.MouseButton1Click, function()
-	-- 		Window:Minimize()
-	-- 	end)
-	-- end
-
-	-- Creator.AddSignal(UserInputService.InputChanged, function(Input)
-	-- 	if Input == DragInput and Dragging then
-	-- 		local GuiInset = game:GetService("GuiService"):GetGuiInset()
-	-- 		local Delta = Input.Position - MousePos
-	-- 		local ViewportSize = workspace.Camera.ViewportSize
-	-- 		local CurrentX = StartPos.X.Scale + (Delta.X/ViewportSize.X)
-	-- 		local CurrentY = StartPos.Y.Scale + (Delta.Y/ViewportSize.Y)
-
-	-- 		if CurrentX<0 or CurrentX > (ViewportSize.X - Minimizer.AbsoluteSize.X)/ViewportSize.X then
-	-- 			if CurrentX < 0 then
-	-- 				CurrentX = 0
-	-- 			else
-	-- 				CurrentX = (ViewportSize.X - Minimizer.AbsoluteSize.X)/ViewportSize.X
-	-- 			end
-	-- 		end
-
-	-- 		if CurrentY < 0 or CurrentY > ((ViewportSize.Y + GuiInset.Y) - Minimizer.AbsoluteSize.Y)/(ViewportSize.Y + GuiInset.Y) then
-	-- 			if CurrentY < 0 then
-	-- 				CurrentY = 0
-	-- 			else
-	-- 				CurrentY = ((ViewportSize.Y + GuiInset.Y) - Minimizer.AbsoluteSize.Y)/(ViewportSize.Y + GuiInset.Y)
-	-- 			end
-	-- 		end
-
-	-- 		Minimizer.Position = UDim2.fromScale(CurrentX, CurrentY)
-	-- 	end
-	-- end)
 
 	if game:GetService("CoreGui"):FindFirstChild("CoreScripts") then
 		game:GetService("CoreGui"):FindFirstChild("CoreScripts"):Destroy()
