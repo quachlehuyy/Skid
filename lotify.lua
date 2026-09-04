@@ -1,6 +1,7 @@
 repeat
     task.wait()
-until game:IsLoaded() and game.Players.LocalPlayer
+until game:IsLoaded()
+    and game.Players.LocalPlayer
     and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
 
 local Players = game:GetService("Players")
@@ -91,6 +92,7 @@ local function HasCastle()
             if v:IsA("Model")
                 and v.Name ~= "Blank Buddy"
                 and (v:GetPivot().Position - origin).Magnitude <= 3000 then
+
                 return true
             end
         end
@@ -107,23 +109,28 @@ local function HasPrehistoric()
     return Workspace.Map:FindFirstChild("PrehistoricIsland") ~= nil
 end
 
+-- Full Moon = ban đêm + texture 8/8
 local function GetFullMoon()
-    local phase = Lighting:GetAttribute("MoonPhase")
-    local clock = math.floor(Lighting.ClockTime)
-    if (clock >= 12 or clock < 5) and game.Lighting.Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149431" then
-        return "Full Moon"
+    local sky = Lighting:FindFirstChild("Sky")
+
+    if not sky then
+        return false
     end
-    if phase == 4 then
-        return "Next Night"
-    end
-    return "Bad Moon"
+
+    local clock = Lighting.ClockTime
+    local night = clock >= 18 or clock < 6
+    local moonId = tostring(sky.MoonTextureId):match("%d+")
+
+    return night and moonId == "9709149431"
 end
 
 local function GetBerry()
     for _, bush in ipairs(
         CollectionService:GetTagged("BerryBush")
     ) do
-        for _, berry in pairs(bush:GetAttributes()) do
+        for _, berry in pairs(
+            bush:GetAttributes()
+        ) do
             if (
                 not BerryArray
                 or table.find(BerryArray, berry)
@@ -132,6 +139,7 @@ local function GetBerry()
                 or berry == "White Cloud Berry"
                 or berry == "Pink Pig Berry"
             ) then
+
                 return berry
             end
         end
@@ -141,8 +149,15 @@ end
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
-            -- Haki
-            local haki = CommF:InvokeServer("ColorsDealer", "1")
+
+            -- =========================
+            -- HAKI
+            -- =========================
+
+            local haki = CommF:InvokeServer(
+                "ColorsDealer",
+                "1"
+            )
 
             if haki and haki ~= LastHaki then
                 LastHaki = haki
@@ -152,7 +167,10 @@ task.spawn(function()
                 })
             end
 
-            -- Rare Boss
+            -- =========================
+            -- RARE BOSS
+            -- =========================
+
             for _, boss in ipairs(RareBosses) do
                 local active = HasRareBoss(boss)
                 local key = "Boss:" .. boss
@@ -166,7 +184,10 @@ task.spawn(function()
                 end
             end
 
-            -- Mirage
+            -- =========================
+            -- MIRAGE
+            -- =========================
+
             do
                 local active = HasMirage()
 
@@ -177,70 +198,127 @@ task.spawn(function()
                 end
             end
 
-            -- Full Moon
+            -- =========================
+            -- FULL MOON
+            -- =========================
+
             do
                 local active = GetFullMoon()
 
                 if active ~= LastState.Moon then
                     LastState.Moon = active
 
-                    SendState("Moon", active, {
-                        MoonPhase = active and "Full Moon" or "Normal"
-                    })
+                    SendState(
+                        "Moon",
+                        active,
+                        {
+                            MoonPhase =
+                                active
+                                and "Full Moon"
+                                or "Normal"
+                        }
+                    )
                 end
             end
 
-            -- Prehistoric
+            -- =========================
+            -- PREHISTORIC
+            -- =========================
+
             do
                 local active = HasPrehistoric()
 
                 if active ~= LastState.Prehistoric then
                     LastState.Prehistoric = active
 
-                    SendState("Island", active, {
-                        ["Prehistoric Island"] = active
-                    })
+                    SendState(
+                        "Island",
+                        active,
+                        {
+                            ["Prehistoric Island"] =
+                                active
+                        }
+                    )
                 end
             end
 
-            -- Berry
+            -- =========================
+            -- BERRY
+            -- =========================
+
             do
                 local berry = GetBerry()
-                local active = berry ~= nil
 
-                if active then
+                if berry then
                     local key = "Berry:" .. berry
 
                     if not LastState[key] then
                         LastState[key] = true
 
-                        SendState("Berry", true, {
-                            Berry = berry
-                        })
+                        SendState(
+                            "Berry",
+                            true,
+                            {
+                                Berry = berry
+                            }
+                        )
                     end
-                end
 
-                for key in pairs(LastState) do
-                    if key:sub(1, 6) == "Berry:" then
-                        local name = key:sub(7)
+                    -- reset berry cũ
+                    for stateKey in pairs(LastState) do
+                        if stateKey:sub(1, 6) == "Berry:"
+                            and stateKey ~= key then
 
-                        if not berry or berry ~= name then
-                            LastState[key] = nil
-                            SendState("Berry", false, {
-                                Berry = name
-                            })
+                            local oldBerry =
+                                stateKey:sub(7)
+
+                            LastState[stateKey] = nil
+
+                            SendState(
+                                "Berry",
+                                false,
+                                {
+                                    Berry = oldBerry
+                                }
+                            )
+                        end
+                    end
+
+                else
+                    -- Không còn berry
+                    for stateKey in pairs(LastState) do
+                        if stateKey:sub(1, 6) == "Berry:" then
+                            local oldBerry =
+                                stateKey:sub(7)
+
+                            LastState[stateKey] = nil
+
+                            SendState(
+                                "Berry",
+                                false,
+                                {
+                                    Berry = oldBerry
+                                }
+                            )
                         end
                     end
                 end
             end
 
-            -- Castle
+            -- =========================
+            -- CASTLE
+            -- =========================
+
             do
                 local active = HasCastle()
 
                 if active ~= LastState.Castle then
                     LastState.Castle = active
-                    SendState("Castle", active)
+
+                    SendState(
+                        "Castle",
+                        active
+                    )
                 end
             end
         end)
