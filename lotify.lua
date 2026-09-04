@@ -1,8 +1,5 @@
-repeat
-    task.wait()
-until game:IsLoaded()
-    and game.Players.LocalPlayer
-    and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
+repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+and game.Players.LocalPlayer:FindFirstChild("DataLoaded")
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -16,13 +13,13 @@ local CommF = ReplicatedStorage
     :WaitForChild("Remotes")
     :WaitForChild("CommF_")
 
-local WorkerURL = "https://YOUR-WORKER.workers.dev/notify"
+local WorkerURL = "https://nf.quachlehuyy.workers.dev/notify"
 
 local RareBosses = {
     "rip_indra True Form",
     "Dough King",
-    "Cake Prince",
     "Soul Reaper",
+    "Darkbeard",
     "Cursed Captain"
 }
 
@@ -73,7 +70,7 @@ local function SendEvent(eventType, active, extra)
 end
 
 -- =========================================================
--- GIỮ NGUYÊN CÁC FUNC CHECK
+-- CHECK FUNCTIONS
 -- =========================================================
 
 local function GetFullMoon()
@@ -93,45 +90,6 @@ end
 
 local function GetMirage()
     return Workspace.Map:FindFirstChild("MysticIsland") ~= nil
-end
-
-local function GetElite()
-    local main = Player.PlayerGui:FindFirstChild("Main")
-    local quest = main and main:FindFirstChild("Quest")
-
-    if not quest or not quest.Visible then
-        return nil
-    end
-
-    local container = quest:FindFirstChild("Container")
-    local questTitle = container
-        and container:FindFirstChild("QuestTitle")
-
-    local title = questTitle
-        and questTitle:FindFirstChild("Title")
-
-    if not title then
-        return nil
-    end
-
-    local text = title.Text
-
-    if not (
-        text:find("Diablo")
-        or text:find("Urban")
-        or text:find("Deandre")
-    ) then
-        return nil
-    end
-
-    for _, v in ipairs(ReplicatedStorage:GetChildren()) do
-        if v.Name:find("Diablo")
-            or v.Name:find("Urban")
-            or v.Name:find("Deandre") then
-
-            return v.Name
-        end
-    end
 end
 
 local function HasCastle()
@@ -309,51 +267,6 @@ task.spawn(function()
             end
 
             -- =================================================
-            -- ELITE
-            -- =================================================
-
-            do
-                local elite = GetElite()
-                local currentEliteKey =
-                    elite and ("Elite:" .. elite)
-
-                -- Elite mới xuất hiện
-                if elite
-                    and not LastState[currentEliteKey] then
-
-                    LastState[currentEliteKey] = true
-
-                    SendEvent(
-                        "Elite",
-                        true,
-                        {
-                            Elite = elite
-                        }
-                    )
-                end
-
-                -- Elite cũ biến mất
-                for key, state in pairs(LastState) do
-                    if state
-                        and key:sub(1, 6) == "Elite:"
-                        and key ~= currentEliteKey then
-
-                        local oldElite = key:sub(7)
-
-                        LastState[key] = nil
-
-                        SendEvent(
-                            "Elite",
-                            false,
-                            {
-                                Elite = oldElite
-                            }
-                        )
-                    end
-                end
-            end
-
-            -- =================================================
             -- BERRY
             -- =================================================
 
@@ -398,6 +311,9 @@ task.spawn(function()
                 end
             end
 
+            -- =================================================
+            -- CASTLE
+            -- =================================================
 
             if SeaIndex == 3 then
                 local active = HasCastle()
