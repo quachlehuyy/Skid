@@ -119,8 +119,7 @@ end
 local function HasRareBoss(name)
     for _, folder in ipairs({
         ReplicatedStorage,
-        Workspace.Enemies,
-        Workspace._WorldOrigin.EnemySpawns
+        Workspace.Enemies
     }) do
         for _, v in ipairs(folder:GetChildren()) do
             if v.Name:find(name) then
