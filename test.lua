@@ -2500,7 +2500,7 @@ function Glass.Accent(Frame, Props)
 			Name                   = "GlassAccentGloss",
 			Size                   = UDim2.fromScale(1, 1),
 			BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = 0,
+			BackgroundTransparency = 0.85,
 			Interactable           = false,
 			ZIndex                 = 0,
 			Parent                 = Frame,
@@ -3090,22 +3090,6 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Glass.Radius.Element),
 		}),
-		-- Do dai element duoc tinh boi AutomaticSize.Y nen KHONG them frame
-		-- overlay o day. Dung UIGradient (khong phai GuiObject) de tao do
-		-- chuyen sang cua kinh -> tuyet doi khong anh huong chieu cao.
-		New("UIGradient", {
-			Rotation = 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.00),
-				NumberSequenceKeypoint.new(0.55, 0.16),
-				NumberSequenceKeypoint.new(1.00, 0.34),
-			}),
-		}),
-		-- KHONG dat bong do (UIShadow) cho tung hang element: mot script that
-		-- co the tao 200+ element, moi UIShadow la mot luot blur tren GPU ->
-		-- rat nang tren mobile/executor yeu. Bong chi dat cho cac panel NOI
-		-- (cua so, dialog, notification, dropdown list) - dung nhu iOS: hang
-		-- trong danh sach khong co bong rieng, chi co vien sang.
 		Element.Border,
 		Element.LabelHolder,
 	})
@@ -3711,7 +3695,7 @@ Components.Dialog = (function()
 		NewDialog.ButtonHolderFrame = New("Frame", {
 			Size = UDim2.new(1, 0, 0, 70),
 			Position = UDim2.new(0, 0, 1, -70),
-			BackgroundTransparency = 0.15,
+			BackgroundTransparency = 0.70,
 			ThemeTag = {
 				BackgroundColor3 = "DialogHolder",
 			},
@@ -3757,6 +3741,7 @@ Components.Dialog = (function()
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
 			GroupTransparency = 1,
+			BackgroundTransparency = 0.70,
 			Parent = NewDialog.TintFrame,
 			ThemeTag = {
 				BackgroundColor3 = "Dialog",
@@ -3765,19 +3750,7 @@ Components.Dialog = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Window),
 			}),
-			-- Lop kinh: dat lam child DAU TIEN va ZIndex = 0 -> luon ve DUOI
-			-- Title/ButtonHolderFrame. Neu de ZIndex > 0, frame trang suot van
-			-- CHAN chuot cho cac nut trong dialog.
-			Glass.Sheen(Glass.Radius.Window, { Top = 0.62, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.22, ZIndex = 0 }),
-			-- Root la CanvasGroup: no ve con vao mot texture dung bang kich
-			-- thuoc cua no -> child TRAN RA NGOAI se bi CAT. Vi vay dung
-			-- EdgeBand (vanh huong VAO TRONG) chu khong dung Glass.Refract.
-			Glass.EdgeBand(Glass.Radius.Window, {
-				Layers = 3, Transparency = 0.24, ZIndex = 0,
-			}),
-			-- UIStroke nay phai la con TRUC TIEP cua Root: Dialog:Close()
-			-- goi Root.UIStroke:Destroy() (FindFirstChild chi tim con truc tiep).
 			Glass.Rim({ Transparency = 0.3, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			NewDialog.Scale,
 			NewDialog.Title,
@@ -3979,19 +3952,14 @@ Components.Notification = (function()
 		})
 
 		NewNotification.Root = New("Frame", {
-		    BackgroundTransparency = 0.25,
+		    BackgroundTransparency = 0.70,
 		    Size = UDim2.new(1, 0, 1, 0),
 		    Position = UDim2.fromScale(1, 0),
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.85, Bottom = 1, ZIndex = 0 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
-		    -- vanh khuc xa huong vao trong (Root khong duoc tran ra ngoai vi
-		    -- Holder co UIListLayout - frame lon hon se day layout)
-		    Glass.EdgeBand(Glass.Radius.Card, {
-		        Layers = 3, Transparency = 0.24, ZIndex = 0,
-		    }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.45, ZIndex = 0 }),
 		    Glass.Rim({ Transparency = 0.3, Mode = Enum.ApplyStrokeMode.Contextual }),
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
@@ -5188,24 +5156,19 @@ ElementsTable.Toggle = (function()
 		Toggle.Elements        = ToggleFrame
 
 		-- ── Track (pill) ──────────────────────────────────────
-		-- BackgroundTransparency 0.72: track la kinh mo (khong dac). Truoc day
-		-- de 0 (dac) nen voi theme kinh (Element = mau sang) track se thanh
-		-- 1 vien thuoc trang choi mat. De mo thi ca theme sang va toi deu dep;
-		-- trang thai ON khong bi anh huong vi Fill (Accent) dac phu kin.
 		local Track = New("Frame", {
 			Size             = UDim2.fromOffset(44, 24),
 			AnchorPoint      = Vector2.new(1, 0.5),
 			Position         = UDim2.new(1, -10, 0.5, 0),
-			BackgroundColor3 = Color3.fromRGB(60, 60, 60),
-			BackgroundTransparency = 0.72,
+			BackgroundColor3 = Color3.fromRGB(35, 38, 50),
+			BackgroundTransparency = 0.60,
 			Parent           = ToggleFrame.Frame,
-			ThemeTag         = { BackgroundColor3 = "Element" },
+			ThemeTag         = { BackgroundColor3 = "DropdownHolder" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			-- bong kinh tren track (nam duoi Fill/Thumb vi ZIndex = 0)
 			Glass.SheenPill({ Top = 0.68, Mid = 0.9, Bottom = 1 }),
 			New("UIStroke", {
-				Transparency    = 0.4,
+				Transparency    = 0.45,
 				Thickness       = 1,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color           = Color3.fromRGB(255, 255, 255),
@@ -5214,26 +5177,19 @@ ElementsTable.Toggle = (function()
 				New("UIGradient", {
 					Rotation = 90,
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.00, 0.1),
 						NumberSequenceKeypoint.new(0.55, 0.6),
-						NumberSequenceKeypoint.new(1.00, 0.25),
+						NumberSequenceKeypoint.new(1.00, 0.3),
 					}),
 				}),
 			}),
 		})
 
 		-- ── Accent fill (clipped inside track) ───────────────
-		-- Mang mau khi BAT. Dung Glass.Accent de co cung chat kinh voi thanh
-		-- fill cua slider / pill cua tab: do sang doc + bong kinh nua tren +
-		-- vach specular sat canh tren.
-		--
-		-- Vi sao KHONG tu viet UIGradient o day nua: mot GuiObject chi dung
-		-- duoc DUY NHAT 1 UIGradient, ma Glass.Accent can lop do de vua to mau
-		-- (Color) vua tao do trong (Transparency). Neu de lai gradient cu thi
-		-- 1 trong 2 lop bi bo qua -> mau accent bi bet, khong ra kinh.
 		local Fill = New("Frame", {
 			Size             = UDim2.new(0, 0, 1, 0),   -- starts empty
 			BackgroundColor3 = Color3.fromRGB(96, 205, 255),
+			BackgroundTransparency = 0.25,
 			ZIndex           = 2,
 			ThemeTag         = { BackgroundColor3 = "Accent" },
 			Parent           = Track,
@@ -5497,7 +5453,7 @@ ElementsTable.Dropdown = (function()
 				Name             = "DropdownClear",
 				Text             = "",
 				Size             = UDim2.fromOffset(30, 30),
-				BackgroundTransparency = 0.15,
+				BackgroundTransparency = 0.65,
 				Visible          = false,
 				Parent           = Library.GUI,
 				AutoLocalize     = false,
@@ -5588,28 +5544,14 @@ ElementsTable.Dropdown = (function()
 
 		local DropdownHolderFrame = New("Frame", {
 		    Size             = UDim2.fromScale(1, 0.6),
-		    BackgroundTransparency = 0.06,
+		    BackgroundTransparency = 0.70,
 		    ThemeTag         = { BackgroundColor3 = "DropdownHolder" },
 		}, {
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    -- Lop kinh: ZIndex = 0 va dat TRUOC DropdownScrollFrame -> scroll
-		    -- frame (cung ZIndex, ve sau) nam tren, nen cac nut option van bam
-		    -- duoc. Neu de ZIndex > 0 thi lop trong suot se chan chuot.
-		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
-		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.55, ZIndex = 0 }),
-		    -- Vanh khuc xa huong VAO TRONG. Khong dung Glass.Refract o day:
-		    -- Refract phai la SIBLING nam sau nen panel (vi voi
-		    -- ZIndexBehavior.Sibling, con LUON ve tren nen cua cha - ZIndex
-		    -- chi sap xep giua cac sibling). Ma sibling cua HolderFrame la
-		    -- Canvas co kich thuoc co dinh, con HolderFrame lai tween chieu
-		    -- cao 0 -> full khi mo => vanh se hien du kich thuoc trong khi
-		    -- panel con dang mo ra. EdgeBand la con nen no gian dung theo panel.
-		    Glass.EdgeBand(Glass.Radius.Card, {
-		        Layers = 3, Transparency = 0.26, ZIndex = 0,
-		    }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.45, ZIndex = 0 }),
 		    Glass.Rim({ Transparency = 0.3, Tag = "DropdownBorder" }),
 		    DropdownScrollFrame,
 		})
@@ -5694,52 +5636,23 @@ ElementsTable.Dropdown = (function()
 
 		local SearchBase = New("Frame", {
 			Visible = false,
-			Size = UDim2.new(0, 170, 0, 35), -- เพิ่มความสูง
+			Size = UDim2.new(0, 170, 0, 35),
 			Parent = Library.GUI,
 			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 0.06,
+			BackgroundTransparency = 0.70,
 			ThemeTag = {
 				BackgroundColor3 = "DropdownHolder",
 			},
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, Glass.Radius.Control), -- bo goc kinh
-			}),
-			-- ── Liquid glass cho o search cua dropdown ──────────────
-			-- SearchBase dung AutomaticSize.Y (35px co san), nen moi lop kinh
-			-- o day duoc truyen Height = 35: chieu cao CO DINH bang dung chieu
-			-- cao goc -> AutomaticSize giai ra 35, khong the phong to.
-			-- TopLight cao 1px tai offset 1px nen cung an toan.
-			-- KHONG dung Glass.Glow: Glow co Size = (1, +44, 1, +44) se lam
-			-- frame cao them 44px.
-			-- Dat TRUOC searchIcon/Border, va DropdownSearch duoc parent sau
-			-- (o duoi) nen tat ca lop kinh luon ve DUOI -> khong chan chuot.
-			Glass.Sheen(Glass.Radius.Control, {
-				Top = 0.68, Mid = 0.88, Bottom = 1, Height = 35,
+				CornerRadius = UDim.new(0, Glass.Radius.Control),
 			}),
 			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
 			Glass.RimLayer(Glass.Radius.Control, {
-				Transparency = 0.5, ZIndex = 0, Height = 35,
+				Transparency = 0.45, ZIndex = 0, Height = 35,
 			}),
 			searchIcon,
 			Border,
-		})
-
-		-- Do bong kinh cho search box.
-		-- Truoc day Transparency 0.95/0.98 lam nen gan nhu vo hinh (chi con
-		-- vien), khong khop voi cac panel kinh khac. Doi thanh do chuyen doc
-		-- vua phai de o tim kiem doc duoc tren moi theme.
-		local SearchGradient = New("UIGradient", {
-			Color = ColorSequence.new{
-				ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 255, 255)),
-				ColorSequenceKeypoint.new(1.0, Color3.fromRGB(236, 240, 248))
-			},
-			Rotation = 90,
-			Transparency = NumberSequence.new{
-				NumberSequenceKeypoint.new(0.0, 0.0),
-				NumberSequenceKeypoint.new(1.0, 0.25)
-			},
-			Parent = SearchBase,
 		})
 
         local DropdownSearch = New("TextBox", {
