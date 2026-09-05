@@ -2639,15 +2639,16 @@ end
 Glass.InsetRect = InsetRect
 
 -- (4) Bong do dai phong cach liquid glass (9-slice long directional shadow)
--- Dung asset rbxassetid://6015897843 (chuan 500x500 9-slice voi vien mo 49px)
+-- Tu dong an theo mau nen cua Theme qua ThemeTag { ImageColor3 = "AcrylicMain" }
 function Glass.Shadow(Props)
 	Props = Props or {}
-	local SpreadX      = Props.SpreadX or Props.Spread or (Props.Blur and Props.Blur * 2) or 44
-	local SpreadY      = Props.SpreadY or (Props.Spread and Props.Spread * 1.8) or (Props.Blur and Props.Blur * 3.2) or 75
-	local Transparency = Props.Transparency or 0.32
+	local SpreadX      = Props.SpreadX or Props.Spread or (Props.Blur and Props.Blur * 2) or 36
+	local SpreadY      = Props.SpreadY or (Props.Spread and Props.Spread * 1.6) or (Props.Blur and Props.Blur * 2.8) or 60
+	local Transparency = Props.Transparency or 0.45
 	local OffsetX      = Props.OffsetX or 0
-	local OffsetY      = Props.OffsetY or 18
+	local OffsetY      = Props.OffsetY or 16
 	local ZIndex       = Props.ZIndex or 1
+	local ThemeTag     = Props.ThemeTag or { ImageColor3 = "AcrylicMain" }
 
 	return New("ImageLabel", {
 		Name                   = "GlassShadow",
@@ -2663,15 +2664,17 @@ function Glass.Shadow(Props)
 		Interactable           = false,
 		ZIndex                 = ZIndex,
 		Parent                 = Props.Parent,
+		ThemeTag               = ThemeTag,
 	})
 end
 
 -- (5) Gradient do trong suot: tren trong, duoi hoi duc nhe (Liquid Glass Gradient)
+-- Giu do trong suot kinh long nhung van hien ro anh sac mau cua tung Theme
 function Glass.TransparencyGradient(Props)
 	Props = Props or {}
-	local Top      = Props.Top or 0.94     -- Tren TRONG (crystal clear transparent)
-	local Mid      = Props.Mid or 0.80     -- Giua chuyen tiep em
-	local Bottom   = Props.Bottom or 0.52  -- Duoi HOI DUC NHE (cloudy/frosted)
+	local Top      = Props.Top or 0.82     -- Tren TRONG (clear transparent, hien ro mau theme)
+	local Mid      = Props.Mid or 0.68     -- Giua chuyen tiep em
+	local Bottom   = Props.Bottom or 0.42  -- Duoi HOI DUC NHE (cloudy/frosted dong mau theme)
 	local Rotation = Props.Rotation or 90  -- Tu tren xuong duoi (90 do)
 
 	return New("UIGradient", {
@@ -3762,11 +3765,12 @@ Components.Dialog = (function()
 		local ScaleMotor, Scale = Creator.SpringMotor(1.1, NewDialog.Scale, "Scale")
 
 		local DialogShadow = Glass.Shadow({
-			SpreadX = 40, SpreadY = 74, OffsetY = 22, Transparency = 0.32, ZIndex = 1,
+			SpreadX = 32, SpreadY = 56, OffsetY = 16, Transparency = 0.45, ZIndex = 1,
+			ThemeTag = { ImageColor3 = "Dialog" },
 		})
-		DialogShadow.Size = UDim2.new(0, 344, 0, 240)
+		DialogShadow.Size = UDim2.new(0, 332, 0, 225)
 		DialogShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-		DialogShadow.Position = UDim2.new(0.5, 0, 0.5, 22)
+		DialogShadow.Position = UDim2.new(0.5, 0, 0.5, 16)
 		DialogShadow.Parent = NewDialog.TintFrame
 
 		NewDialog.Root = New("CanvasGroup", {
@@ -3784,7 +3788,7 @@ Components.Dialog = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Window),
 			}),
-			Glass.TransparencyGradient({ Top = 0.94, Mid = 0.80, Bottom = 0.52 }),
+			Glass.TransparencyGradient({ Top = 0.82, Mid = 0.68, Bottom = 0.42 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.20, ZIndex = 0 }),
 			Glass.Rim({ Transparency = 0.3, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			NewDialog.Scale,
@@ -3987,7 +3991,8 @@ Components.Notification = (function()
 		})
 
 		local NotificationShadow = Glass.Shadow({
-			SpreadX = 28, SpreadY = 52, OffsetY = 16, Transparency = 0.32, ZIndex = 1,
+			SpreadX = 24, SpreadY = 42, OffsetY = 12, Transparency = 0.45, ZIndex = 1,
+			ThemeTag = { ImageColor3 = "AcrylicMain" },
 		})
 
 		NewNotification.Root = New("Frame", {
@@ -3998,7 +4003,7 @@ Components.Notification = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.TransparencyGradient({ Top = 0.94, Mid = 0.80, Bottom = 0.52 }),
+		    Glass.TransparencyGradient({ Top = 0.82, Mid = 0.68, Bottom = 0.42 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.20, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.38, ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.3, Mode = Enum.ApplyStrokeMode.Contextual }),
@@ -4742,7 +4747,8 @@ Components.Window = (function()
 		-- va khong the anh huong layout. Client cu khong co class nay ->
 		-- Glass.Shadow tra ve anh slice-shadow (GuiObject).
 		local WindowShadow = Glass.Shadow({
-			SpreadX = 64, SpreadY = 110, OffsetY = 28, Transparency = 0.32, ZIndex = 1,
+			SpreadX = 40, SpreadY = 68, OffsetY = 18, Transparency = 0.45, ZIndex = 1,
+			ThemeTag = { ImageColor3 = "AcrylicMain" },
 		})
 
 		-- Vanh khuc xa + tan sac: thay cho vien UIStroke 1px cung ngat.
@@ -4753,7 +4759,7 @@ Components.Window = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    Glass.TransparencyGradient({ Top = 0.94, Mid = 0.80, Bottom = 0.52 }),
+		    Glass.TransparencyGradient({ Top = 0.82, Mid = 0.68, Bottom = 0.42 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 18, Transparency = 0.22, ZIndex = 4 }),
 		    -- vien trang bo sung (sang tren moi theme, ke ca theme toi)
@@ -4797,8 +4803,8 @@ Components.Window = (function()
 		    Position = Window.Position,
 		    Parent = Config.Parent,
 		}, {
-		    WindowShadow,   -- ZIndex = 1 (lop duoi cung, do bong dai ra ngoai)
-		    AcrylicFrame,   -- ZIndex = 2 (nen kinh lỏng tren trong suot duoi duc nhe)
+		    WindowShadow,   -- ZIndex = 1 (lop duoi cung, do bong an theo mau theme)
+		    AcrylicFrame,   -- ZIndex = 2 (nen kinh lỏng trong suot hien ro mau theme tu tren xuong)
 		    Window.TabDisplay,
 		    Window.ContainerCanvas,
 		    SearchBox,
@@ -4866,18 +4872,25 @@ Components.Window = (function()
 			Window.ContainerAnim.Position = UDim2.fromOffset(0, Value)
 		end)
 
-		local OldSizeX
-		local OldSizeY
+		local OldSizeX = Window.Size.X.Offset
+		local OldSizeY = Window.Size.Y.Offset
 		Window.Maximize = function(Value, NoPos, Instant)
+			if type(Value) == "table" and Value == Window then
+				Value = not Window.Maximized
+			elseif Value == nil then
+				Value = not Window.Maximized
+			end
 			Window.Maximized = Value
-			Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
+			if Window.TitleBar and Window.TitleBar.MaxButton then
+				Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
+			end
 
 			if Value then
 				OldSizeX = Window.Size.X.Offset
 				OldSizeY = Window.Size.Y.Offset
 			end
-			local SizeX = Value and Camera.ViewportSize.X or OldSizeX
-			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
+			local SizeX = Value and Camera.ViewportSize.X or (OldSizeX or Window.Size.X.Offset)
+			local SizeY = Value and Camera.ViewportSize.Y or (OldSizeY or Window.Size.Y.Offset)
 			SizeMotor:setGoal({
 				X = Flipper[Instant and "Instant" or "Spring"].new(SizeX, { frequency = 6 }),
 				Y = Flipper[Instant and "Instant" or "Spring"].new(SizeY, { frequency = 6 }),
@@ -5640,7 +5653,7 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TransparencyGradient({ Top = 0.94, Mid = 0.80, Bottom = 0.52 }),
+		    Glass.TransparencyGradient({ Top = 0.82, Mid = 0.68, Bottom = 0.42 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.20, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.38, ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.35, Tag = "DropdownBorder" }),
@@ -5655,7 +5668,8 @@ ElementsTable.Dropdown = (function()
 		end
 
 		local DropdownShadow = Glass.Shadow({
-			SpreadX = 36, SpreadY = 64, OffsetY = 20, Transparency = 0.32, ZIndex = 1,
+			SpreadX = 28, SpreadY = 48, OffsetY = 14, Transparency = 0.45, ZIndex = 1,
+			ThemeTag = { ImageColor3 = "DropdownHolder" },
 		})
 
 		local DropdownHolderCanvas = New("Frame", {
@@ -9278,7 +9292,7 @@ function Library:CreateWindow(Config)
 	Main.Size = UDim2.new(0, 50, 0, 50)
 	Main.ZIndex = 2
 	Main.Image = Config.MinimizerIcon or "rbxassetid://115743955187199"
-	Glass.Shadow({ Spread = 24, OffsetY = 6, Transparency = 0.35, ZIndex = 1, Parent = Main })
+	Glass.Shadow({ Spread = 24, OffsetY = 6, Transparency = 0.45, ZIndex = 1, Parent = Main, ThemeTag = { ImageColor3 = "AcrylicMain" } })
 
 	-- vien kinh theo theme (rim light: sang tren, mo dan xuong duoi)
 	local MainStroke = Instance.new("UIStroke")
