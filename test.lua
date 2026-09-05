@@ -2672,43 +2672,12 @@ end
 -- CO DINH (giong Glass.Glow) - xem quy tac o dau muc Glass.
 function Glass.Refract(Radius, Props)
 	Props = Props or {}
-	local R    = Radius or Glass.Radius.Window
-	local Band = Props.Band or 3
-
-	local Warm = Props.Warm or Color3.fromRGB(255, 246, 232)
-	local Cool = Props.Cool or Color3.fromRGB(226, 240, 255)
-
 	return New("Frame", {
 		Name                   = "GlassRefract",
-		AnchorPoint            = Vector2.new(0.5, 0.5),
-		Position               = UDim2.fromScale(0.5, 0.5),
-		Size                   = UDim2.new(1, Band * 2, 1, Band * 2),
-		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 0,
+		Size                   = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
 		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 0,
-		-- Mac dinh KHONG theo theme: giu trang de vanh sang doc duoc tren ca
-		-- 25 theme. Neu lay mau theo AcrylicBorder thi tren cac theme co vien
-		-- toi (vd Midnight Blue = 45,45,52) vanh se chim han vao nen toi va
-		-- mat luon cam giac kinh. Truyen Props.Tag neu muon theo theme.
-		ThemeTag               = Props.Tag and { BackgroundColor3 = Props.Tag } or nil,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R + Band) }),
-		-- Color + Transparency BUOC phai o cung 1 UIGradient (moi GuiObject
-		-- chi nhan duy nhat 1 lop gradient).
-		New("UIGradient", {
-			Rotation = Props.Rotation or 90,
-			Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Warm),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 255, 255)),
-				ColorSequenceKeypoint.new(1.00, Cool),
-			}),
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, Props.Top or 0.30),
-				NumberSequenceKeypoint.new(0.45, Props.Mid or 0.72),
-				NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.52),
-			}),
-		}),
+		ZIndex                 = Props.ZIndex or -1,
 	})
 end
 
@@ -2852,79 +2821,13 @@ end
 -- (canh tren da co Glass.TopLight lo).
 function Glass.Specular(Radius, Props)
 	Props = Props or {}
-	local R     = Radius or Glass.Radius.Window
-	local Inset = Props.Inset or math.ceil(R * 0.3)
-
-	local Dot
-	if Glass.HasRadialGradient then
-		-- Do sang TRON that: frame trang co UIGradient kieu Radial, tat dan deu
-		-- tu tam ra bien. Dep hon anh 9-slice vi 9-slice keo gian phan GIUA
-		-- thanh mang phang, lam diem sang trong ra nhu mot o chu nhat mo.
-		Dot = New("Frame", {
-			Name                   = "GlassSpecularDot",
-			AnchorPoint            = Vector2.new(0.5, 0.5),
-			Position               = UDim2.fromScale(0.34, 0.28),
-			Size                   = UDim2.fromScale(Props.Spread or 0.85, Props.SpreadY or 1.1),
-			BackgroundColor3       = Props.Color or Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = 0,
-			Interactable           = false,
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			New("UIGradient", {
-				Type = Enum.GradientType.Radial,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, Props.Transparency or 0.86),
-					NumberSequenceKeypoint.new(0.55, 0.95),
-					NumberSequenceKeypoint.new(1.00, 1),
-				}),
-			}),
-		})
-	else
-		Dot = New("ImageLabel", {
-			Name                   = "GlassSpecularDot",
-			Image                  = "rbxassetid://8992230677",
-			ScaleType              = Enum.ScaleType.Slice,
-			SliceCenter            = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
-			AnchorPoint            = Vector2.new(0.5, 0.5),
-			Position               = UDim2.fromScale(0.34, 0.28),
-			Size                   = UDim2.fromScale(Props.Spread or 0.85, Props.SpreadY or 1.1),
-			BackgroundTransparency = 1,
-			ImageColor3            = Props.Color or Color3.fromRGB(255, 255, 255),
-			ImageTransparency      = Props.Transparency or 0.88,
-			Interactable           = false,
-		})
-	end
-
-	local Size, Pos = InsetRect(Inset, Props.Height)
-
-	local Holder = New("Frame", {
+	return New("Frame", {
 		Name                   = "GlassSpecular",
-		Size                   = Size,
-		Position               = Pos or UDim2.fromOffset(0, 0),
+		Size                   = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
-		ClipsDescendants       = true,
 		Interactable           = false,
 		ZIndex                 = Props.ZIndex or 0,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, math.max(R - Inset, 0)) }),
-		Dot,
 	})
-
-	-- Dang ky sau khi Holder co parent (Host = panel chua Holder).
-	task.defer(function()
-		local Host = Props.Host or Holder.Parent
-		if not Host then
-			return
-		end
-		table.insert(SpecularTargets, {
-			Dot    = Dot,
-			Host   = Host,
-			Travel = Props.Travel or 0.22, -- bien do truot (ti le be rong)
-		})
-		StartSpecularLoop()
-	end)
-
-	return Holder
 end
 
 -- Quang sang mem phia sau (dung asset slice-shadow co san trong file)
@@ -3030,22 +2933,12 @@ end
 -- Lop nhieu hat mo phong be mat kinh nham (frosted)
 function Glass.Frost(Radius, Props)
 	Props = Props or {}
-	local size = Props.Height
-		and UDim2.new(1, 0, 0, Props.Height)
-		or UDim2.fromScale(1, 1)
-	return New("ImageLabel", {
+	return New("Frame", {
 		Name                   = "GlassFrost",
-		Image                  = "rbxassetid://9968344227",
-		ImageTransparency      = 0.95,
-		ScaleType              = Enum.ScaleType.Tile,
-		TileSize               = UDim2.fromOffset(128, 128),
-		Size                   = size,
+		Size                   = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 2,
-		ThemeTag               = { ImageTransparency = "AcrylicNoise" },
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+		ZIndex                 = Props.ZIndex or 0,
 	})
 end
 
@@ -3876,13 +3769,7 @@ Components.Dialog = (function()
 			-- Title/ButtonHolderFrame. Neu de ZIndex > 0, frame trang suot van
 			-- CHAN chuot cho cac nut trong dialog.
 			Glass.Sheen(Glass.Radius.Window, { Top = 0.62, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
-			Glass.Frost(Glass.Radius.Window, { ZIndex = 0 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.22, ZIndex = 0 }),
-			-- diem sang truot: la child cua CanvasGroup nen mo/hien theo
-			-- GroupTransparency cua dialog, khong bi sot lai khi dong.
-			Glass.Specular(Glass.Radius.Window, {
-				Transparency = 0.84, Travel = 0.2, ZIndex = 0,
-			}),
 			-- Root la CanvasGroup: no ve con vao mot texture dung bang kich
 			-- thuoc cua no -> child TRAN RA NGOAI se bi CAT. Vi vay dung
 			-- EdgeBand (vanh huong VAO TRONG) chu khong dung Glass.Refract.
@@ -4092,23 +3979,14 @@ Components.Notification = (function()
 		})
 
 		NewNotification.Root = New("Frame", {
-		    BackgroundTransparency = 0.08,
+		    BackgroundTransparency = 0.25,
 		    Size = UDim2.new(1, 0, 1, 0),
 		    Position = UDim2.fromScale(1, 0),
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    -- Lop kinh: ZIndex = 0 va la child DAU TIEN -> luon ve DUOI
-		    -- Title/CloseButton/LabelHolder (cung ZIndex, ve sau nam tren).
-		    -- Neu de ZIndex > 0 chung se phu len nut dong.
 		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.85, Bottom = 1, ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
-		    -- diem sang truot: notification tu chay tu ngoai vao (Root.Position
-		    -- duoc tween) nen anh sang quet qua be mat trong luc no bay vao.
-		    Glass.Specular(Glass.Radius.Card, {
-		        Transparency = 0.85, Travel = 0.26, ZIndex = 0,
-		    }),
 		    -- vanh khuc xa huong vao trong (Root khong duoc tran ra ngoai vi
 		    -- Holder co UIListLayout - frame lon hon se day layout)
 		    Glass.EdgeBand(Glass.Radius.Card, {
@@ -4625,7 +4503,6 @@ Components.Window = (function()
 			-- Frame kich thuoc CO DINH -> dung du bo lop kinh.
 			-- Dat TRUOC SearchIcon/SearchInput nen luon ve DUOI, khong chan chuot.
 			Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.9, Bottom = 1 }),
-			Glass.Frost(Glass.Radius.Control, { ZIndex = 0 }),
 			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
 			Glass.RimLayer(Glass.Radius.Control, { Transparency = 0.5, ZIndex = 0 }),
 			SearchStroke,
@@ -4869,31 +4746,17 @@ Components.Window = (function()
 		-- Vanh khuc xa + tan sac: thay cho vien UIStroke 1px cung ngat.
 		-- ZIndex am -> luon nam sau nen kinh (nen che phan giua cua vanh,
 		-- chi con lo ra dung mot vien mem `Band` px).
-		local WindowRefract = Glass.Refract(Glass.Radius.Window, {
-			Band = 3, Top = 0.26, Mid = 0.7, Bottom = 0.48, ZIndex = -1,
-		})
-
 		local AcrylicFrame = New("Frame", {
 		    Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.12,
+			BackgroundTransparency = 0.70,
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    -- lop mau kinh theo theme (AcrylicGradient)
-		    Glass.Tint(Glass.Radius.Window, { Transparency = 0.62, ZIndex = 1 }),
-		    -- bong sang tren be mat kinh (dam o canh tren, tat nhanh xuong duoi)
-		    Glass.Sheen(Glass.Radius.Window, { Top = 0.7, Mid = 0.9, Bottom = 1, ZIndex = 2 }),
-		    -- hat nhieu mo phong kinh nham
-		    Glass.Frost(Glass.Radius.Window, { ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
-		    Glass.TopLight({ Inset = 18, Transparency = 0.2, ZIndex = 4 }),
-		    -- diem sang truot theo vi tri cua so tren man hinh (be mat cong)
-		    Glass.Specular(Glass.Radius.Window, {
-		        Transparency = 0.86, Travel = 0.24, ZIndex = 4,
-		    }),
+		    Glass.TopLight({ Inset = 18, Transparency = 0.25, ZIndex = 4 }),
 		    -- vien trang bo sung (sang tren moi theme, ke ca theme toi)
 		    Glass.RimLayer(Glass.Radius.Window, {
-		        Thickness = 1, Transparency = 0.55, ZIndex = 5,
+		        Thickness = 1, Transparency = 0.45, ZIndex = 5,
 		    }),
 		})
 
@@ -4905,16 +4768,15 @@ Components.Window = (function()
 			WindowShadow.Parent = AcrylicFrame
 			WindowShadow = nil
 		else
-			-- -2 (thap hon vanh khuc xa o -1) de bong khong lam toi vanh sang
+			-- -2 de bong khong lam toi vanh sang
 			WindowShadow.ZIndex = -2
 		end
 
 		Window.AcrylicPaint = {
 		    Frame = AcrylicFrame,
 		    Model = nil,
-		    -- Do trong "goc" cua lop nen, de Library:ToggleTransparency biet
-		    -- phai tra ve gia tri nao khi bat lai (khong hard-code 2 noi).
-		    BaseTransparency = 0.12,
+		    -- Do trong "goc" cua lop nen kinh (0.70 cho do trong suot nhu kinh that)
+		    BaseTransparency = 0.70,
 		    AddParent = function() end,
 		    SetVisibility = function() end,
 		}
@@ -4924,6 +4786,8 @@ Components.Window = (function()
 		-- ho bam toggle trong tab Settings.
 		if not Library.Transparency then
 			AcrylicFrame.BackgroundTransparency = 0
+		else
+			AcrylicFrame.BackgroundTransparency = Window.AcrylicPaint.BaseTransparency
 		end
 
 		-- ── BLUR NEN THAT (Acrylic = true) ──────────────────────
@@ -4952,8 +4816,7 @@ Components.Window = (function()
 		    Position = Window.Position,
 		    Parent = Config.Parent,
 		}, {
-		    WindowRefract,  -- vanh khuc xa: ZIndex -1 -> nam sau nen kinh
-		    AcrylicFrame,   -- nen kinh (ZIndex mac dinh 1), che phan giua vanh
+		    AcrylicFrame,   -- nen kinh trong suot nhu kinh that
 		    Window.TabDisplay,
 		    Window.ContainerCanvas,
 		    SearchBox,
@@ -5735,13 +5598,7 @@ ElementsTable.Dropdown = (function()
 		    -- frame (cung ZIndex, ve sau) nam tren, nen cac nut option van bam
 		    -- duoc. Neu de ZIndex > 0 thi lop trong suot se chan chuot.
 		    Glass.Sheen(Glass.Radius.Card, { Top = 0.6, Mid = 0.86, Bottom = 1, ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
-		    -- diem sang truot: list bay ra o vi tri khac nhau tuy element nao
-		    -- duoc bam, nen anh sang cung khac cho -> giong be mat kinh cong.
-		    Glass.Specular(Glass.Radius.Card, {
-		        Transparency = 0.86, Travel = 0.2, ZIndex = 0,
-		    }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.55, ZIndex = 0 }),
 		    -- Vanh khuc xa huong VAO TRONG. Khong dung Glass.Refract o day:
 		    -- Refract phai la SIBLING nam sau nen panel (vi voi
@@ -5860,7 +5717,6 @@ ElementsTable.Dropdown = (function()
 			Glass.Sheen(Glass.Radius.Control, {
 				Top = 0.68, Mid = 0.88, Bottom = 1, Height = 35,
 			}),
-			Glass.Frost(Glass.Radius.Control, { ZIndex = 0, Height = 35 }),
 			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
 			Glass.RimLayer(Glass.Radius.Control, {
 				Transparency = 0.5, ZIndex = 0, Height = 35,
@@ -9718,10 +9574,9 @@ function Library:ToggleTransparency(Value)
 		return
 	end
 
-	-- BaseTransparency duoc ghi lai luc dung cua so (khong hard-code 0.12 o
-	-- day de neu sau nay doi thiet ke thi chi sua mot cho).
+	-- BaseTransparency duoc ghi lai luc dung cua so (0.70 cho do trong suot nhu kinh that)
 	Frame.BackgroundTransparency = Library.Transparency
-		and (Paint.BaseTransparency or 0.12)
+		and (Paint.BaseTransparency or 0.70)
 		or 0
 end
 
