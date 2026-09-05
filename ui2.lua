@@ -2638,13 +2638,14 @@ local function InsetRect(Inset, Height)
 end
 Glass.InsetRect = InsetRect
 
--- (4) Bong do phong cach liquid glass (9-slice shadow em diu cho moi panel)
+-- (4) Bong do dai phong cach liquid glass (9-slice long directional shadow)
 function Glass.Shadow(Props)
 	Props = Props or {}
-	local Spread       = Props.Spread or (Props.Blur and Props.Blur * 2) or 36
-	local Transparency = Props.Transparency or 0.50
+	local SpreadX      = Props.SpreadX or Props.Spread or (Props.Blur and Props.Blur * 2) or 36
+	local SpreadY      = Props.SpreadY or (Props.Spread and Props.Spread * 1.5) or (Props.Blur and Props.Blur * 2.8) or 50
+	local Transparency = Props.Transparency or 0.40
 	local OffsetX      = Props.OffsetX or 0
-	local OffsetY      = Props.OffsetY or 4
+	local OffsetY      = Props.OffsetY or 10
 	local ZIndex       = Props.ZIndex or -1
 
 	return New("ImageLabel", {
@@ -2654,13 +2655,33 @@ function Glass.Shadow(Props)
 		SliceCenter            = Rect.new(99, 99, 101, 101),
 		AnchorPoint            = Vector2.new(0.5, 0.5),
 		Position               = UDim2.new(0.5, OffsetX, 0.5, OffsetY),
-		Size                   = UDim2.new(1, Spread, 1, Spread),
+		Size                   = UDim2.new(1, SpreadX, 1, SpreadY),
 		BackgroundTransparency = 1,
 		ImageColor3            = Props.Color or Color3.fromRGB(0, 0, 0),
 		ImageTransparency      = Transparency,
 		Interactable           = false,
 		ZIndex                 = ZIndex,
 		Parent                 = Props.Parent,
+	})
+end
+
+-- (5) Gradient do trong suot: tren trong, duoi hoi duc nhe (Liquid Glass Gradient)
+function Glass.TransparencyGradient(Props)
+	Props = Props or {}
+	local Top      = Props.Top or 0.88     -- Tren TRONG (very clear transparent)
+	local Mid      = Props.Mid or 0.76     -- Giua chuyen tiep em
+	local Bottom   = Props.Bottom or 0.58  -- Duoi HOI DUC NHE (cloudy/frosted)
+	local Rotation = Props.Rotation or 90  -- Tu tren xuong duoi
+
+	return New("UIGradient", {
+		Name         = "GlassTransparencyGradient",
+		Rotation     = Rotation,
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0.00, Top),
+			NumberSequenceKeypoint.new(Props.MidKeypoint or 0.45, Mid),
+			NumberSequenceKeypoint.new(1.00, Bottom),
+		}),
+		Parent       = Props.Parent,
 	})
 end
 
@@ -3077,7 +3098,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	Element.Frame = New("TextButton", {
 		Visible = Options.Visible ~= false,
 		Size = UDim2.new(1, 0, 0, 0),
-		BackgroundTransparency = 0.88,
+		BackgroundTransparency = 0,
 		BackgroundColor3 = Color3.fromRGB(130, 130, 130),
 		Parent = Parent,
 		AutomaticSize = Enum.AutomaticSize.Y,
@@ -3085,13 +3106,13 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		LayoutOrder = ElementOrder,
 		ThemeTag = {
 			BackgroundColor3 = "Element",
-			BackgroundTransparency = "ElementTransparency",
 		},
 	}, {
-		Glass.Shadow({ Spread = 16, OffsetY = 3, Transparency = 0.45, ZIndex = -1 }),
+		Glass.Shadow({ SpreadX = 14, SpreadY = 26, OffsetY = 7, Transparency = 0.40, ZIndex = -1 }),
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Glass.Radius.Element),
 		}),
+		Glass.TransparencyGradient({ Top = 0.92, Mid = 0.84, Bottom = 0.70 }),
 		Element.Border,
 		Element.LabelHolder,
 	})
@@ -3618,15 +3639,16 @@ Components.Button = function(Theme, Parent, DialogCheck)
 	Button.Frame = New("TextButton", {
 		Size = UDim2.new(0, 0, 0, 32),
 		Parent = Parent,
-		BackgroundTransparency = 0.65,
+		BackgroundTransparency = 0,
 		ThemeTag = {
 			BackgroundColor3 = "DialogButton",
 		},
 	}, {
-		Glass.Shadow({ Spread = 12, OffsetY = 2, Transparency = 0.50, ZIndex = -1 }),
+		Glass.Shadow({ SpreadX = 12, SpreadY = 22, OffsetY = 6, Transparency = 0.45, ZIndex = -1 }),
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Glass.Radius.Control),
 		}),
+		Glass.TransparencyGradient({ Top = 0.84, Mid = 0.72, Bottom = 0.56 }),
 		Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.88, Bottom = 1 }),
 		Glass.Rim({ Transparency = 0.4, Tag = "DialogButtonBorder" }),
 		Button.HoverFrame,
@@ -3741,9 +3763,9 @@ Components.Dialog = (function()
 		local ScaleMotor, Scale = Creator.SpringMotor(1.1, NewDialog.Scale, "Scale")
 
 		local DialogShadow = Glass.Shadow({
-			Spread = 44, OffsetY = 10, Transparency = 0.40, ZIndex = 0,
+			SpreadX = 40, SpreadY = 70, OffsetY = 22, Transparency = 0.35, ZIndex = 0,
 		})
-		DialogShadow.Size = UDim2.new(0, 344, 0, 209)
+		DialogShadow.Size = UDim2.new(0, 340, 0, 235)
 		DialogShadow.AnchorPoint = Vector2.new(0.5, 0.5)
 		DialogShadow.Position = UDim2.fromScale(0.5, 0.5)
 		DialogShadow.Parent = NewDialog.TintFrame
@@ -3753,7 +3775,7 @@ Components.Dialog = (function()
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
 			GroupTransparency = 1,
-			BackgroundTransparency = 0.72,
+			BackgroundTransparency = 0,
 			Parent = NewDialog.TintFrame,
 			ThemeTag = {
 				BackgroundColor3 = "Dialog",
@@ -3762,7 +3784,8 @@ Components.Dialog = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Window),
 			}),
-			Glass.TopLight({ Inset = 16, Transparency = 0.22, ZIndex = 0 }),
+			Glass.TransparencyGradient({ Top = 0.88, Mid = 0.76, Bottom = 0.58 }),
+			Glass.TopLight({ Inset = 16, Transparency = 0.20, ZIndex = 0 }),
 			Glass.Rim({ Transparency = 0.3, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			NewDialog.Scale,
 			NewDialog.Title,
@@ -3964,19 +3987,20 @@ Components.Notification = (function()
 		})
 
 		local NotificationShadow = Glass.Shadow({
-			Spread = 30, OffsetY = 6, Transparency = 0.40, ZIndex = -1,
+			SpreadX = 26, SpreadY = 48, OffsetY = 14, Transparency = 0.36, ZIndex = -1,
 		})
 
 		NewNotification.Root = New("Frame", {
-		    BackgroundTransparency = 0.72,
+		    BackgroundTransparency = 0,
 		    Size = UDim2.new(1, 0, 1, 0),
 		    Position = UDim2.fromScale(1, 0),
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    NotificationShadow,
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
-		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.45, ZIndex = 0 }),
+		    Glass.TransparencyGradient({ Top = 0.88, Mid = 0.76, Bottom = 0.58 }),
+		    Glass.TopLight({ Inset = 14, Transparency = 0.20, ZIndex = 0 }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.40, ZIndex = 0 }),
 		    Glass.Rim({ Transparency = 0.3, Mode = Enum.ApplyStrokeMode.Contextual }),
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
@@ -4473,12 +4497,13 @@ Components.Window = (function()
 		local SearchBox = New("Frame", {
 			Size     = UDim2.new(0, Window.TabWidth, 0, 30),
 			Position = UDim2.new(0, 12, 0, 52),
-			BackgroundTransparency = 0.85,
+			BackgroundTransparency = 0,
 			Visible  = UseSearchBar,
 			ThemeTag = { BackgroundColor3 = "Input" },
 		}, {
-			Glass.Shadow({ Spread = 14, OffsetY = 2, Transparency = 0.50, ZIndex = -1 }),
+			Glass.Shadow({ SpreadX = 12, SpreadY = 22, OffsetY = 6, Transparency = 0.46, ZIndex = -1 }),
 			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
+			Glass.TransparencyGradient({ Top = 0.90, Mid = 0.84, Bottom = 0.72 }),
 			Glass.Sheen(Glass.Radius.Control, { Top = 0.7, Mid = 0.9, Bottom = 1 }),
 			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
 			Glass.RimLayer(Glass.Radius.Control, { Transparency = 0.5, ZIndex = 0 }),
@@ -4717,7 +4742,7 @@ Components.Window = (function()
 		-- va khong the anh huong layout. Client cu khong co class nay ->
 		-- Glass.Shadow tra ve anh slice-shadow (GuiObject).
 		local WindowShadow = Glass.Shadow({
-			Spread = 64, OffsetY = 10, Transparency = 0.45, ZIndex = -2,
+			SpreadX = 64, SpreadY = 100, OffsetY = 24, Transparency = 0.38, ZIndex = -2,
 		})
 
 		-- Vanh khuc xa + tan sac: thay cho vien UIStroke 1px cung ngat.
@@ -4725,15 +4750,16 @@ Components.Window = (function()
 		-- chi con lo ra dung mot vien mem `Band` px).
 		local AcrylicFrame = New("Frame", {
 		    Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.72,
+			BackgroundTransparency = 0,
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+		    Glass.TransparencyGradient({ Top = 0.88, Mid = 0.78, Bottom = 0.62 }),
 		    -- vach sang mong sat canh tren
-		    Glass.TopLight({ Inset = 18, Transparency = 0.25, ZIndex = 4 }),
+		    Glass.TopLight({ Inset = 18, Transparency = 0.22, ZIndex = 4 }),
 		    -- vien trang bo sung (sang tren moi theme, ke ca theme toi)
 		    Glass.RimLayer(Glass.Radius.Window, {
-		        Thickness = 1, Transparency = 0.45, ZIndex = 5,
+		        Thickness = 1, Transparency = 0.42, ZIndex = 5,
 		    }),
 		})
 
@@ -4761,10 +4787,13 @@ Components.Window = (function()
 		-- Ap dung ngay trang thai Transparency cua Config: neu nguoi dung dat
 		-- `Transparency = false` thi nen phai DAC tu luc mo, khong cho den khi
 		-- ho bam toggle trong tab Settings.
+		local WindowGradient = AcrylicFrame:FindFirstChild("GlassTransparencyGradient")
 		if not Library.Transparency then
+			if WindowGradient then WindowGradient.Enabled = false end
 			AcrylicFrame.BackgroundTransparency = 0
 		else
-			AcrylicFrame.BackgroundTransparency = Window.AcrylicPaint.BaseTransparency
+			if WindowGradient then WindowGradient.Enabled = true end
+			AcrylicFrame.BackgroundTransparency = 0
 		end
 
 		-- ── BLUR NEN THAT (Acrylic = true) ──────────────────────
@@ -5466,7 +5495,6 @@ ElementsTable.Dropdown = (function()
 				Size             = UDim2.fromOffset(30, 30),
 				BackgroundTransparency = 0.65,
 				Visible          = false,
-				Parent           = Library.GUI,
 				AutoLocalize     = false,
 				ThemeTag         = { BackgroundColor3 = "DropdownHolder" },
 			}, {
@@ -5535,16 +5563,97 @@ ElementsTable.Dropdown = (function()
 			Padding = UDim.new(0, 10), -- เพิ่ม padding
 		})
 
+		-- SEARCHABLE BOX & CLEAR BUTTON (tich hop ben trong DropdownHolderFrame)
+		local Border = New("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Color3.fromRGB(255, 255, 255),
+			Transparency = 0.40,
+			Thickness = 1,
+			ThemeTag = {
+				Color = "ElementBorder",
+			},
+		}, {
+			New("UIGradient", {
+				Rotation = 90,
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0.00, 0.10),
+					NumberSequenceKeypoint.new(0.55, 0.65),
+					NumberSequenceKeypoint.new(1.00, 0.30),
+				}),
+			}),
+		})
+
+		local searchIcon = New("ImageLabel", {
+			Image = "rbxassetid://10734943674",
+			Size = UDim2.fromOffset(15, 15),
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 8, 0.5, 0),
+			BackgroundTransparency = 1,
+			Rotation = 0,
+			ThemeTag = {
+				ImageColor3 = "SubText",
+			},
+		})
+
+        local DropdownSearch = New("TextBox", {
+			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
+			Text = "",
+			PlaceholderText = "Search...",
+			PlaceholderColor3 = Color3.fromRGB(180, 180, 190),
+			TextColor3 = Color3.fromRGB(240, 240, 240),
+			TextSize = 13,
+			TextYAlignment = Enum.TextYAlignment.Center,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Size = UDim2.new(1, -30, 1, 0),
+			Position = UDim2.new(0, 28, 0, 0),
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 1,
+			ClearTextOnFocus = false,
+			Interactable = true,
+			AutoLocalize = false,
+			ThemeTag = {
+				TextColor3 = "Text",
+				PlaceholderColor3 = "SubText",
+			},
+		})
+
+		local SearchBase = New("Frame", {
+			Visible = Dropdown.Searchable,
+			Size = UDim2.new(1, (Dropdown.Multi and -46 or -16), 0, 30),
+			Position = UDim2.fromOffset(8, 7),
+			BackgroundTransparency = 0.85,
+			ZIndex = 4,
+			ThemeTag = {
+				BackgroundColor3 = "Input",
+			},
+		}, {
+			New("UICorner", {
+				CornerRadius = UDim.new(0, Glass.Radius.Control),
+			}),
+			searchIcon,
+			Border,
+			DropdownSearch,
+		})
+
+		local SearchFocusMotor, SetSearchFocus = Creator.SpringMotor(0.4, Border, "Transparency")
+		Creator.AddSignal(DropdownSearch.Focused, function()
+			SetSearchFocus(0.15)
+		end)
+		Creator.AddSignal(DropdownSearch.FocusLost, function()
+			SetSearchFocus(0.4)
+		end)
+
+		local hasTopControls = Dropdown.Searchable or Dropdown.Multi
 		local DropdownScrollFrame = New("ScrollingFrame", {
-			Size = UDim2.new(1, -8, 1, -12), -- ปรับขนาด
-			Position = UDim2.fromOffset(6, 6), -- ปรับตำแหน่ง
+			Size = UDim2.new(1, -8, 1, hasTopControls and -46 or -12),
+			Position = UDim2.fromOffset(4, hasTopControls and 42 or 6),
 			BackgroundTransparency = 1,
 			BottomImage = "rbxassetid://6889812791",
 			MidImage = "rbxassetid://6889812721",
 			TopImage = "rbxassetid://6276641225",
 			ScrollBarImageColor3 = Color3.fromRGB(120, 120, 120),
 			ScrollBarImageTransparency = 0.5,
-			ScrollBarThickness = 6,
+			ScrollBarThickness = 5,
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -5555,20 +5664,29 @@ ElementsTable.Dropdown = (function()
 
 		local DropdownHolderFrame = New("Frame", {
 		    Size             = UDim2.fromScale(1, 0.6),
-		    BackgroundTransparency = 0.72,
+		    BackgroundTransparency = 0,
+		    ClipsDescendants = true,
 		    ThemeTag         = { BackgroundColor3 = "DropdownHolder" },
 		}, {
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TopLight({ Inset = 14, Transparency = 0.22, ZIndex = 0 }),
-		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.45, ZIndex = 0 }),
-		    Glass.Rim({ Transparency = 0.3, Tag = "DropdownBorder" }),
+		    Glass.TransparencyGradient({ Top = 0.88, Mid = 0.74, Bottom = 0.56 }),
+		    Glass.TopLight({ Inset = 14, Transparency = 0.20, ZIndex = 2 }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.40, ZIndex = 3 }),
+		    Glass.Rim({ Transparency = 0.35, Tag = "DropdownBorder" }),
+		    SearchBase,
 		    DropdownScrollFrame,
 		})
 
+		if ClearButton then
+			ClearButton.Parent = DropdownHolderFrame
+			ClearButton.Position = UDim2.new(1, -36, 0, 7)
+			ClearButton.ZIndex = 5
+		end
+
 		local DropdownShadow = Glass.Shadow({
-			Spread = 32, OffsetY = 6, Transparency = 0.40, ZIndex = 0,
+			SpreadX = 28, SpreadY = 56, OffsetY = 18, Transparency = 0.36, ZIndex = 0,
 		})
 
 		local DropdownHolderCanvas = New("Frame", {
@@ -5609,95 +5727,6 @@ ElementsTable.Dropdown = (function()
 				CornerRadius = UDim.new(0, Glass.Radius.Control),
 			}),
 		})
- 
-		-- SEARCHABLE BOX with enhanced styling --
-
-		local Border = New("UIStroke", {
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color = Color3.fromRGB(255, 255, 255),
-			Transparency = 0.3,
-			Thickness = 1,
-			ThemeTag = {
-				Color = "ElementBorder",
-			},
-		}, {
-			New("UIGradient", {
-				Rotation = 90,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.05),
-					NumberSequenceKeypoint.new(0.55, 0.62),
-					NumberSequenceKeypoint.new(1.00, 0.26),
-				}),
-			}),
-		})
-
-		local searchIcon = New("ImageLabel", {
-			Image = "rbxassetid://10734943674",
-			Size = UDim2.fromOffset(18, 18),
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 8, 0.5, 0),
-			BackgroundTransparency = 1,
-			Rotation = 0,
-			ThemeTag = {
-				ImageColor3 = "SubText",
-			},
-		})
-
-		local SearchBase = New("Frame", {
-			Visible = false,
-			Size = UDim2.new(0, 170, 0, 35),
-			Parent = Library.GUI,
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 0.72,
-			ThemeTag = {
-				BackgroundColor3 = "DropdownHolder",
-			},
-		}, {
-			Glass.Shadow({ Spread = 18, OffsetY = 3, Transparency = 0.45, ZIndex = -1 }),
-			New("UICorner", {
-				CornerRadius = UDim.new(0, Glass.Radius.Control),
-			}),
-			Glass.TopLight({ Inset = 12, Transparency = 0.24, ZIndex = 0 }),
-			Glass.RimLayer(Glass.Radius.Control, {
-				Transparency = 0.45, ZIndex = 0, Height = 35,
-			}),
-			searchIcon,
-			Border,
-		})
-
-        local DropdownSearch = New("TextBox", {
-			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-			Text = "",
-			PlaceholderText = "Search...",
-			PlaceholderColor3 = Color3.fromRGB(180, 180, 190),
-            Parent = SearchBase,
-			TextColor3 = Color3.fromRGB(240, 240, 240),
-			TextSize = 14,
-			TextYAlignment = Enum.TextYAlignment.Center,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			Size = UDim2.new(1, -30, 1, -4),
-			Position = UDim2.new(0, 30, 0.5, 0),
-			AnchorPoint = Vector2.new(0, 0.5),
-			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = 1,
-			LayoutOrder = 7,
-			TextTruncate = Enum.TextTruncate.AtEnd,
-			Interactable = true,
-			AutoLocalize = false,
-			ThemeTag = {
-				TextColor3 = "Text",
-				PlaceholderColor3 = "SubText"
-			},
-		})
-
-		-- เพิ่ม focus effect สำหรับ search box
-		local SearchFocusMotor, SetSearchFocus = Creator.SpringMotor(0.3, Border, "Transparency")
-		Creator.AddSignal(DropdownSearch.Focused, function()
-			SetSearchFocus(0.1)
-		end)
-		Creator.AddSignal(DropdownSearch.FocusLost, function()
-			SetSearchFocus(0.3)
-		end)
 
 		table.insert(Library.OpenFrames, DropdownHolderCanvas)
 
@@ -5705,12 +5734,6 @@ ElementsTable.Dropdown = (function()
         local DEFAULT_Y_OFFSET_WITH_OBJ = -5
         local DEFAULT_Y_OFFSET_WITHOUT_OBJ = 18
         local MAX_DROPDOWN_ITEMS = 5
-
-        local MoveList = {
-            { Instance = DropdownHolderCanvas, YOffset = 35}, -- no custom offset
-            { Instance = SearchBase, YOffset = 0 }, -- custom Y offset
-            { Instance = ClearButton, YOffset = 0, XOffset = 175 }, -- Clear button ข้างๆ search
-        }
 
         local function RecalculateListPosition()
             local Add = 0
@@ -5725,23 +5748,16 @@ ElementsTable.Dropdown = (function()
             local baseX = DropdownInner.AbsolutePosition.X - 1 + XADD
             local baseY = DropdownInner.AbsolutePosition.Y + defaultYOffset
 
-            for _, entry in ipairs(MoveList) do
-                local inst = entry.Instance
-                if inst then -- เช็คว่า instance มีอยู่จริง
-                    local xOffset = entry.XOffset or 0
-                    local yOffset = entry.YOffset or 0
-
-                    inst.Position = UDim2.fromOffset(baseX + xOffset, baseY + yOffset)
-                end
-            end
+            DropdownHolderCanvas.Position = UDim2.fromOffset(baseX, baseY)
         end
 
 		local ListSizeX = 0
 		local function RecalculateListSize()
+			local searchOffset = (Dropdown.Searchable or Dropdown.Multi) and 42 or 0
 			if #Dropdown.Values > MAX_DROPDOWN_ITEMS then
-				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, (42 * MAX_DROPDOWN_ITEMS) - 10) -- ปรับขนาดตาม item ที่ใหญ่ขึ้น
+				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, (42 * MAX_DROPDOWN_ITEMS) - 10 + searchOffset)
 			else
-				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, DropdownListLayout.AbsoluteContentSize.Y + 30)
+				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, DropdownListLayout.AbsoluteContentSize.Y + 24 + searchOffset)
 			end
 		end
 
@@ -5865,6 +5881,7 @@ ElementsTable.Dropdown = (function()
 		local ScrollFrame = self.ScrollFrame
 		function Dropdown:Open()    
 			Dropdown.Opened = true
+			local hasTop = Dropdown.Searchable or Dropdown.Multi
 			if Dropdown.Searchable then
 				SearchBase.Visible = true
 			end
@@ -5873,12 +5890,18 @@ ElementsTable.Dropdown = (function()
 				for _ in pairs(Dropdown.Value) do has = true break end
 				ClearButton.Visible = has
 			end
+			DropdownScrollFrame.Position = UDim2.fromOffset(4, hasTop and 42 or 6)
+			DropdownScrollFrame.Size = UDim2.new(1, -8, 1, hasTop and -46 or -12)
+
 			ScrollFrame.ScrollingEnabled = false
 			DropdownHolderCanvas.Visible = true
 
 			if Dropdown.LoadedItems == 0 and #Dropdown.Values > 0 then
 				Dropdown:LoadNextBatch()
 			end
+
+			RecalculateListSize()
+			RecalculateListPosition()
 
 			-- minimal: fade in + slight scale from 0.97 → 1
 			DropdownHolderFrame.Size = UDim2.fromScale(1, 0)
@@ -5898,7 +5921,6 @@ ElementsTable.Dropdown = (function()
 
 		function Dropdown:Close()
 			Dropdown.Opened = false
-			SearchBase.Visible = false
 			if ClearButton then
 				ClearButton.Visible = false -- บังคับซ่อนเมื่อปิด dropdown
 			end
@@ -9486,13 +9508,6 @@ function Library:ToggleAcrylic(Value)
 end
 
 function Library:ToggleTransparency(Value)
-	-- Truoc day ham nay RONG (chi con code cu bi comment tro vao
-	-- AcrylicPaint.Frame.Background - mot frame khong con ton tai), nen toggle
-	-- "Transparency" trong tab Settings bam vao khong co tac dung gi.
-	--
-	-- Chi doi DO TRONG cua lop nen, KHONG cham vao cac lop kinh phia tren
-	-- (Tint/Sheen/Frost/TopLight/Rim): chung la mang trang mo, phu tren mot
-	-- nen DAC van ra chat kinh, chi khong con thay canh vat phia sau.
 	Library.Transparency = Value and true or false
 
 	local Window = Library.Window
@@ -9502,10 +9517,12 @@ function Library:ToggleTransparency(Value)
 		return
 	end
 
-	-- BaseTransparency duoc ghi lai luc dung cua so (0.70 cho do trong suot nhu kinh that)
-	Frame.BackgroundTransparency = Library.Transparency
-		and (Paint.BaseTransparency or 0.70)
-		or 0
+	local Grad = Frame:FindFirstChild("GlassTransparencyGradient")
+	if Grad then
+		Grad.Enabled = Library.Transparency
+	end
+
+	Frame.BackgroundTransparency = 0
 end
 
 function Library:Notify(Config)
