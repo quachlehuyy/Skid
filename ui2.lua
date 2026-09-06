@@ -100,14 +100,14 @@ local Themes = {
 		Name = "Liquid Glass Dark",
 		Accent = Color3.fromRGB(10, 195, 255), -- iOS 27 Cyan-Blue Neon Glow
 
-		AcrylicMain = Color3.fromRGB(10, 12, 18), -- Sleek Obsidian Crystal Glass
+		AcrylicMain = Color3.fromRGB(38, 48, 68), -- Translucent Sapphire Crystal Glass
 		AcrylicBorder = Color3.fromRGB(255, 255, 255),
 		AcrylicGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(48, 58, 78)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(20, 25, 36)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 12, 18)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(85, 110, 155)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(55, 70, 98)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(38, 48, 68)),
 		}),
-		AcrylicNoise = 0.96,
+		AcrylicNoise = 0.98,
 
 		TitleBarLine = Color3.fromRGB(255, 255, 255),
 		Tab = Color3.fromRGB(255, 255, 255),
@@ -115,16 +115,16 @@ local Themes = {
 		Element = Color3.fromRGB(240, 246, 255),
 		ElementBorder = Color3.fromRGB(255, 255, 255),
 		InElementBorder = Color3.fromRGB(255, 255, 255),
-		ElementTransparency = 0.91,
+		ElementTransparency = 0.94,
 
 		ToggleSlider = Color3.fromRGB(10, 195, 255),
 		ToggleToggled = Color3.fromRGB(255, 255, 255),
 		TransparenToggle = 0.12,
 
-		SliderRail = Color3.fromRGB(130, 150, 180),
+		SliderRail = Color3.fromRGB(140, 165, 200),
 
 		DropdownFrame = Color3.fromRGB(240, 246, 255),
-		DropdownHolder = Color3.fromRGB(14, 17, 24),
+		DropdownHolder = Color3.fromRGB(32, 42, 60),
 		DropdownBorder = Color3.fromRGB(255, 255, 255),
 		DropdownOption = Color3.fromRGB(240, 246, 255),
 
@@ -135,17 +135,17 @@ local Themes = {
 		InputIndicator = Color3.fromRGB(180, 198, 222),
 		InputIndicatorFocus = Color3.fromRGB(10, 195, 255),
 
-		Dialog = Color3.fromRGB(16, 19, 28),
-		DialogHolder = Color3.fromRGB(12, 14, 20),
+		Dialog = Color3.fromRGB(34, 44, 62),
+		DialogHolder = Color3.fromRGB(28, 36, 52),
 		DialogHolderLine = Color3.fromRGB(255, 255, 255),
-		DialogButton = Color3.fromRGB(28, 34, 48),
+		DialogButton = Color3.fromRGB(48, 62, 88),
 		DialogButtonBorder = Color3.fromRGB(255, 255, 255),
 		DialogBorder = Color3.fromRGB(255, 255, 255),
-		DialogInput = Color3.fromRGB(20, 24, 34),
+		DialogInput = Color3.fromRGB(30, 40, 58),
 		DialogInputLine = Color3.fromRGB(10, 195, 255),
 
 		Text = Color3.fromRGB(246, 249, 255),
-		SubText = Color3.fromRGB(158, 172, 196),
+		SubText = Color3.fromRGB(168, 184, 208),
 		Hover = Color3.fromRGB(255, 255, 255),
 		HoverChange = 0.05,
 	},
@@ -2586,17 +2586,17 @@ function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 	local Parent, Top, Mid, Bottom, Rotation, MidKeypoint
 	if typeof(Props) == "Instance" then
 		Parent = Props
-		Top = ArgMidOrTop or 0.93
-		Mid = ArgMid or 0.85
-		Bottom = ArgBottom or 0.74
+		Top = ArgMidOrTop or 0.96
+		Mid = ArgMid or 0.91
+		Bottom = ArgBottom or 0.85
 		Rotation = 90
 		MidKeypoint = 0.45
 	else
 		Props = Props or {}
 		Parent = Props.Parent
-		Top = Props.Top or 0.93
-		Mid = Props.Mid or 0.85
-		Bottom = Props.Bottom or 0.74
+		Top = Props.Top or 0.96
+		Mid = Props.Mid or 0.91
+		Bottom = Props.Bottom or 0.85
 		Rotation = Props.Rotation or 90
 		MidKeypoint = Props.MidKeypoint or 0.45
 	end
@@ -2995,7 +2995,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Glass.Radius.Element),
 		}),
-		Glass.TransparencyGradient({ Top = 0.94, Mid = 0.88, Bottom = 0.80 }),
+		Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.87 }),
 		Element.Border,
 		Element.LabelHolder,
 	})
@@ -3657,8 +3657,8 @@ Components.Dialog = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Card),
 			}),
-			Glass.TransparencyGradient({ Top = 0.92, Mid = 0.84, Bottom = 0.74 }),
-			Glass.Frost(Glass.Radius.Card, { Transparency = 0.96 }),
+			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+			Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 0 }),
 			Glass.Rim({ Transparency = 0.28, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			NewDialog.Scale,
@@ -3872,8 +3872,8 @@ Components.Notification = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.TransparencyGradient({ Top = 0.92, Mid = 0.84, Bottom = 0.74 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.96 }),
+		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.16, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.28, Mode = Enum.ApplyStrokeMode.Contextual }),
@@ -4383,7 +4383,7 @@ Components.Window = (function()
 			ThemeTag = { BackgroundColor3 = "Input" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			Glass.TransparencyGradient({ Top = 0.94, Mid = 0.88, Bottom = 0.80 }),
+			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.87 }),
 			Glass.Sheen(Glass.Radius.Control, { Top = 0.65, Mid = 0.88, Bottom = 1 }),
 			Glass.TopLight({ Inset = 12, Transparency = 0.20, ZIndex = 0 }),
 			Glass.RimLayer(Glass.Radius.Control, { Transparency = 0.40, ZIndex = 0 }),
@@ -4633,9 +4633,9 @@ Components.Window = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    Glass.TransparencyGradient({ Top = 0.93, Mid = 0.85, Bottom = 0.74 }),
-		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.96 }),
-		    Glass.Specular(Glass.Radius.Window, { Top = 0.86, Mid = 0.94, ZIndex = 3 }),
+		    Glass.TransparencyGradient({ Top = 0.97, Mid = 0.92, Bottom = 0.86 }),
+		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.97 }),
+		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.2, Transparency = 0.16, ZIndex = 4 }),
 		    -- vien trang bo sung (sang tren moi theme, ke ca theme toi)
@@ -5526,8 +5526,8 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TransparencyGradient({ Top = 0.92, Mid = 0.84, Bottom = 0.74 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.96 }),
+		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.28, Tag = "DropdownBorder" }),
@@ -9195,7 +9195,7 @@ function Library:CreateWindow(Config)
 	UICorner.CornerRadius = UDim.new(0, 16)
 	UICorner.Parent = Main
 
-	Glass.TransparencyGradient(Main, 0.92, 0.80, 0.65)
+	Glass.TransparencyGradient(Main, 0.96, 0.90, 0.82)
 	Glass.Shadow({ Spread = 20, OffsetY = 0, Transparency = 0.60, ZIndex = 1, Parent = Main })
 
 	-- vien kinh quang hoc theo theme (rim light: sang tren, mo dan xuong duoi)
