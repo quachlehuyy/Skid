@@ -9190,12 +9190,12 @@ function Library:CreateWindow(Config)
 	Main.Position = UDim2.new(0.081166774, 0, 0.0841463208, 0)
 	Main.Size = UDim2.new(0, 48, 0, 48)
 	Main.ZIndex = 2
-	Main.Image = Config.MinimizerIcon or "rbxassetid://115743955187199"
+	Main.Image = "" -- Khong dat image truc tiep len Main de tranh UIGradient lam mo icon
 
 	UICorner.CornerRadius = UDim.new(0, 16)
 	UICorner.Parent = Main
 
-	Glass.TransparencyGradient(Main, 0.96, 0.90, 0.82)
+	Glass.TransparencyGradient(Main, 0.94, 0.86, 0.76)
 	Glass.Shadow({ Spread = 20, OffsetY = 0, Transparency = 0.60, ZIndex = 1, Parent = Main })
 
 	-- vien kinh quang hoc theo theme (rim light: sang tren, mo dan xuong duoi)
@@ -9227,6 +9227,7 @@ function Library:CreateWindow(Config)
 	MainSheen.BackgroundTransparency = 0
 	MainSheen.BorderSizePixel = 0
 	MainSheen.Interactable = false
+	MainSheen.ZIndex = 2
 	MainSheen.Parent = Main
 
 	local MainSheenCorner = Instance.new("UICorner")
@@ -9236,18 +9237,40 @@ function Library:CreateWindow(Config)
 	local MainSheenGradient = Instance.new("UIGradient")
 	MainSheenGradient.Rotation = 90
 	MainSheenGradient.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0.00, 0.70),
-		NumberSequenceKeypoint.new(0.45, 0.90),
+		NumberSequenceKeypoint.new(0.00, 0.72),
+		NumberSequenceKeypoint.new(0.45, 0.92),
 		NumberSequenceKeypoint.new(1.00, 1),
 	})
 	MainSheenGradient.Parent = MainSheen
 
-	-- Micro-animation: Glass optical flare on hover
+	-- Icon hien thi ro rang, sac net, trang sang (khong bi gradient lam mo)
+	local MainIcon = Instance.new("ImageLabel")
+	MainIcon.Name = "Icon"
+	MainIcon.Size = UDim2.fromOffset(26, 26)
+	MainIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	MainIcon.Position = UDim2.fromScale(0.5, 0.5)
+	MainIcon.BackgroundTransparency = 1
+	MainIcon.Image = Config.MinimizerIcon or "rbxassetid://115743955187199"
+	MainIcon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+	MainIcon.ImageTransparency = 0
+	MainIcon.ZIndex = 3
+	MainIcon.Interactable = false
+	MainIcon.Parent = Main
+
+	-- Micro-animation: Glass optical flare and icon bounce on hover
 	AddSignal(Main.MouseEnter, function()
 		TweenService:Create(MainStroke, TweenInfo.new(0.2), { Transparency = 0.05 }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.2), { Size = UDim2.fromOffset(28, 28) }):Play()
 	end)
 	AddSignal(Main.MouseLeave, function()
 		TweenService:Create(MainStroke, TweenInfo.new(0.25), { Transparency = 0.25 }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.25), { Size = UDim2.fromOffset(26, 26) }):Play()
+	end)
+	AddSignal(Main.MouseButton1Down, function()
+		TweenService:Create(MainIcon, TweenInfo.new(0.1), { Size = UDim2.fromOffset(22, 22) }):Play()
+	end)
+	AddSignal(Main.MouseButton1Up, function()
+		TweenService:Create(MainIcon, TweenInfo.new(0.15), { Size = UDim2.fromOffset(26, 26) }):Play()
 	end)
 
 	-- dang ky vao Creator.Registry de tu doi mau khi Library:SetTheme()
