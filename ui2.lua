@@ -3096,31 +3096,49 @@ Components.Section = function(Title, Parent)
 
 	local SectionOrder = NextLayoutOrder()
 
+	local AccentBullet = New("Frame", {
+		Size = UDim2.new(0, 3, 0, 14),
+		Position = UDim2.fromOffset(0, 5),
+		BackgroundTransparency = 0,
+		ThemeTag = {
+			BackgroundColor3 = "Accent",
+		},
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+	})
+
+	Section.TitleLabel = New("TextLabel", {
+		RichText = true,
+		Text = Title,
+		TextTransparency = 0,
+		FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+		TextSize = 16,
+		TextXAlignment = "Left",
+		TextYAlignment = "Center",
+		Size = UDim2.new(1, -20, 0, 20),
+		Position = UDim2.fromOffset(8, 2),
+		AutoLocalize = false,
+		ThemeTag = {
+			TextColor3 = "Accent",
+		},
+	})
+
 	Section.Root = New("Frame", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 26),
 		LayoutOrder = SectionOrder,
 		Parent = Parent,
 	}, {
-		New("TextLabel", {
-			RichText = true,
-			Text = Title,
-			TextTransparency = 0,
-			FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-			TextSize = 16,
-			TextXAlignment = "Left",
-			TextYAlignment = "Center",
-			Size = UDim2.new(1, -16, 0, 20),
-			Position = UDim2.fromOffset(2, 2),
-			AutoLocalize = false,
-			ThemeTag = {
-				TextColor3 = "Accent",
-			},
-		}),
+		AccentBullet,
+		Section.TitleLabel,
 		Section.Container,
 	})
 
 	RememberHome(Section.Root, Parent, SectionOrder)
+
+	function Section:SetTitle(Text)
+		Section.TitleLabel.Text = Text
+	end
 
 	Creator.AddSignal(Section.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 		Section.Container.Size = UDim2.new(1, 0, 0, Section.Layout.AbsoluteContentSize.Y)
@@ -3331,9 +3349,22 @@ Components.Tab = (function()
 				Size                   = UDim2.new(0, 3, 0.60, 0),
 				BackgroundTransparency = 0,
 			}):Play()
-			-- text & icon become fully opaque
-			TweenService:Create(TitleLabel, TI_NORM, { TextTransparency  = 0    }):Play()
-			TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0    }):Play()
+			-- cap nhat registry de khi doi theme thi giu dung mau Accent
+			if Creator.Registry[TitleLabel] then
+				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Accent" }
+			end
+			if Creator.Registry[IconLabel] then
+				Creator.Registry[IconLabel].Properties = { ImageColor3 = "Accent" }
+			end
+			-- text & icon chuyen sang mau accent cua theme va full ro net
+			TweenService:Create(TitleLabel, TI_NORM, {
+				TextColor3       = Creator.GetThemeProperty("Accent"),
+				TextTransparency = 0,
+			}):Play()
+			TweenService:Create(IconLabel,  TI_NORM, {
+				ImageColor3      = Creator.GetThemeProperty("Accent"),
+				ImageTransparency = 0,
+			}):Play()
 		end
 
 		local function applyUnselected()
@@ -3346,8 +3377,21 @@ Components.Tab = (function()
 				Size                   = UDim2.new(0, 3, 0, 0),
 				BackgroundTransparency = 1,
 			}):Play()
-			TweenService:Create(TitleLabel, TI_NORM, { TextTransparency  = 0.35 }):Play()
-			TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0.35 }):Play()
+			-- cap nhat registry de khi doi theme thi giu mau Text
+			if Creator.Registry[TitleLabel] then
+				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Text" }
+			end
+			if Creator.Registry[IconLabel] then
+				Creator.Registry[IconLabel].Properties = { ImageColor3 = "Text" }
+			end
+			TweenService:Create(TitleLabel, TI_NORM, {
+				TextColor3       = Creator.GetThemeProperty("Text"),
+				TextTransparency = 0.35,
+			}):Play()
+			TweenService:Create(IconLabel,  TI_NORM, {
+				ImageColor3      = Creator.GetThemeProperty("Text"),
+				ImageTransparency = 0.35,
+			}):Play()
 		end
 
 		-- ── Hover (only when not selected) ───────────────────
@@ -3405,6 +3449,20 @@ Components.Tab = (function()
 			return Section
 		end
 
+		function Tab:UpdateTheme()
+			local isSelected = Tab.Selected
+			local colorKey = isSelected and "Accent" or "Text"
+			local colorVal = Creator.GetThemeProperty(colorKey)
+			if Creator.Registry[TitleLabel] then
+				Creator.Registry[TitleLabel].Properties = { TextColor3 = colorKey }
+			end
+			if Creator.Registry[IconLabel] then
+				Creator.Registry[IconLabel].Properties = { ImageColor3 = colorKey }
+			end
+			TitleLabel.TextColor3 = colorVal
+			IconLabel.ImageColor3 = colorVal
+		end
+
 		setmetatable(Tab, Elements)
 		return Tab
 	end
@@ -3452,6 +3510,7 @@ Components.Tab = (function()
 
 		-- update header text + selector bar (existing window logic)
 		Window.TabDisplay.Text = target.Name
+		Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
 		Window.SelectorPosMotor:setGoal(
 			Flipper.Spring.new(TabModule:GetCurrentTabPos(), { frequency = 6 })
 		)
@@ -4588,7 +4647,7 @@ Components.Window = (function()
 			Position         = UDim2.fromOffset(Window.TabWidth + 26, 56),
 			BackgroundTransparency = 1,
 			AutoLocalize     = false,
-			ThemeTag         = { TextColor3 = "Text" },
+			ThemeTag         = { TextColor3 = "Accent" },
 		})
 
 		Window.ContainerHolder = New("Frame", {
@@ -9365,6 +9424,17 @@ function Library:SetTheme(Value)
 
 	Library.Theme = Value
 	Creator.UpdateTheme()
+
+	if Components.Tab and Components.Tab.Tabs then
+		for _, TabObject in next, Components.Tab.Tabs do
+			if TabObject.UpdateTheme then
+				TabObject:UpdateTheme()
+			end
+		end
+	end
+	if Library.Window and Library.Window.TabDisplay then
+		Library.Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
+	end
 end
 
 function Library:Destroy()
