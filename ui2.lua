@@ -2552,22 +2552,21 @@ local function InsetRect(Inset, Height)
 end
 Glass.InsetRect = InsetRect
 
--- Bong do dai phong cach liquid glass (9-slice long directional shadow)
+-- Bong do mem phong cach liquid glass (9-slice hollow soft shadow, khong loi nen thua)
 function Glass.Shadow(Props)
 	Props = Props or {}
-	local SpreadX      = Props.SpreadX or Props.Spread or (Props.Blur and Props.Blur * 2) or 44
-	local SpreadY      = Props.SpreadY or (Props.Spread and Props.Spread * 1.6) or (Props.Blur and Props.Blur * 2.8) or 72
-	local Transparency = Props.Transparency or 0.40
+	local SpreadX      = Props.SpreadX or Props.Spread or (Props.Blur and Props.Blur * 2) or 50
+	local SpreadY      = Props.SpreadY or Props.Spread or (Props.Blur and Props.Blur * 2) or 50
+	local Transparency = Props.Transparency or 0.65
 	local OffsetX      = Props.OffsetX or 0
-	local OffsetY      = Props.OffsetY or 18
-	local ZIndex       = Props.ZIndex or 1
-	local ThemeTag     = Props.ThemeTag or { ImageColor3 = "AcrylicMain" }
+	local OffsetY      = Props.OffsetY or 0
+	local ZIndex       = Props.ZIndex or 0
 
 	return New("ImageLabel", {
 		Name                   = "GlassShadow",
-		Image                  = "rbxassetid://6015897843",
+		Image                  = "rbxassetid://8992230677",
 		ScaleType              = Enum.ScaleType.Slice,
-		SliceCenter            = Rect.new(49, 49, 450, 450),
+		SliceCenter            = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
 		AnchorPoint            = Vector2.new(0.5, 0.5),
 		Position               = UDim2.new(0.5, OffsetX, 0.5, OffsetY),
 		Size                   = UDim2.new(1, SpreadX, 1, SpreadY),
@@ -2577,42 +2576,58 @@ function Glass.Shadow(Props)
 		Interactable           = false,
 		ZIndex                 = ZIndex,
 		Parent                 = Props.Parent,
-		ThemeTag               = ThemeTag,
 	})
 end
 
--- Gradient do trong suot: trong suot pha le lỏng cao (Liquid Glass Gradient iOS 27)
-function Glass.TransparencyGradient(Props)
-	Props = Props or {}
-	local Top      = Props.Top or 0.93     -- Tren TRONG SUOT PHA LE
-	local Mid      = Props.Mid or 0.85     -- Giua chuyen tiep em
-	local Bottom   = Props.Bottom or 0.74  -- Duoi giu do trong kinh long (khong bi duc toi mau)
-	local Rotation = Props.Rotation or 90
+-- Gradient do trong suot: trong suot pha le long cao (Liquid Glass Gradient iOS 27)
+-- Ho tro ca 2 cach goi: Glass.TransparencyGradient({ Top = ..., Parent = ... })
+-- va Glass.TransparencyGradient(Instance, Top, Mid, Bottom)
+function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
+	local Parent, Top, Mid, Bottom, Rotation, MidKeypoint
+	if typeof(Props) == "Instance" then
+		Parent = Props
+		Top = ArgMidOrTop or 0.93
+		Mid = ArgMid or 0.85
+		Bottom = ArgBottom or 0.74
+		Rotation = 90
+		MidKeypoint = 0.45
+	else
+		Props = Props or {}
+		Parent = Props.Parent
+		Top = Props.Top or 0.93
+		Mid = Props.Mid or 0.85
+		Bottom = Props.Bottom or 0.74
+		Rotation = Props.Rotation or 90
+		MidKeypoint = Props.MidKeypoint or 0.45
+	end
 
-	return New("UIGradient", {
+	local Grad = New("UIGradient", {
 		Name         = "GlassTransparencyGradient",
 		Rotation     = Rotation,
 		Transparency = NumberSequence.new({
 			NumberSequenceKeypoint.new(0.00, Top),
-			NumberSequenceKeypoint.new(Props.MidKeypoint or 0.45, Mid),
+			NumberSequenceKeypoint.new(MidKeypoint, Mid),
 			NumberSequenceKeypoint.new(1.00, Bottom),
 		}),
-		Parent       = Props.Parent,
 	})
+	if Parent then
+		Grad.Parent = Parent
+	end
+	return Grad
 end
 
 -- (1)+(2) VANH KHUC XA + TAN SAC QUANG HOC (Chromatic Aberration Rim)
 function Glass.Refract(Radius, Props)
 	Props = Props or {}
-	local Band = Props.Band or 1.5
-	local R = (Radius or Glass.Radius.Window) + Band
+	local Band = Props.Band or 1.2
+	local R = Radius or Glass.Radius.Window
 	return New("Frame", {
 		Name                   = "GlassRefract",
-		Size                   = UDim2.new(1, Band * 2, 1, Band * 2),
-		Position               = UDim2.fromOffset(-Band, -Band),
+		Size                   = UDim2.fromScale(1, 1),
+		Position               = UDim2.fromOffset(0, 0),
 		BackgroundTransparency = 1,
 		Interactable           = false,
-		ZIndex                 = Props.ZIndex or -1,
+		ZIndex                 = Props.ZIndex or 1,
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, R) }),
 		New("UIStroke", {
@@ -3620,12 +3635,11 @@ Components.Dialog = (function()
 		local ScaleMotor, Scale = Creator.SpringMotor(1.1, NewDialog.Scale, "Scale")
 
 		local DialogShadow = Glass.Shadow({
-			SpreadX = 32, SpreadY = 56, OffsetY = 16, Transparency = 0.45, ZIndex = 1,
-			ThemeTag = { ImageColor3 = "Dialog" },
+			SpreadX = 44, SpreadY = 44, OffsetY = 0, Transparency = 0.60, ZIndex = 1,
 		})
-		DialogShadow.Size = UDim2.new(0, 332, 0, 225)
+		DialogShadow.Size = UDim2.new(1, 44, 1, 44)
 		DialogShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-		DialogShadow.Position = UDim2.new(0.5, 0, 0.5, 16)
+		DialogShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
 		DialogShadow.Parent = NewDialog.TintFrame
 
 		NewDialog.Root = New("CanvasGroup", {
@@ -3847,8 +3861,7 @@ Components.Notification = (function()
 		})
 
 		local NotificationShadow = Glass.Shadow({
-			SpreadX = 32, SpreadY = 48, OffsetY = 14, Transparency = 0.40, ZIndex = 1,
-			ThemeTag = { ImageColor3 = "AcrylicMain" },
+			SpreadX = 36, SpreadY = 36, OffsetY = 0, Transparency = 0.60, ZIndex = 1,
 		})
 
 		NewNotification.Root = New("Frame", {
@@ -3893,7 +3906,7 @@ Components.Notification = (function()
 
 		RootMotor:onStep(function(Values)
 			NewNotification.Root.Position = UDim2.new(Values.Scale, Values.Offset, 0, 0)
-			NotificationShadow.Position = UDim2.new(Values.Scale + 0.5, Values.Offset, 0.5, 16)
+			NotificationShadow.Position = UDim2.new(Values.Scale + 0.5, Values.Offset, 0.5, 0)
 		end)
 
 		Creator.AddSignal(NewNotification.CloseButton.MouseButton1Click, function()
@@ -4609,8 +4622,7 @@ Components.Window = (function()
 		-- va khong the anh huong layout. Client cu khong co class nay ->
 		-- Glass.Shadow tra ve anh slice-shadow (GuiObject).
 		local WindowShadow = Glass.Shadow({
-			SpreadX = 48, SpreadY = 76, OffsetY = 20, Transparency = 0.40, ZIndex = 1,
-			ThemeTag = { ImageColor3 = "AcrylicMain" },
+			SpreadX = 64, SpreadY = 64, OffsetY = 0, Transparency = 0.65, ZIndex = 1,
 		})
 
 		-- Lop nen kinh long trong suot da tang (Liquid Glass iOS 27)
@@ -5530,8 +5542,7 @@ ElementsTable.Dropdown = (function()
 		end
 
 		local DropdownShadow = Glass.Shadow({
-			SpreadX = 36, SpreadY = 56, OffsetY = 16, Transparency = 0.40, ZIndex = 1,
-			ThemeTag = { ImageColor3 = "DropdownHolder" },
+			SpreadX = 36, SpreadY = 36, OffsetY = 0, Transparency = 0.60, ZIndex = 1,
 		})
 
 		local DropdownHolderCanvas = New("Frame", {
@@ -9185,7 +9196,7 @@ function Library:CreateWindow(Config)
 	UICorner.Parent = Main
 
 	Glass.TransparencyGradient(Main, 0.92, 0.80, 0.65)
-	Glass.Shadow({ Spread = 24, OffsetY = 6, Transparency = 0.45, ZIndex = 1, Parent = Main, ThemeTag = { ImageColor3 = "AcrylicMain" } })
+	Glass.Shadow({ Spread = 20, OffsetY = 0, Transparency = 0.60, ZIndex = 1, Parent = Main })
 
 	-- vien kinh quang hoc theo theme (rim light: sang tren, mo dan xuong duoi)
 	local MainStroke = Instance.new("UIStroke")
@@ -9411,8 +9422,12 @@ end
 
 if getgenv then
 	getgenv().Fluent = Library
+	getgenv().SaveManager = SaveManager
+	getgenv().InterfaceManager = InterfaceManager
 else
 	Fluent = Library
+	SaveManager = SaveManager
+	InterfaceManager = InterfaceManager
 end
 
 return Library, SaveManager, InterfaceManager
