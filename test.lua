@@ -166,17 +166,17 @@ local Themes = {
 		TitleBarLine = Color3.fromRGB(255, 255, 255),
 		Tab = Color3.fromRGB(255, 255, 255),
 
-		Element = Color3.fromRGB(28, 34, 48),
+		Element = Color3.fromRGB(32, 38, 54),
 		ElementBorder = Color3.fromRGB(255, 255, 255),
 		InElementBorder = Color3.fromRGB(255, 75, 145),
-		ElementTransparency = 0.55,
+		ElementTransparency = 0.82,
 
 		ToggleSlider = Color3.fromRGB(255, 75, 145),
 		ToggleToggled = Color3.fromRGB(18, 20, 26), -- Núm đen tương phản cao khi ON
 
 		SliderRail = Color3.fromRGB(48, 55, 72),
 
-		DropdownFrame = Color3.fromRGB(36, 42, 58),
+		DropdownFrame = Color3.fromRGB(40, 48, 66),
 		DropdownHolder = Color3.fromRGB(20, 24, 34),
 		DropdownBorder = Color3.fromRGB(255, 255, 255),
 		DropdownOption = Color3.fromRGB(255, 75, 145),
@@ -218,17 +218,17 @@ local Themes = {
 		TitleBarLine = Color3.fromRGB(255, 255, 255),
 		Tab = Color3.fromRGB(255, 255, 255),
 
-		Element = Color3.fromRGB(28, 34, 48),
+		Element = Color3.fromRGB(32, 38, 54),
 		ElementBorder = Color3.fromRGB(255, 255, 255),
 		InElementBorder = Color3.fromRGB(255, 75, 145),
-		ElementTransparency = 0.55,
+		ElementTransparency = 0.82,
 
 		ToggleSlider = Color3.fromRGB(255, 75, 145),
 		ToggleToggled = Color3.fromRGB(18, 20, 26),
 
 		SliderRail = Color3.fromRGB(48, 55, 72),
 
-		DropdownFrame = Color3.fromRGB(36, 42, 58),
+		DropdownFrame = Color3.fromRGB(40, 48, 66),
 		DropdownHolder = Color3.fromRGB(20, 24, 34),
 		DropdownBorder = Color3.fromRGB(255, 255, 255),
 		DropdownOption = Color3.fromRGB(255, 75, 145),
@@ -3126,8 +3126,8 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, 14),
 		}),
-		Glass.TransparencyGradient({ Top = 0.48, Mid = 0.58, Bottom = 0.50 }),
-		Glass.TopLight({ Inset = 12, Transparency = 0.20, ZIndex = 0 }),
+		Glass.TransparencyGradient({ Top = 0.78, Mid = 0.82, Bottom = 0.72 }),
+		Glass.TopLight({ Inset = 12, Transparency = 0.22, ZIndex = 0 }),
 		Element.Border,
 		Element.LabelHolder,
 	}
@@ -3139,7 +3139,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		Visible = Options.Visible ~= false,
 		Size = UDim2.new(1, 0, 0, 56), -- Kích thước thẻ rộng rãi thoải mái
 		BackgroundTransparency = 0,
-		BackgroundColor3 = Color3.fromRGB(28, 34, 48),
+		BackgroundColor3 = Color3.fromRGB(32, 38, 54),
 		Parent = Parent,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Text = "",
@@ -4928,7 +4928,7 @@ Components.Window = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    Glass.TransparencyGradient({ Top = 0.35, Mid = 0.45, Bottom = 0.38 }),
+		    Glass.TransparencyGradient({ Top = 0.72, Mid = 0.68, Bottom = 0.60 }),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.97 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
@@ -4942,7 +4942,7 @@ Components.Window = (function()
 		Window.AcrylicPaint = {
 		    Frame = AcrylicFrame,
 		    Model = nil,
-		    BaseTransparency = 0.40,
+		    BaseTransparency = 0.70,
 		    AddParent = function() end,
 		    SetVisibility = function() end,
 		}
@@ -5344,8 +5344,8 @@ ElementsTable.Toggle = (function()
 		}
 
 		local ToggleFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
-		ToggleFrame.TitleLabel.Size = UDim2.new(1, -112, 0, 16)
-		ToggleFrame.DescLabel.Size  = UDim2.new(1, -112, 0, 14)
+		ToggleFrame.TitleLabel.Size = UDim2.new(1, -76, 0, 16)
+		ToggleFrame.DescLabel.Size  = UDim2.new(1, -76, 0, 14)
 
 		Toggle.SetTitle        = ToggleFrame.SetTitle
 		Toggle.AddText         = ToggleFrame.AddText
@@ -5354,22 +5354,7 @@ ElementsTable.Toggle = (function()
 		Toggle.GetOriginalText = ToggleFrame.GetOriginalText
 		Toggle.Elements        = ToggleFrame
 
-		-- ── Status label ("On" / "Off" hiển thị bên cạnh switch) ──
-		local StatusLabel = New("TextLabel", {
-			FontFace        = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
-			Text            = Toggle.Value and "On" or "Off",
-			TextSize        = 12.5,
-			TextColor3      = Color3.fromRGB(220, 228, 242),
-			TextXAlignment  = Enum.TextXAlignment.Right,
-			TextYAlignment  = Enum.TextYAlignment.Center,
-			AnchorPoint     = Vector2.new(1, 0.5),
-			Position        = UDim2.new(1, -68, 0.5, 0),
-			Size            = UDim2.fromOffset(36, 20),
-			BackgroundTransparency = 1,
-			AutoLocalize    = false,
-			Parent          = ToggleFrame.Frame,
-			ThemeTag        = { TextColor3 = "SubText" },
-		})
+
 
 		-- ── Track (pill) ──────────────────────────────────────
 		local Track = New("Frame", {
@@ -5451,8 +5436,7 @@ ElementsTable.Toggle = (function()
 				Position = UDim2.new(0, 3, 0.5, 0),
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			}):Play()
-			StatusLabel.Text = "Off"
-			TweenService:Create(StatusLabel, TI_TEXT, { TextTransparency = 0.35 }):Play()
+
 		end
 
 		-- ON state (núm tròn đen tương phản đúng như trong ảnh)
@@ -5463,8 +5447,7 @@ ElementsTable.Toggle = (function()
 				Position = UDim2.new(0, 25, 0.5, 0),
 				BackgroundColor3 = knobColor,
 			}):Play()
-			StatusLabel.Text = "On"
-			TweenService:Create(StatusLabel, TI_TEXT, { TextTransparency = 0 }):Play()
+
 		end
 
 		-- Press squish (hiệu ứng co giãn nhẹ khi bấm)
@@ -5615,7 +5598,7 @@ ElementsTable.Dropdown = (function()
 			Size            = UDim2.fromOffset(145, 34), -- Tăng diện tích rộng rãi chuẩn ảnh
 			Position        = UDim2.new(1, -12, 0.5, 0),
 			AnchorPoint     = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.55,
+			BackgroundTransparency = 0.80,
 			Parent          = DropdownFrame.Frame,
 			AutoLocalize    = false,
 			ThemeTag        = { BackgroundColor3 = "DropdownFrame" },
@@ -5639,13 +5622,13 @@ ElementsTable.Dropdown = (function()
 			}):Play()
 		end)
 
-		-- Hover effect cho dropdown pill (màu đục)
-		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.55, DropdownInner, "BackgroundTransparency")
+		-- Hover effect cho dropdown pill
+		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.80, DropdownInner, "BackgroundTransparency")
 		Creator.AddSignal(DropdownInner.MouseEnter, function()
-			SetDropdownHover(0.40)
+			SetDropdownHover(0.68)
 		end)
 		Creator.AddSignal(DropdownInner.MouseLeave, function()
-			SetDropdownHover(0.55)
+			SetDropdownHover(0.80)
 		end)
 
 		-- Nut "xoa het" cho dropdown Multi. Toan bo phan noi day (hover, hit-test
@@ -5843,7 +5826,7 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TransparencyGradient({ Top = 0.45, Mid = 0.55, Bottom = 0.48 }),
+		    Glass.TransparencyGradient({ Top = 0.82, Mid = 0.78, Bottom = 0.70 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
