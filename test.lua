@@ -9724,4 +9724,4 @@ else
 	InterfaceManager = InterfaceManager
 end
 
-return Library, SaveManager, InterfaceManage
+return Library, SaveManager, InterfaceManager
