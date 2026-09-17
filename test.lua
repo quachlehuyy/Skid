@@ -2120,6 +2120,8 @@ end
 local GUI = New("ScreenGui", {
 	Parent = PanelParent,
 	Name = LibraryID,
+	ResetOnSpawn = false,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 })
 
 Library.GUI = GUI
@@ -2861,7 +2863,7 @@ Components.Section = function(SectionData, Parent)
 	local Section = { Collapsed = false }
 
 	local Title = type(SectionData) == "table" and (SectionData.Title or "SECTION") or tostring(SectionData or "SECTION")
-	local SubTitle = type(SectionData) == "table" and SectionData.SubTitle or nil
+	local SubTitle = type(SectionData) == "table" and (SectionData.SubTitle or SectionData.Description) or nil
 	local IconName = type(SectionData) == "table" and SectionData.Icon or nil
 
 	if not IconName then
@@ -4083,9 +4085,10 @@ Components.TitleBar = function(Config)
 
 	-- ── TitleBar frame (height 40) ────────────────────────────
 	TitleBar.Frame = New("Frame", {
-		Size             = UDim2.new(1, 0, 0, 42),
+		Size                   = UDim2.new(1, 0, 0, 42),
 		BackgroundTransparency = 1,
-		Parent           = Config.Parent,
+		ZIndex                 = 3,
+		Parent                 = Config.Parent,
 	})
 
 	-- logo
@@ -4333,6 +4336,7 @@ Components.Window = (function()
 			Position               = UDim2.new(1, -100, 0.5, 0),
 			BackgroundColor3       = Color3.fromRGB(22, 26, 36),
 			BackgroundTransparency = 0,
+			ZIndex                 = 4,
 			Visible                = UseSearchBar,
 			ThemeTag               = { BackgroundColor3 = "Input" },
 		}, {
@@ -4556,6 +4560,7 @@ Components.Window = (function()
 				Size                   = UDim2.new(0, Window.TabWidth, 0, 40),
 				Position               = UDim2.new(0, 12, 1, -48),
 				BackgroundTransparency = 1,
+				ZIndex                 = 2,
 			}, {
 				UserDivider,
 				AvatarImage,
@@ -4594,10 +4599,11 @@ Components.Window = (function()
 		end
 
 		local TabFrame = New("Frame", {
-			Size             = UDim2.new(0, Window.TabWidth, 1, -(UserCard and 108 or 58)),
-			Position         = UDim2.new(0, 12, 0, 50),
+			Size                   = UDim2.new(0, Window.TabWidth, 1, -(UserCard and 108 or 58)),
+			Position               = UDim2.new(0, 12, 0, 50),
 			BackgroundTransparency = 1,
-			ClipsDescendants = false,
+			ClipsDescendants       = false,
+			ZIndex                 = 2,
 		}, {
 			Window.TabHolder,
 			Selector,
@@ -4645,6 +4651,7 @@ Components.Window = (function()
 			Size                   = UDim2.new(1, -Window.TabWidth - 38, 0, 24),
 			Position               = UDim2.fromOffset(Window.TabWidth + 26, 52),
 			BackgroundTransparency = 1,
+			ZIndex                 = 2,
 		}, {
 			TabHeaderIcon,
 			TabDisplayText,
@@ -4663,23 +4670,24 @@ Components.Window = (function()
 		})
 
 		Window.ContainerCanvas = New("Frame", {
-			Size             = UDim2.new(1, -Window.TabWidth - 38, 1, -94),
-			Position         = UDim2.fromOffset(Window.TabWidth + 26, 84),
+			Size                   = UDim2.new(1, -Window.TabWidth - 38, 1, -94),
+			Position               = UDim2.fromOffset(Window.TabWidth + 26, 84),
 			BackgroundTransparency = 1,
+			ZIndex                 = 2,
 		}, {
 			Window.ContainerAnim,
 			Window.ContainerHolder,
 		})
 
 		local WindowShadow = Glass.Shadow({
-			SpreadX = 40, SpreadY = 40, OffsetY = 2, Transparency = 0.65, ZIndex = 1,
+			SpreadX = 40, SpreadY = 40, OffsetY = 2, Transparency = 0.65, ZIndex = 0,
 		})
 
 		local AcrylicFrame = New("Frame", {
 		    Size                   = UDim2.fromScale(1, 1),
 			BackgroundColor3       = Color3.fromRGB(15, 18, 26),
 			BackgroundTransparency = 0,
-			ZIndex                 = 2,
+			ZIndex                 = 1,
 		    ThemeTag               = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
@@ -9230,6 +9238,7 @@ function Library:CreateWindow(Config)
 		SubTitle = Config.SubTitle,
 		TabWidth = Config.TabWidth,
 		SearchBar = Config.SearchBar,
+		UserInfo = Config.UserInfo,
 	})
 
 	Library.Window = Window
