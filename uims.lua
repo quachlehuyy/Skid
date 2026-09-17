@@ -2415,11 +2415,11 @@ local Glass = {
 --   * day: dai TOI mong o 1-2px cuoi (be day cua lat kinh)
 -- Halo mo phong bang 3 lop Frame gradient, MOI LOP co UICorner rieng
 -- trung silhouette cua host -> vien om ca goc bo ma khong can UIStroke.
--- Do manh cua vien = TopRim.Transparency (tween duoc, thay cho
--- UIStroke.Transparency cu: so nho hon = vien sang hon).
+-- Do manh cua vien = HaloTopRim.BackgroundTransparency (tween duoc, thay cho
+-- UIStroke.Transparency cu: so nho hon = vien sang hon). Truy cap lop con
+-- bang FindFirstChild (KHONG duoc gan field vao Instance - Roblox nem loi).
 -- Interactable=false + Size fromScale(1,1): khong an chuot, khong xeo
--- AutomaticSize. Quan trong: file nay TU CAI UIStroke - moi vien moi
--- phai di qua Halo hoac gradient trong suot tren chinh frame.
+-- AutomaticSize. File nay TU CAI UIStroke - moi vien moi phai di qua Halo.
 -- ─────────────────────────────────────────────────────────────────────
 function Glass.Halo(Radius, Props)
 	Props = Props or {}
@@ -2437,7 +2437,7 @@ function Glass.Halo(Radius, Props)
 	})
 
 	-- (1) rim light tren: trang roi rat manh o phan dau tien roi tan
-	Halo.TopRim = New("Frame", {
+	New("Frame", {
 		Name                   = "HaloTopRim",
 		Size                   = UDim2.fromScale(1, 1),
 		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
@@ -2460,7 +2460,7 @@ function Glass.Halo(Radius, Props)
 
 	-- (2) vang sang 2 ben (mong, mo) - chi bat khi Props.Sides
 	if Props.Sides then
-		Halo.SideRim = New("Frame", {
+		New("Frame", {
 			Name                   = "HaloSideRim",
 			Size                   = UDim2.fromScale(1, 1),
 			BackgroundColor3       = Color3.fromRGB(255, 255, 255),
@@ -2484,7 +2484,7 @@ function Glass.Halo(Radius, Props)
 	end
 
 	-- (3) day kinh: dai toi mong o cuoi de tao be day lat kinh
-	Halo.BottomEdge = New("Frame", {
+	New("Frame", {
 		Name                   = "HaloBottomEdge",
 		Size                   = UDim2.fromScale(1, 1),
 		BackgroundColor3       = Props.Shade or Color3.fromRGB(18, 22, 32),
@@ -3024,7 +3024,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	})
 
 	-- Vien kinh KHONG UIStroke: Halo 3 lop gradient (rim tren + vang ben
-	-- + day toi). Tween do manh vien qua Element.Border.TopRim (see hover).
+	-- + day toi). Tween do manh vien qua Element.Border:FindFirstChild("HaloTopRim") (see hover).
 	Element.Border = Glass.Halo(Glass.Radius.Element, {
 		Transparency = 0.16,
 		Sides        = true,
@@ -3114,28 +3114,28 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 
 	if Hover then
 		Creator.AddSignal(Element.Frame.MouseEnter, function()
-			TweenService:Create(Element.Border.TopRim, TweenInfo.new(0.2, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.08,
+			TweenService:Create(Element.Border:FindFirstChild("HaloTopRim"), TweenInfo.new(0.2, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.08,
 			}):Play()
 			TweenService:Create(Element.HoverSheen, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {
 				BackgroundTransparency = 0.55,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseLeave, function()
-			TweenService:Create(Element.Border.TopRim, TweenInfo.new(0.2, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.28,
+			TweenService:Create(Element.Border:FindFirstChild("HaloTopRim"), TweenInfo.new(0.2, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.28,
 			}):Play()
 			TweenService:Create(Element.HoverSheen, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {
 				BackgroundTransparency = 1,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Down, function()
-			TweenService:Create(Element.Border.TopRim, TweenInfo.new(0.1, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.02,
+			TweenService:Create(Element.Border:FindFirstChild("HaloTopRim"), TweenInfo.new(0.1, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.02,
 			}):Play()
 			TweenService:Create(Element.HoverSheen, TweenInfo.new(0.08, Enum.EasingStyle.Quint), {
 				BackgroundTransparency = 0.38,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Up, function()
-			TweenService:Create(Element.Border.TopRim, TweenInfo.new(0.15, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.08,
+			TweenService:Create(Element.Border:FindFirstChild("HaloTopRim"), TweenInfo.new(0.15, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.08,
 			}):Play()
 			TweenService:Create(Element.HoverSheen, TweenInfo.new(0.15, Enum.EasingStyle.Quint), {
 				BackgroundTransparency = 0.55,
@@ -3271,7 +3271,7 @@ Components.Tab = (function()
 
 		-- ── Pill background (hidden when unselected) ──────────
 		-- Vien pill khi duoc chon: Halo 3 lop (khong UIStroke). An khi chua
-		-- chon; tween .TopRim khi select/hover (see applySelected/applyUnselected).
+		-- chon; tween vien (HaloTopRim qua FindFirstChild) khi select/hover (see applySelected/applyUnselected).
 		local PillStroke = Glass.Halo(Glass.Radius.Control, {
 			Pill         = false,
 			Transparency = 1,
@@ -3450,7 +3450,7 @@ Components.Tab = (function()
 			}):Play()
 			-- lop kinh + vien sang len
 			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 0 }):Play()
-			TweenService:Create(PillStroke.TopRim, TI_NORM, { BackgroundTransparency = 0.18 }):Play()
+			TweenService:Create(PillStroke:FindFirstChild("HaloTopRim"), TI_NORM, { BackgroundTransparency = 0.18 }):Play()
 			-- accent bar grows
 			TweenService:Create(AccentBar, TI_BACK, {
 				Size                   = UDim2.new(0, 3, 0.60, 0),
@@ -3479,7 +3479,7 @@ Components.Tab = (function()
 				BackgroundTransparency = 1,
 			}):Play()
 			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 1 }):Play()
-			TweenService:Create(PillStroke.TopRim, TI_NORM, { BackgroundTransparency = 1 }):Play()
+			TweenService:Create(PillStroke:FindFirstChild("HaloTopRim"), TI_NORM, { BackgroundTransparency = 1 }):Play()
 			TweenService:Create(AccentBar, TI_NORM, {
 				Size                   = UDim2.new(0, 3, 0, 0),
 				BackgroundTransparency = 1,
@@ -3506,7 +3506,7 @@ Components.Tab = (function()
 			if not Tab.Selected then
 				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.88 }):Play()
 				TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 0.35 }):Play()
-				TweenService:Create(PillStroke.TopRim, TI_NORM, { BackgroundTransparency = 0.45 }):Play()
+				TweenService:Create(PillStroke:FindFirstChild("HaloTopRim"), TI_NORM, { BackgroundTransparency = 0.45 }):Play()
 				TweenService:Create(TitleLabel, TI_NORM, { TextTransparency = 0 }):Play()
 				TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0 }):Play()
 			end
@@ -3515,7 +3515,7 @@ Components.Tab = (function()
 			if not Tab.Selected then
 				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 1 }):Play()
 				TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 1 }):Play()
-				TweenService:Create(PillStroke.TopRim, TI_NORM, { BackgroundTransparency = 1 }):Play()
+				TweenService:Create(PillStroke:FindFirstChild("HaloTopRim"), TI_NORM, { BackgroundTransparency = 1 }):Play()
 				TweenService:Create(TitleLabel, TI_NORM, { TextTransparency = 0 }):Play()
 				TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0 }):Play()
 			end
@@ -4259,11 +4259,11 @@ Components.TitleBar = function(Config)
 		local Motor, SetTransparency = Creator.SpringMotor(0.92, Button.Frame, "BackgroundTransparency")
 		AddSignal(Button.Frame.MouseEnter, function()
 			SetTransparency(0.78)
-			TweenService:Create(ButtonStroke.TopRim, TweenInfo.new(0.18), { BackgroundTransparency = 0.25 }):Play()
+			TweenService:Create(ButtonStroke:FindFirstChild("HaloTopRim"), TweenInfo.new(0.18), { BackgroundTransparency = 0.25 }):Play()
 		end)
 		AddSignal(Button.Frame.MouseLeave, function()
 			SetTransparency(0.92, true)
-			TweenService:Create(ButtonStroke.TopRim, TweenInfo.new(0.18), { BackgroundTransparency = 0.65 }):Play()
+			TweenService:Create(ButtonStroke:FindFirstChild("HaloTopRim"), TweenInfo.new(0.18), { BackgroundTransparency = 0.65 }):Play()
 		end)
 		AddSignal(Button.Frame.MouseButton1Down, function()
 			SetTransparency(0.70)
@@ -4518,7 +4518,7 @@ Components.Window = (function()
 		})
 
 		-- vien kinh khong UIStroke: Halo pill (om duong cong cua SearchBox);
-		-- do sang vien khi go = tween SearchStroke.TopRim
+		-- do sang vien khi go = tween SearchStroke:FindFirstChild("HaloTopRim")
 		local SearchStroke = Glass.Halo(0, { Pill = true, Transparency = 0.35 })
 
 		local SearchBox = New("Frame", {
@@ -4540,13 +4540,13 @@ Components.Window = (function()
 
 		-- focus effect: sang stroke khi dang go
 		Creator.AddSignal(SearchInput.Focused, function()
-			TweenService:Create(SearchStroke.TopRim,
+			TweenService:Create(SearchStroke:FindFirstChild("HaloTopRim"),
 				TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 				{ BackgroundTransparency = 0.05 }
 			):Play()
 		end)
 		Creator.AddSignal(SearchInput.FocusLost, function()
-			TweenService:Create(SearchStroke.TopRim,
+			TweenService:Create(SearchStroke:FindFirstChild("HaloTopRim"),
 				TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 				{ BackgroundTransparency = 0.35 }
 			):Play()
@@ -5549,7 +5549,7 @@ ElementsTable.Dropdown = (function()
 		})
 
 		-- vien search box trong dropdown: Halo khong UIStroke; do manh vien
-		-- khi focus dieu khien qua Border.TopRim (SpringMotor o duoi)
+		-- khi focus dieu khien qua Border:FindFirstChild("HaloTopRim") (SpringMotor o duoi)
 		local Border = Glass.Halo(Glass.Radius.Control, { Transparency = 0.40 })
 
 		local searchIcon = New("ImageLabel", {
@@ -5604,7 +5604,7 @@ ElementsTable.Dropdown = (function()
 			DropdownSearch,
 		})
 
-		local SearchFocusMotor, SetSearchFocus = Creator.SpringMotor(0.4, Border.TopRim, "BackgroundTransparency")
+		local SearchFocusMotor, SetSearchFocus = Creator.SpringMotor(0.4, Border:FindFirstChild("HaloTopRim"), "BackgroundTransparency")
 		Creator.AddSignal(DropdownSearch.Focused, function()
 			SetSearchFocus(0.15)
 		end)
@@ -6026,7 +6026,7 @@ ElementsTable.Dropdown = (function()
 			})
 			ButtonSheen.BackgroundTransparency = 1
 
-			-- vien kinh khong UIStroke (Halo): sang khi selected/hover qua .TopRim
+			-- vien kinh khong UIStroke (Halo): sang khi selected/hover (tween HaloTopRim)
 			local ButtonStroke = Glass.Halo(Glass.Radius.Element, {
 				Transparency = 1,
 				Sides        = true,
@@ -6066,7 +6066,7 @@ ElementsTable.Dropdown = (function()
 				TweenService:Create(ButtonSheen, TI, {
 					BackgroundTransparency = sel and 0 or 1,
 				}):Play()
-				TweenService:Create(ButtonStroke.TopRim, TI, { BackgroundTransparency = sel and 0.3 or 1,
+				TweenService:Create(ButtonStroke:FindFirstChild("HaloTopRim"), TI, { BackgroundTransparency = sel and 0.3 or 1,
 				}):Play()
 				TweenService:Create(ButtonAccent, TI, {
 					BackgroundTransparency = sel and 0 or 1,
@@ -6084,7 +6084,7 @@ ElementsTable.Dropdown = (function()
 				if not Selected then
 					TweenService:Create(Button, TI, { BackgroundTransparency = 0.88 }):Play()
 					TweenService:Create(ButtonSheen, TI, { BackgroundTransparency = 0.5 }):Play()
-					TweenService:Create(ButtonStroke.TopRim, TI, { BackgroundTransparency = 0.6 }):Play()
+					TweenService:Create(ButtonStroke:FindFirstChild("HaloTopRim"), TI, { BackgroundTransparency = 0.6 }):Play()
 					TweenService:Create(ButtonLabel, TI, { TextTransparency = 0 }):Play()
 				end
 			end)
@@ -6095,7 +6095,7 @@ ElementsTable.Dropdown = (function()
 				TweenService:Create(ButtonSheen, TI, {
 					BackgroundTransparency = Selected and 0 or 1,
 				}):Play()
-				TweenService:Create(ButtonStroke.TopRim, TI, { BackgroundTransparency = Selected and 0.3 or 1,
+				TweenService:Create(ButtonStroke:FindFirstChild("HaloTopRim"), TI, { BackgroundTransparency = Selected and 0.3 or 1,
 				}):Play()
 				TweenService:Create(ButtonLabel, TI, {
 					TextTransparency = 0,
@@ -9218,7 +9218,7 @@ function Library:CreateWindow(Config)
 
 	-- vien kinh quang hoc KHONG UIStroke: Halo 3 lop gradient (rim tren
 	-- sang + vang ben mong + day toi). ZIndex 2: tren nen, duoi sheen/icon.
-	-- Do manh vien tween qua MainStroke.TopRim (see hover o duoi).
+	-- Do manh vien tween qua MainStroke:FindFirstChild("HaloTopRim") (see hover o duoi).
 	local MainStroke = Glass.Halo(14, { Transparency = 0.25, Sides = true, SidesT = 0.86, ZIndex = 2 })
 	MainStroke.Parent = Main
 
@@ -9270,11 +9270,11 @@ function Library:CreateWindow(Config)
 
 	-- Micro-animation: Glass optical flare and icon bounce on hover
 	AddSignal(Main.MouseEnter, function()
-		TweenService:Create(MainStroke.TopRim, TweenInfo.new(0.2), { BackgroundTransparency = 0.05 }):Play()
+		TweenService:Create(MainStroke:FindFirstChild("HaloTopRim"), TweenInfo.new(0.2), { BackgroundTransparency = 0.05 }):Play()
 		TweenService:Create(MainIcon, TweenInfo.new(0.2), { Size = UDim2.new(1, 2, 1, 2) }):Play()
 	end)
 	AddSignal(Main.MouseLeave, function()
-		TweenService:Create(MainStroke.TopRim, TweenInfo.new(0.25), { BackgroundTransparency = 0.25 }):Play()
+		TweenService:Create(MainStroke:FindFirstChild("HaloTopRim"), TweenInfo.new(0.25), { BackgroundTransparency = 0.25 }):Play()
 		TweenService:Create(MainIcon, TweenInfo.new(0.25), { Size = UDim2.fromScale(1, 1) }):Play()
 	end)
 	AddSignal(Main.MouseButton1Down, function()
