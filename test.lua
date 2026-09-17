@@ -166,17 +166,17 @@ local Themes = {
 		TitleBarLine = Color3.fromRGB(255, 255, 255),
 		Tab = Color3.fromRGB(255, 255, 255),
 
-		Element = Color3.fromRGB(255, 255, 255),
+		Element = Color3.fromRGB(28, 34, 48),
 		ElementBorder = Color3.fromRGB(255, 255, 255),
 		InElementBorder = Color3.fromRGB(255, 75, 145),
-		ElementTransparency = 0.88,
+		ElementTransparency = 0.55,
 
 		ToggleSlider = Color3.fromRGB(255, 75, 145),
 		ToggleToggled = Color3.fromRGB(18, 20, 26), -- Núm đen tương phản cao khi ON
 
 		SliderRail = Color3.fromRGB(48, 55, 72),
 
-		DropdownFrame = Color3.fromRGB(255, 255, 255),
+		DropdownFrame = Color3.fromRGB(36, 42, 58),
 		DropdownHolder = Color3.fromRGB(20, 24, 34),
 		DropdownBorder = Color3.fromRGB(255, 255, 255),
 		DropdownOption = Color3.fromRGB(255, 75, 145),
@@ -218,17 +218,17 @@ local Themes = {
 		TitleBarLine = Color3.fromRGB(255, 255, 255),
 		Tab = Color3.fromRGB(255, 255, 255),
 
-		Element = Color3.fromRGB(255, 255, 255),
+		Element = Color3.fromRGB(28, 34, 48),
 		ElementBorder = Color3.fromRGB(255, 255, 255),
 		InElementBorder = Color3.fromRGB(255, 75, 145),
-		ElementTransparency = 0.88,
+		ElementTransparency = 0.55,
 
 		ToggleSlider = Color3.fromRGB(255, 75, 145),
 		ToggleToggled = Color3.fromRGB(18, 20, 26),
 
 		SliderRail = Color3.fromRGB(48, 55, 72),
 
-		DropdownFrame = Color3.fromRGB(255, 255, 255),
+		DropdownFrame = Color3.fromRGB(36, 42, 58),
 		DropdownHolder = Color3.fromRGB(20, 24, 34),
 		DropdownBorder = Color3.fromRGB(255, 255, 255),
 		DropdownOption = Color3.fromRGB(255, 75, 145),
@@ -3023,27 +3023,10 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	local Element = { Original = { Text = "" } }
 	local Options = Options or {}
 
-	-- Tự động nhận diện hoặc dùng icon khai báo trong Options/Config
+	-- Chỉ nhận icon nếu được truyền tường minh qua Options.Icon / Config.Icon (không tự thêm)
 	local IconAsset = nil
-	if Options.Icon then
+	if Options.Icon and Options.Icon ~= "" then
 		IconAsset = Library:GetIcon(Options.Icon) or Options.Icon
-	else
-		local tLow = tostring(Title):lower()
-		if tLow:find("liquid") or tLow:find("glass") or tLow:find("blur") or tLow:find("strength") then
-			IconAsset = Library:GetIcon("droplet")
-		elseif tLow:find("theme") or tLow:find("color") or tLow:find("palette") then
-			IconAsset = Library:GetIcon("palette")
-		elseif tLow:find("farm") or tLow:find("sword") or tLow:find("attack") or tLow:find("combat") or tLow:find("hunt") or tLow:find("kill") then
-			IconAsset = Library:GetIcon("swords")
-		elseif tLow:find("speed") or tLow:find("walk") or tLow:find("fly") or tLow:find("dash") or tLow:find("fast") then
-			IconAsset = Library:GetIcon("zap")
-		elseif tLow:find("teleport") or tLow:find("island") or tLow:find("world") or tLow:find("sea") or tLow:find("zone") then
-			IconAsset = Library:GetIcon("map-pin")
-		elseif tLow:find("player") or tLow:find("user") or tLow:find("esp") or tLow:find("aim") then
-			IconAsset = Library:GetIcon("user")
-		elseif tLow:find("setting") or tLow:find("config") or tLow:find("misc") then
-			IconAsset = Library:GetIcon("settings")
-		end
 	end
 
 	local IconLabel = nil
@@ -3143,7 +3126,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, 14),
 		}),
-		Glass.TransparencyGradient({ Top = 0.84, Mid = 0.88, Bottom = 0.76 }),
+		Glass.TransparencyGradient({ Top = 0.48, Mid = 0.58, Bottom = 0.50 }),
 		Glass.TopLight({ Inset = 12, Transparency = 0.20, ZIndex = 0 }),
 		Element.Border,
 		Element.LabelHolder,
@@ -3219,28 +3202,22 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	if Hover then
 		Creator.AddSignal(Element.Frame.MouseEnter, function()
 			TweenService:Create(Element.Border, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {
-				Transparency = 0.08,
-			}):Play()
-			TweenService:Create(Element.Frame, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {
-				BackgroundTransparency = 0.76,
+				Transparency = 0.12,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseLeave, function()
 			TweenService:Create(Element.Border, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {
 				Transparency = 0.28,
 			}):Play()
-			TweenService:Create(Element.Frame, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {
-				BackgroundTransparency = 0.88,
-			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Down, function()
 			TweenService:Create(Element.Border, TweenInfo.new(0.1, Enum.EasingStyle.Quint), {
-				Transparency = 0.02,
+				Transparency = 0.05,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Up, function()
 			TweenService:Create(Element.Border, TweenInfo.new(0.15, Enum.EasingStyle.Quint), {
-				Transparency = 0.08,
+				Transparency = 0.18,
 			}):Play()
 		end)
 	end
@@ -3667,27 +3644,40 @@ Components.Tab = (function()
 			target.SetTransparency(0.89)
 		end
 
-		-- update header text + selector bar (existing window logic)
-		Window.TabDisplay.Text = target.Name
-		Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
+		-- update header text + selector bar (animated)
+		TweenService:Create(Window.TabDisplay, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			TextTransparency = 0.4,
+		}):Play()
+		task.delay(0.12, function()
+			Window.TabDisplay.Text = target.Name
+			Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
+			TweenService:Create(Window.TabDisplay, TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				TextTransparency = 0,
+			}):Play()
+		end)
+
 		Window.SelectorPosMotor:setGoal(
 			Flipper.Spring.new(TabModule:GetCurrentTabPos(), { frequency = 6 })
 		)
 
-		-- container swap animation (unchanged)
+		-- container swap animation mượt mà
 		task.spawn(function()
 			Window.ContainerHolder.Parent = Window.ContainerAnim
-			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(15, { frequency = 10 }))
-			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(1,  { frequency = 10 }))
+			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(16, { frequency = 8, dampingRatio = 0.85 }))
+			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(1,  { frequency = 8, dampingRatio = 0.85 }))
 			task.wait(0.12)
 			for _, Container in next, TabModule.Containers do
 				Container.Visible = false
 			end
-			TabModule.Containers[Tab].Visible = true
-			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(0, { frequency = 5 }))
-			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(0, { frequency = 8 }))
-			task.wait(0.12)
-			Window.ContainerHolder.Parent = Window.ContainerCanvas
+			if TabModule.Containers[Tab] then
+				TabModule.Containers[Tab].Visible = true
+			end
+			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(0, { frequency = 5, dampingRatio = 0.85 }))
+			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(0, { frequency = 7, dampingRatio = 0.85 }))
+			task.wait(0.32)
+			if TabModule.SelectedTab == Tab then
+				Window.ContainerHolder.Parent = Window.ContainerCanvas
+			end
 		end)
 	end
 
@@ -4411,20 +4401,6 @@ Components.TitleBar = function(Config)
 		}),
 	})
 
-	-- center search button (chuẩn theo ảnh mẫu)
-	TitleBar.SearchButton = BarButton(
-		"rbxassetid://10734943674",
-		UDim2.new(0.5, 0, 0.5, 0),
-		TitleBar.Frame,
-		function()
-			if Config.Window then
-				local cur = Config.Window.UseSearchBar
-				Config.Window:SetSearchBar(not cur)
-			end
-		end
-	)
-	TitleBar.SearchButton.Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-
 	-- divider
 	New("Frame", {
 		Name             = "TitleBarDivider",
@@ -4952,7 +4928,7 @@ Components.Window = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    Glass.TransparencyGradient({ Top = 0.85, Mid = 0.78, Bottom = 0.70 }),
+		    Glass.TransparencyGradient({ Top = 0.35, Mid = 0.45, Bottom = 0.38 }),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.97 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
@@ -4966,7 +4942,7 @@ Components.Window = (function()
 		Window.AcrylicPaint = {
 		    Frame = AcrylicFrame,
 		    Model = nil,
-		    BaseTransparency = 0.80,
+		    BaseTransparency = 0.40,
 		    AddParent = function() end,
 		    SetVisibility = function() end,
 		}
@@ -5639,7 +5615,7 @@ ElementsTable.Dropdown = (function()
 			Size            = UDim2.fromOffset(145, 34), -- Tăng diện tích rộng rãi chuẩn ảnh
 			Position        = UDim2.new(1, -12, 0.5, 0),
 			AnchorPoint     = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.82,
+			BackgroundTransparency = 0.55,
 			Parent          = DropdownFrame.Frame,
 			AutoLocalize    = false,
 			ThemeTag        = { BackgroundColor3 = "DropdownFrame" },
@@ -5663,13 +5639,13 @@ ElementsTable.Dropdown = (function()
 			}):Play()
 		end)
 
-		-- เพิ่ม hover effect สำหรับ dropdown
-		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.88, DropdownInner, "BackgroundTransparency")
+		-- Hover effect cho dropdown pill (màu đục)
+		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.55, DropdownInner, "BackgroundTransparency")
 		Creator.AddSignal(DropdownInner.MouseEnter, function()
-			SetDropdownHover(0.76)
+			SetDropdownHover(0.40)
 		end)
 		Creator.AddSignal(DropdownInner.MouseLeave, function()
-			SetDropdownHover(0.88)
+			SetDropdownHover(0.55)
 		end)
 
 		-- Nut "xoa het" cho dropdown Multi. Toan bo phan noi day (hover, hit-test
@@ -5867,7 +5843,7 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+		    Glass.TransparencyGradient({ Top = 0.45, Mid = 0.55, Bottom = 0.48 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
@@ -6117,22 +6093,30 @@ ElementsTable.Dropdown = (function()
 		end
 
 		function Dropdown:Close()
+			if not Dropdown.Opened then return end
 			Dropdown.Opened = false
 			if ClearButton then
-				ClearButton.Visible = false -- บังคับซ่อนเมื่อปิด dropdown
+				ClearButton.Visible = false
 			end
 			ScrollFrame.ScrollingEnabled = true
 			DropdownDisplay.Interactable = false
-			DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
-			DropdownHolderCanvas.Visible = false
 			TweenService:Create(
 				DropdownIco,
-				TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+				TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 				{ Rotation = 90 }
 			):Play()
 			DropdownSearch:ReleaseFocus(false)
 			TweenService:Create(DropdownUnderline, TI_UL,
 				{ BackgroundTransparency = 0.5 }):Play()
+			TweenService:Create(DropdownHolderFrame,
+				TweenInfo.new(0.20, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
+				{ Size = UDim2.fromScale(1, 0) }
+			):Play()
+			task.delay(0.20, function()
+				if not Dropdown.Opened then
+					DropdownHolderCanvas.Visible = false
+				end
+			end)
 			Dropdown:Display()
 		end
 
