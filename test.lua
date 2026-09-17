@@ -4331,9 +4331,9 @@ Components.Window = (function()
 		})
 
 		local SearchBox = New("Frame", {
-			Size                   = UDim2.new(0, 140, 0, 28),
+			Size                   = UDim2.new(0, 160, 0, 26),
 			AnchorPoint            = Vector2.new(1, 0.5),
-			Position               = UDim2.new(1, -100, 0.5, 0),
+			Position               = UDim2.new(1, -5, 0.5, 0),
 			BackgroundColor3       = Color3.fromRGB(22, 26, 36),
 			BackgroundTransparency = 0,
 			ZIndex                 = 4,
@@ -4639,7 +4639,7 @@ Components.Window = (function()
 			TextXAlignment   = Enum.TextXAlignment.Left,
 			TextYAlignment   = Enum.TextYAlignment.Center,
 			Position         = UDim2.new(0, 28, 0, 0),
-			Size             = UDim2.new(1, -28, 1, 0),
+			Size             = UDim2.new(1, -188, 1, 0), -- Make room for SearchBox (160 + padding)
 			BackgroundTransparency = 1,
 			AutoLocalize     = false,
 			TextColor3       = Color3.fromRGB(245, 248, 255),
@@ -4743,7 +4743,7 @@ Components.Window = (function()
 			Window = Window,
 		})
 
-		SearchBox.Parent = Window.TitleBar.Frame
+		SearchBox.Parent = Window.TabDisplay
 
 		if Library.UseAcrylic then
 			Window.AcrylicPaint.AddParent(Window.Root)
@@ -9724,4 +9724,4 @@ else
 	InterfaceManager = InterfaceManager
 end
 
-return Library, SaveManager, InterfaceManager
+return Library, SaveManager, InterfaceManage
