@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.4.0",
+	Version = "1.4.1",
 
 	OpenFrames = {},
 	Options = {},
@@ -4136,9 +4136,12 @@ Components.Tab = (function()
 		Window.TabDisplay.Text = target.Name
 		Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
 		do
-			local y = TabModule:GetCurrentTabPos()
-			Selector.Position = UDim2.new(0, 0, 0, y + 17)
-			Selector.Size = UDim2.new(0, 4, 0, 20)
+			local bar = Window.SelectorBar
+			if bar then
+				local y = TabModule:GetCurrentTabPos()
+				bar.Position = UDim2.new(0, 0, 0, y + 17)
+				bar.Size = UDim2.new(0, 4, 0, 20)
+			end
 		end
 
 		-- doi container NGAY LAP TUC (khong truot/mo dan, khong reparent qua
@@ -5020,6 +5023,9 @@ Components.Window = (function()
 				}),
 			}),
 		})
+		-- Luu tham chieu thanh selector: TabModule:SelectTab o scope khac
+		-- (Components.Tab) khong thay local Selector -> dung Window.SelectorBar.
+		Window.SelectorBar = Selector
 
 		local ResizeStartFrame = New("Frame", {
 			Size = UDim2.fromOffset(20, 20),
