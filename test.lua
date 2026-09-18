@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.4.1",
+	Version = "1.5.0",
 
 	OpenFrames = {},
 	Options = {},
@@ -3021,6 +3021,9 @@ function Glass.SetOpacity(Opacity)
 		return math.clamp(T - Opacity * (1 - T) * 1.6, 0, 1)
 	end
 	for _, gui in ipairs(game:GetService("CoreGui"):GetDescendants()) do
+		if gui:IsA("Frame") and gui.Name == "GlassMilk" then
+			gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.75, 0.25, 1)
+		end
 		if gui:IsA("UIGradient") and gui.Name == "GlassTransparencyGradient" then
 			local rt = gui:GetAttribute("RawTop")
 			local rm = gui:GetAttribute("RawMid")
@@ -3049,6 +3052,17 @@ function Glass.SetOpacity(Opacity)
 			})
 		end
 	end
+	-- Lop sua phu + blur that theo do duc (kieu demo-nighthub)
+	if Library and Library.GUI then
+		pcall(function()
+			for _, gui in ipairs(Library.GUI:GetDescendants()) do
+				if gui:IsA("Frame") and gui.Name == "GlassMilk" then
+					gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.75, 0.25, 1)
+				end
+			end
+		end)
+	end
+	pcall(function() Glass.ApplyFrostBlur(Opacity) end)
 	-- Dong bo thanh keo trong Settings neu co
 	if Library and Library.Options and Library.Options.GlassOpacity then
 		pcall(function()
@@ -3401,6 +3415,192 @@ function Glass.DualSpecular(Radius, Props)
 		}),
 	})
 	return top, bottom
+end
+
+-- ─────────────────────────────────────────────────────────────
+-- KIEU DEMO-NIGHTHUB: mep kinh vat bang 3 UIStroke long nhau (moi lop thut
+-- 1px, bo goc giam dan, gradient nguoc nhau) + vien sac sai chromatic +
+-- lop sua Milk + blur that. Bo han bevel bang Part 3D (hinh chu nhat khong
+-- the cat theo UICorner -> goc luon tran ra thanh dau nhon).
+-- Tat ca TINH, khong animation.
+-- ─────────────────────────────────────────────────────────────
+local function BevelRimFrame(parent, inset, radius, zidx)
+	return New("Frame", {
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		Position = UDim2.fromOffset(inset, inset),
+		Size = UDim2.new(1, -inset * 2, 1, -inset * 2),
+		Interactable = false,
+		ZIndex = zidx or 5,
+		Parent = parent,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, math.max(radius - inset, 2)) }),
+	})
+end
+
+-- Vien vat 3 lop: ngoai sang-mo xen ke, giua vach sang hep, trong toi dan.
+function Glass.RimBevel(Radius, Props)
+	Props = Props or {}
+	local R = Radius or Glass.Radius.Window
+	local Z = Props.ZIndex or 5
+	local root = New("Frame", {
+		Name = "GlassBevel",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Interactable = false,
+		ZIndex = Z,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, R) }),
+	})
+	local outer = BevelRimFrame(root, 0, R, Z)
+	New("UIStroke", {
+		Thickness = 1.5,
+		Color = Color3.fromRGB(255, 255, 255),
+		Transparency = 0.30,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		LineJoinMode = Enum.LineJoinMode.Round,
+		Parent = outer,
+	}, {
+		New("UIGradient", {
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 0.15),
+				NumberSequenceKeypoint.new(0.20, 0.75),
+				NumberSequenceKeypoint.new(0.50, 0.10),
+				NumberSequenceKeypoint.new(0.80, 0.75),
+				NumberSequenceKeypoint.new(1.00, 0.15),
+			}),
+		}),
+	})
+	local mid = BevelRimFrame(root, 1, R, Z)
+	New("UIStroke", {
+		Thickness = 1.0,
+		Color = Color3.fromRGB(255, 255, 255),
+		Transparency = 0.50,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		LineJoinMode = Enum.LineJoinMode.Round,
+		Parent = mid,
+	}, {
+		New("UIGradient", {
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, 1),
+				NumberSequenceKeypoint.new(0.38, 1),
+				NumberSequenceKeypoint.new(0.50, 0.05),
+				NumberSequenceKeypoint.new(0.62, 1),
+				NumberSequenceKeypoint.new(1.00, 1),
+			}),
+		}),
+	})
+	local inner = BevelRimFrame(root, 2, R, Z)
+	New("UIStroke", {
+		Thickness = 1.0,
+		Color = Color3.fromRGB(0, 0, 0),
+		Transparency = 0.45,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		LineJoinMode = Enum.LineJoinMode.Round,
+		Parent = inner,
+	}, {
+		New("UIGradient", {
+			Rotation = 90,
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255)),
+			}),
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.0, 0.40),
+				NumberSequenceKeypoint.new(0.5, 1.00),
+				NumberSequenceKeypoint.new(1.0, 0.60),
+			}),
+		}),
+	})
+	return root
+end
+
+-- Sac sai chromatic: 2 vien do/xanh lech 1px (khuc xa mep kinh).
+function Glass.Fringe(Radius, Props)
+	Props = Props or {}
+	local R = Radius or Glass.Radius.Window
+	local Z = Props.ZIndex or 5
+	local root = New("Frame", {
+		Name = "GlassFringe",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Interactable = false,
+		ZIndex = Z,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, R) }),
+	})
+	local function fringe(col, ox, oy)
+		local f = New("Frame", {
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			Position = UDim2.fromOffset(ox, oy),
+			Size = UDim2.new(1, -math.abs(ox), 1, -math.abs(oy)),
+			Interactable = false,
+			ZIndex = Z,
+			Parent = root,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, math.max(R - 1, 2)) }),
+		})
+		New("UIStroke", {
+			Thickness = 1,
+			Color = col,
+			Transparency = 0.68,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			LineJoinMode = Enum.LineJoinMode.Round,
+			Parent = f,
+		})
+	end
+	fringe(Color3.fromRGB(255, 60, 80), -1, -1)
+	fringe(Color3.fromRGB(60, 200, 255), 1, 1)
+	return root
+end
+
+-- Do duc cua lop sua theo GlassOpacity (0 = trong suot, cang cao cang sua).
+function Glass.MilkOpacity()
+	local o = Glass.Config3D and Glass.Config3D.GlassOpacity
+	if o == nil then o = 0.70 end
+	return math.clamp(1 - o * 0.75, 0.25, 1)
+end
+
+-- Lop sua trang-xanh tao cam giac "kinh sua" khi duc cao (nam tren frost).
+function Glass.Milk(Radius, Props)
+	Props = Props or {}
+	return New("Frame", {
+		Name = "GlassMilk",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.fromRGB(200, 210, 230),
+		BackgroundTransparency = Glass.MilkOpacity(),
+		BorderSizePixel = 0,
+		Interactable = false,
+		ZIndex = Props.ZIndex or 1,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+	})
+end
+
+-- Blur that toan man hinh theo do duc (nen 3D nhoe, UI giu sac net).
+Glass._BlurFx = Glass._BlurFx or nil
+function Glass.ApplyFrostBlur(Opacity)
+	if Opacity == nil then
+		Opacity = (Glass.Config3D and Glass.Config3D.GlassOpacity) or 0.70
+	end
+	local ok, lighting = pcall(game.GetService, game, "Lighting")
+	if not ok or not lighting then return end
+	local fx = Glass._BlurFx
+	if fx and not fx.Parent then fx = nil Glass._BlurFx = nil end
+	if not fx then
+		local ok2, inst = pcall(Instance.new, "BlurEffect")
+		if not ok2 or not inst then return end
+		fx = inst
+		fx.Name = "GlassFrostBlur"
+		pcall(function() fx.Parent = lighting end)
+		Glass._BlurFx = fx
+	end
+	local size = math.clamp(Opacity * 18, 0, 18)
+	pcall(function()
+		fx.Size = size
+		fx.Enabled = size > 0.5
+	end)
 end
 
 -- LayoutOrder duy nhat cho moi element/section.
@@ -4356,11 +4556,14 @@ Components.Dialog = (function()
 			}),
 			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 			Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-			Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-			Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
-			Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 4 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
+		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
+		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
+		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 4 }),
 			Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 			Glass.Rim({ Transparency = 0.20, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
+			Glass.RimBevel(Glass.Radius.Card, { ZIndex = 5 }),
+			Glass.Fringe(Glass.Radius.Card, { ZIndex = 5 }),
 			NewDialog.Scale,
 			NewDialog.Title,
 			NewDialog.ButtonHolderFrame,
@@ -4586,10 +4789,12 @@ Components.Notification = (function()
 		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
+		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
 		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.20, Thickness = 1.4, ZIndex = 4 }),
+		    Glass.RimBevel(Glass.Radius.Card, { ZIndex = 4 }),
+		    Glass.Fringe(Glass.Radius.Card, { ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.20, Mode = Enum.ApplyStrokeMode.Contextual }),
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
@@ -5388,14 +5593,15 @@ Components.Window = (function()
 		    Glass.TransparencyGradient({ Top = 0.85, Mid = 0.78, Bottom = 0.70 }),
 		    Glass.Depth(Glass.Radius.Window, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.84, ZIndex = 1 }),
+		    Glass.Milk(Glass.Radius.Window, { ZIndex = 1 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.4, Transparency = 0.08, ZIndex = 4 }),
 		    -- bong trong tao chieu sau + vien khuc xa
 		    Glass.InnerShadow(Glass.Radius.Window, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-		    Glass.RimLayer(Glass.Radius.Window, {
-		        Thickness = 1.4, Transparency = 0.14, ZIndex = 5,
-		    }),
+		    -- Mep vat 3 lop + sac sai kieu demo (thay RimLayer don)
+		    Glass.RimBevel(Glass.Radius.Window, { ZIndex = 5 }),
+		    Glass.Fringe(Glass.Radius.Window, { ZIndex = 5 }),
 		})
 		-- Phan xa day mo (mat duoi kinh) — tao rieng vi can 2 Frame
 		do
@@ -6374,10 +6580,12 @@ ElementsTable.Dropdown = (function()
 		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
+		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
 		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.20, Thickness = 1.4, ZIndex = 4 }),
+		    Glass.RimBevel(Glass.Radius.Card, { ZIndex = 4 }),
+		    Glass.Fringe(Glass.Radius.Card, { ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.22, Tag = "DropdownBorder" }),
 		    SearchBase,
 		    DropdownScrollFrame,
@@ -9878,6 +10086,8 @@ function Library:CreateWindow(Config)
 	Library.Window = Window
 	InterfaceManager:SetTheme(Library.Theme)
 	Library:SetTheme(Library.Theme)
+	-- Ap do duc + bat blur that ngay khi mo window (khong doi keo slider)
+	pcall(function() Glass.SetOpacity(Glass.Config3D.GlassOpacity or 0.70) end)
 
 	--local Dragging, DragInput, MousePos, StartPos = false
 
@@ -10278,6 +10488,11 @@ function Library:Destroy()
 		end
 		if BlurFolder and BlurFolder.Parent then
 			pcall(function() BlurFolder:Destroy() end)
+		end
+		-- Xoa blur that cua kinh duc (neu co)
+		if Glass._BlurFx then
+			pcall(function() Glass._BlurFx:Destroy() end)
+			Glass._BlurFx = nil
 		end
 		Creator.Disconnect()
 		-- Icon thu nho o ScreenGui rieng (xem chu thich o Library.MinimizerGUI)
