@@ -2053,7 +2053,8 @@ LensDOF.Parent        = Lighting
 
 local LensBlur = Instance.new("BlurEffect")
 LensBlur.Name    = "LiquidGlassBlur"
-LensBlur.Size    = math.clamp(0.45 * 18, 0, 18)  -- Tương ứng FrostInit = 0.45
+-- Size nhỏ = nền 3D nhòe vừa phải, không bị "mờ" quá
+LensBlur.Size    = 4
 LensBlur.Enabled = false
 LensBlur.Parent  = Lighting
 
@@ -2128,21 +2129,17 @@ local Acrylic = {
 
 function Acrylic.SetVisible(v)
 	local visible = v == true
-	-- RefractionPlane: Transparency 0.92 = trong suốt 92% → khúc xạ vật lý
-	-- TintPlane:       Transparency 0.96 = mờ 96% → màu sắc nhẹ (không tối)
 	LensGlass.Transparency = visible and 0.92 or 1
 	LensTint.Transparency  = visible and 0.96 or 1
-	local blurSize = math.clamp(0.45 * 18, 0, 18)
-	LensBlur.Size    = visible and blurSize or 0
-	LensBlur.Enabled = visible and blurSize > 0.5
+	LensBlur.Size    = visible and 4 or 0
+	LensBlur.Enabled = visible
 	LensDOF.Enabled  = visible
 end
 
 function Acrylic.Enable()
 	LensDOF.Enabled        = true
-	local blurSize = math.clamp(0.45 * 18, 0, 18)
-	LensBlur.Size    = blurSize
-	LensBlur.Enabled = blurSize > 0.5
+	LensBlur.Size    = 4
+	LensBlur.Enabled = true
 	LensGlass.Transparency = 0.92
 	LensTint.Transparency  = 0.96
 end
@@ -4743,12 +4740,11 @@ Components.Window = (function()
 			}),
 		})
 
-		-- ── Frosted Overlay — "Kính sữa" (kỹ thuật 3B từ demo-nighthub.lua)
-		-- FrostInit = 0.45 → BackgroundTransparency = clamp(1 - 0.45*0.82, 0.18, 1) ≈ 0.631
-		-- Màu trắng xanh nhạt, không tối: Color3.fromRGB(200, 210, 230)
+		-- ── Frosted Overlay — "Kính sữa" nhẹ (không bị mờ đục)
+		-- Transparency 0.82 = chỉ 18% đục: thấy nền nhưng có độ phát sáng nhẹ của kính
 		local FrostedOverlay = Glass.FrostedOverlay(Glass.Radius.Window, {
 			Color        = Color3.fromRGB(200, 210, 230),
-			Transparency = math.clamp(1 - 0.45 * 0.82, 0.18, 1.0),
+			Transparency = 0.82,
 			ZIndex       = 3,
 		})
 
@@ -5008,8 +5004,14 @@ Components.Window = (function()
 				return
 			end
 
-			local now = Window.Root.AbsolutePosition
-			local sz = Window.Root.AbsoluteSize
+			-- FIX "kính lệch": AbsolutePosition chỉ cập nhật sau khi frame render xong.
+			-- Nếu Flipper motor step và RenderStepped của ta chạy cùng priority thì
+			-- AbsolutePosition sẽ là giá trị cũ (lag 1 frame) khi đang kéo UI.
+			-- Dùng motor:getValue() đọc giá trị hiện tại của motor → luôn sync.
+			local pv  = PosMotor:getValue()
+			local sv  = SizeMotor:getValue()
+			local now = Vector2.new(pv.X, pv.Y)
+			local sz  = Vector2.new(sv.X, sv.Y)
 			if sz.X <= 0 or sz.Y <= 0 then return end
 
 			lastPos = now
