@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.5.1",
+	Version = "1.6.0",
 
 	OpenFrames = {},
 	Options = {},
@@ -3595,6 +3595,208 @@ pcall(function()
 	end
 end)
 
+-- ─────────────────────────────────────────────────────────────
+-- LOP KINH THAT (demo-nighthub): 2 tam Part (Glass khuc xa that + Neon tint
+-- tao chieu sau) chieu theo viewport bang camera:ViewportPointToRay (API
+-- chuan, tu xu ly FOV/aspect) + DOF nhe dung tieu cu o mat kinh.
+-- Khong dung bevel Part (tran goc), khong BlurEffect (tung bi cam), khong
+-- animation: RenderStepped chi TRACK vi tri (bo qua khi khong doi).
+-- Tat ca pcall + tu don khi destroy/re-execute.
+-- ─────────────────────────────────────────────────────────────
+local Lens = {
+	Folder = nil,
+	Glass = nil,
+	Tint = nil,
+	DOF = nil,
+	Conn = nil,
+	Window = nil,
+	Enabled = true,
+	Depth = 2.0,
+	LastPos = nil,
+	LastSize = nil,
+	LastCF = nil,
+	LastVis = nil,
+}
+
+function Lens.FrostV()
+	return (Glass.Config3D and Glass.Config3D.GlassOpacity) or 0.60
+end
+
+function Lens.Sweep()
+	pcall(function()
+		local cam = game:GetService("Workspace").CurrentCamera
+		if cam then
+			local old = cam:FindFirstChild("GlassLens")
+			if old then old:Destroy() end
+		end
+	end)
+	pcall(function()
+		local lighting = game:GetService("Lighting")
+		for _, fx in ipairs(lighting:GetChildren()) do
+			if fx:IsA("DepthOfFieldEffect") and fx.Name == "GlassLensDOF" then
+				fx:Destroy()
+			end
+		end
+	end)
+end
+
+function Lens.Hide()
+	pcall(function()
+		if Lens.Glass then Lens.Glass.Transparency = 1 end
+		if Lens.Tint then Lens.Tint.Transparency = 1 end
+		if Lens.DOF then Lens.DOF.Enabled = false end
+	end)
+end
+
+function Lens.SetEnabled(v)
+	Lens.Enabled = v and true or false
+	if not Lens.Enabled then
+		Lens.LastVis = false
+		Lens.Hide()
+	else
+		Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
+	end
+end
+
+function Lens.Track(window)
+	Lens.Window = window
+	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
+end
+
+function Lens.VpToWorld(px, py, depth)
+	local cam = game:GetService("Workspace").CurrentCamera
+	local ray = cam:ViewportPointToRay(px, py, 0)
+	local denom = ray.Direction:Dot(cam.CFrame.LookVector)
+	if math.abs(denom) < 1e-6 then return nil end
+	return ray.Origin + ray.Direction * (depth / denom)
+end
+
+function Lens.Tick()
+	local w = Lens.Window
+	local vis = Lens.Enabled and w and w.Root and w.Root.Visible and w.Root.Parent and true or false
+	if not vis then
+		if Lens.LastVis ~= false then Lens.Hide() end
+		Lens.LastVis = false
+		return
+	end
+	local okR, pos, size = pcall(function()
+		return w.Root.AbsolutePosition, w.Root.AbsoluteSize
+	end)
+	if not okR or not pos or not size or size.X < 2 or size.Y < 2 then
+		if Lens.LastVis ~= false then Lens.Hide() end
+		Lens.LastVis = false
+		return
+	end
+	local okC, cam = pcall(function() return game:GetService("Workspace").CurrentCamera end)
+	if not okC or not cam then return end
+	local cf = cam.CFrame
+	if Lens.LastVis == true and Lens.LastPos == pos and Lens.LastSize == size and Lens.LastCF == cf then
+		return
+	end
+	-- GUI khong IgnoreGuiInset -> tru GuiInset de ra toa do viewport thuan
+	local ox, oy = 0, 0
+	pcall(function()
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		ox, oy = inset.X, inset.Y
+	end)
+	local cx = pos.X - ox + size.X * 0.5
+	local cy = pos.Y - oy + size.Y * 0.5
+	local depth = Lens.Depth
+	local ok, wc, wr, wd = pcall(function()
+		return Lens.VpToWorld(cx, cy, depth),
+			Lens.VpToWorld(cx + size.X * 0.5, cy, depth),
+			Lens.VpToWorld(cx, cy + size.Y * 0.5, depth)
+	end)
+	if not ok or not wc or not wr or not wd then return end
+	local worldW = (wr - wc).Magnitude * 2
+	local worldH = (wd - wc).Magnitude * 2
+	if worldW <= 0 or worldH <= 0 then return end
+	local frame = CFrame.fromMatrix(wc, cf.RightVector, cf.UpVector, -cf.LookVector)
+	local fv = Lens.FrostV()
+	pcall(function()
+		if Lens.Glass and Lens.Glass.Parent then
+			Lens.Glass.Size = Vector3.new(worldW, worldH, 0.01)
+			Lens.Glass.CFrame = frame
+			Lens.Glass.Transparency = math.clamp(0.98 - fv * 0.12, 0.82, 0.98)
+		end
+		if Lens.Tint and Lens.Tint.Parent then
+			Lens.Tint.Size = Vector3.new(worldW, worldH, 0.01)
+			Lens.Tint.CFrame = frame * CFrame.new(0, 0, -0.018)
+			Lens.Tint.Transparency = math.clamp(0.99 - fv * 0.30, 0.60, 0.99)
+		end
+		if Lens.DOF and Lens.DOF.Parent then
+			Lens.DOF.FocusDistance = depth
+			Lens.DOF.Enabled = true
+		end
+	end)
+	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = pos, size, cf, true
+end
+
+function Lens.Start(window)
+	Lens.Sweep()
+	Lens.Window = window
+	Lens.Enabled = true
+	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
+	local okCam, cam = pcall(function() return game:GetService("Workspace").CurrentCamera end)
+	if not okCam or not cam then return end
+	local folder = nil
+	do
+		local ok, f = pcall(Instance.new, "Folder")
+		if not ok or not f then return end
+		folder = f
+		folder.Name = "GlassLens"
+		pcall(function() folder.Parent = cam end)
+	end
+	Lens.Folder = folder
+	local function makePart(mat, col, tr)
+		local part = nil
+		pcall(function()
+			part = Instance.new("Part")
+			part.Name = "LensPane"
+			part.Material = mat
+			part.Color = col
+			part.Transparency = tr
+			part.Anchored = true
+			part.CanCollide = false
+			part.CanTouch = false
+			part.CanQuery = false
+			part.CastShadow = false
+			part.TopSurface = Enum.SurfaceType.Smooth
+			part.BottomSurface = Enum.SurfaceType.Smooth
+			part.Size = Vector3.new(1, 1, 0.01)
+			part.Parent = folder
+		end)
+		return part
+	end
+	Lens.Glass = makePart(Enum.Material.Glass, Color3.fromRGB(255, 255, 255), 0.92)
+	Lens.Tint = makePart(Enum.Material.Neon, Color3.fromRGB(18, 22, 30), 0.96)
+	pcall(function()
+		local dof = Instance.new("DepthOfFieldEffect")
+		dof.Name = "GlassLensDOF"
+		dof.FocusDistance = Lens.Depth
+		dof.InFocusRadius = 0.5
+		dof.NearIntensity = 0
+		dof.FarIntensity = 0.5
+		dof.Enabled = true
+		dof.Parent = game:GetService("Lighting")
+		Lens.DOF = dof
+	end)
+	if Lens.Conn then pcall(function() Lens.Conn:Disconnect() end) Lens.Conn = nil end
+	pcall(function()
+		Lens.Conn = RunService.RenderStepped:Connect(function() Lens.Tick() end)
+	end)
+end
+
+function Lens.Destroy()
+	if Lens.Conn then pcall(function() Lens.Conn:Disconnect() end) Lens.Conn = nil end
+	Lens.Window = nil
+	pcall(function() if Lens.Folder then Lens.Folder:Destroy() end end)
+	Lens.Folder, Lens.Glass, Lens.Tint = nil, nil, nil
+	pcall(function() if Lens.DOF then Lens.DOF:Destroy() end end)
+	Lens.DOF = nil
+	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
+end
+
 -- LayoutOrder duy nhat cho moi element/section.
 -- Truoc day tat ca deu = 7 -> UIListLayout phai dua vao thu tu child de xep,
 -- khi search di chuyen element sang khung ket qua roi tra ve (re-parent ve cuoi
@@ -5619,16 +5821,8 @@ Components.Window = (function()
 			AcrylicFrame.BackgroundTransparency = 0
 		end
 
-		-- Blur nen that (Acrylic = true)
-		if Library.UseAcrylic then
-			local ok, Blur = pcall(Acrylic.AcrylicBlur)
-			if ok and Blur then
-				Blur.Frame.Parent          = AcrylicFrame
-				Window.AcrylicPaint.Model  = Blur.Model
-				Window.AcrylicPaint.AddParent     = Blur.AddParent
-				Window.AcrylicPaint.SetVisibility = Blur.SetVisibility
-			end
-		end
+		-- Lop kinh that Lens thay the blur cu (khong tao Part/mesh rieng nua).
+		-- Window.AcrylicPaint giu Model = nil (cac ham Destroy/Toggle da guard).
 
 		Window._LG3D_ScaleCount = 0
 		for _, c in ipairs(AcrylicFrame:GetChildren()) do
@@ -10058,9 +10252,9 @@ function Library:CreateWindow(Config)
 	-- vi tri, nen thieu truong nay se loi "index nil with X".
 	Config.Size = Config.Size or UDim2.fromOffset(580, 460)
 	Config.TabWidth = Config.TabWidth or 160
-	if Config.Acrylic then
-		Acrylic.init()
-	end
+	-- He thong blur 3D cu (AcrylicBlur/ScreenPointToRay) KHONG dung nua:
+	-- lop kinh that Lens (ViewportPointToRay) thay the, khoi dong sau khi
+	-- co Window (can Root de track). Giua co Acrylic de tuong thich cu.
 
 	local Window = Components.Window({
 		Parent = GUI,
@@ -10074,6 +10268,9 @@ function Library:CreateWindow(Config)
 	Library.Window = Window
 	InterfaceManager:SetTheme(Library.Theme)
 	Library:SetTheme(Library.Theme)
+	-- Bat lop kinh that (glass + tint + DOF) va track theo window.
+	-- LUON mo mac dinh (day la ban sac liquid glass); tat bang toggle Acrylic.
+	pcall(function() Lens.Start(Window) end)
 
 	--local Dragging, DragInput, MousePos, StartPos = false
 
@@ -10475,6 +10672,8 @@ function Library:Destroy()
 		if BlurFolder and BlurFolder.Parent then
 			pcall(function() BlurFolder:Destroy() end)
 		end
+		-- Don lop kinh that + RenderStepped tracking
+		pcall(function() Lens.Destroy() end)
 		-- Xoa blur that cua kinh duc (neu co)
 		if Glass._BlurFx then
 			pcall(function() Glass._BlurFx:Destroy() end)
@@ -10497,23 +10696,9 @@ function Library:Destroy()
 end
 
 function Library:ToggleAcrylic(Value)
-	if Library.Window then
-		if Library.UseAcrylic then
-			Library.Acrylic = Value
-			-- Model co the la nil neu khong tao duoc Part blur (vd game chan
-			-- ghi vao Camera, hoac executor khong cho tao Part) -> guard lai
-			-- de bam toggle "Acrylic" khong nem loi.
-			local Model = Library.Window.AcrylicPaint.Model
-			if Model then
-				Model.Transparency = Value and 0.98 or 1
-			end
-			if Value then
-				Acrylic.Enable()
-			else
-				Acrylic.Disable()
-			end
-		end
-	end
+	Library.Acrylic = Value and true or false
+	-- Cong tac lop kinh that (mac dinh mo khi tao window)
+	pcall(function() Lens.SetEnabled(Library.Acrylic) end)
 end
 
 function Library:ToggleTransparency(Value)
