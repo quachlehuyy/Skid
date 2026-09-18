@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.6.0",
+	Version = "1.6.1",
 
 	OpenFrames = {},
 	Options = {},
@@ -3664,8 +3664,11 @@ function Lens.Track(window)
 end
 
 function Lens.VpToWorld(px, py, depth)
+	-- ScreenPointToRay cung he toa do voi AbsolutePosition cua GUI thuong
+	-- (da gom GuiInset) -> khop panel. ViewportPointToRay + tru inset tay
+	-- da lam lens lech len tren o ban 1.6.0.
 	local cam = game:GetService("Workspace").CurrentCamera
-	local ray = cam:ViewportPointToRay(px, py, 0)
+	local ray = cam:ScreenPointToRay(px, py)
 	local denom = ray.Direction:Dot(cam.CFrame.LookVector)
 	if math.abs(denom) < 1e-6 then return nil end
 	return ray.Origin + ray.Direction * (depth / denom)
@@ -3693,14 +3696,9 @@ function Lens.Tick()
 	if Lens.LastVis == true and Lens.LastPos == pos and Lens.LastSize == size and Lens.LastCF == cf then
 		return
 	end
-	-- GUI khong IgnoreGuiInset -> tru GuiInset de ra toa do viewport thuan
-	local ox, oy = 0, 0
-	pcall(function()
-		local inset = game:GetService("GuiService"):GetGuiInset()
-		ox, oy = inset.X, inset.Y
-	end)
-	local cx = pos.X - ox + size.X * 0.5
-	local cy = pos.Y - oy + size.Y * 0.5
+	-- Dung thang AbsolutePosition, KHONG tru GuiInset (tru la lech kinh).
+	local cx = pos.X + size.X * 0.5
+	local cy = pos.Y + size.Y * 0.5
 	local depth = Lens.Depth
 	local ok, wc, wr, wd = pcall(function()
 		return Lens.VpToWorld(cx, cy, depth),
@@ -3723,10 +3721,6 @@ function Lens.Tick()
 			Lens.Tint.Size = Vector3.new(worldW, worldH, 0.01)
 			Lens.Tint.CFrame = frame * CFrame.new(0, 0, -0.018)
 			Lens.Tint.Transparency = math.clamp(0.99 - fv * 0.30, 0.60, 0.99)
-		end
-		if Lens.DOF and Lens.DOF.Parent then
-			Lens.DOF.FocusDistance = depth
-			Lens.DOF.Enabled = true
 		end
 	end)
 	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = pos, size, cf, true
@@ -3770,17 +3764,8 @@ function Lens.Start(window)
 	end
 	Lens.Glass = makePart(Enum.Material.Glass, Color3.fromRGB(255, 255, 255), 0.92)
 	Lens.Tint = makePart(Enum.Material.Neon, Color3.fromRGB(18, 22, 30), 0.96)
-	pcall(function()
-		local dof = Instance.new("DepthOfFieldEffect")
-		dof.Name = "GlassLensDOF"
-		dof.FocusDistance = Lens.Depth
-		dof.InFocusRadius = 0.5
-		dof.NearIntensity = 0
-		dof.FarIntensity = 0.5
-		dof.Enabled = true
-		dof.Parent = game:GetService("Lighting")
-		Lens.DOF = dof
-	end)
+	-- KHONG dung DOF: no lam mo TOAN bo the gioi ngoai UI (ban 1.6.0 loi).
+	-- Kinh chi khuc xa + tint, do frost gia lap bang lop 2D co san.
 	if Lens.Conn then pcall(function() Lens.Conn:Disconnect() end) Lens.Conn = nil end
 	pcall(function()
 		Lens.Conn = RunService.RenderStepped:Connect(function() Lens.Tick() end)
@@ -3796,6 +3781,9 @@ function Lens.Destroy()
 	Lens.DOF = nil
 	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
 end
+
+-- Don ngay DOF + lens thua cua ban 1.6.0 khi load file (mo toan man hinh)
+pcall(function() Lens.Sweep() end)
 
 -- LayoutOrder duy nhat cho moi element/section.
 -- Truoc day tat ca deu = 7 -> UIListLayout phai dua vao thu tu child de xep,
