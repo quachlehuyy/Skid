@@ -3699,7 +3699,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		end)
 		Creator.AddSignal(Element.Frame.MouseLeave, function()
 			TweenService:Create(Element.Border, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {
-				Transparency = 0.28,
+				Transparency = 0.12,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Down, function()
@@ -3809,6 +3809,10 @@ Components.Section = function(Title, Parent)
 	end
 
 	Creator.AddSignal(Section.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), SyncSectionSize)
+	-- Them/xoa element truc tiep khong phai luc nao cung kich layout signal
+	-- kip thoi (nhat la khi tab dang an) -> hook them ChildAdded/Removed.
+	Creator.AddSignal(Section.Container.ChildAdded, function() task.defer(SyncSectionSize) end)
+	Creator.AddSignal(Section.Container.ChildRemoved, function() task.defer(SyncSectionSize) end)
 	-- Sync ngay lap tuc + sau 1 frame (TextWrapped/AutomaticSize can 1 frame
 	-- moi co AbsoluteContentSize chuan). Khong co 2 dong nay thi them nhieu
 	-- element lien tuc se thay tran 1-2 frame.
@@ -4215,10 +4219,29 @@ Components.Tab = (function()
 				Container.Visible = false
 			end
 			TabModule.Containers[Tab].Visible = true
+			-- FIX TRAN: tab vua hien lai thi layout/text can 1-2 frame moi do
+			-- chuan (TextWrapped luc an do sai) -> ep CanvasSize lai ngay + sau
+			-- 2 frame. Section tu sync qua signal cua no khi layout doi.
+			pcall(function()
+				local cf = TabModule.Containers[Tab]
+				local lay = cf and cf:FindFirstChildWhichIsA("UIListLayout")
+				if cf and lay then
+					cf.CanvasSize = UDim2.new(0, 0, 0, lay.AbsoluteContentSize.Y + 14)
+				end
+			end)
 			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(0, { frequency = 5 }))
 			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(0, { frequency = 8 }))
 			task.wait(0.12)
 			Window.ContainerHolder.Parent = Window.ContainerCanvas
+			task.defer(function()
+				pcall(function()
+					local cf = TabModule.Containers[Tab]
+					local lay = cf and cf:FindFirstChildWhichIsA("UIListLayout")
+					if cf and cf.Visible and lay then
+						cf.CanvasSize = UDim2.new(0, 0, 0, lay.AbsoluteContentSize.Y + 14)
+					end
+				end)
+			end)
 		end)
 	end
 
@@ -5495,6 +5518,28 @@ Components.Window = (function()
 		-- (Bien dem de debug cong don UIScale; khong can thiet cho logic)
 		Window._LG3D_Attached = false
 
+		-- LOP CAT NOI DUNG THEO KINH (2026, sua dut diem tran hinh chup):
+		-- Tat ca frame noi dung (TabDisplay/Container/Search/Tab) lam con cua
+		-- ContentClip thay vi thang Root. ContentClip = Frame 1x1 trong suot,
+		-- ClipsDescendants + UICorner = hinh kinh -> BAT CU thu gi do sai o
+		-- ben trong (canvas do thieu, section chua sync, tab them luc an...)
+		-- thi pixel cung KHONG bao gio lot ra ngoai vien kinh xuong nen game.
+		-- Frame thuong (khong phai CanvasGroup) nen KHONG doi thu tu ve / mau.
+		-- Vi tri cac con giu nguyen vi ContentClip cung kich thuoc + goc voi Root.
+		Window.ContentClip = New("Frame", {
+			Name = "ContentClip",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			ClipsDescendants = true,
+			ZIndex = 1,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+			Window.TabDisplay,
+			Window.ContainerCanvas,
+			SearchBox,
+			TabFrame,
+		})
+
 		Window.Root = New("Frame", {
 		    BackgroundTransparency = 1,
 		    Size = Window.Size,
@@ -5505,10 +5550,7 @@ Components.Window = (function()
 		    WindowShadow,   -- ZIndex = 1 (lop duoi cung, do bong an theo mau theme)
 		    Glass.Refract(Glass.Radius.Window, { Band = 1.5, Transparency = 0.60, ZIndex = 1 }),
 		    AcrylicFrame,   -- ZIndex = 2 (nen kinh lỏng trong suot hien ro mau theme tu tren xuong)
-		    Window.TabDisplay,
-		    Window.ContainerCanvas,
-		    SearchBox,
-		    TabFrame,
+		    Window.ContentClip, -- ZIndex = 1, child TAO SAU AcrylicFrame -> ve tren kinh
 		    ResizeStartFrame,
 		    -- FIX TRAN: khoa min/max theo viewport hien tai. UISizeConstraint
 		    -- la tech chuan 2024+ de window khong bao gio to hon man hinh
@@ -5551,7 +5593,7 @@ Components.Window = (function()
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
 			SubTitle = Config.SubTitle,
-			Parent = Window.Root,
+			Parent = Window.ContentClip,
 			Window = Window,
 		})
 
@@ -6499,17 +6541,34 @@ ElementsTable.Dropdown = (function()
             local baseX = DropdownInner.AbsolutePosition.X - 1 + XADD
             local baseY = DropdownInner.AbsolutePosition.Y + defaultYOffset
 
+            -- FIX: kep holder trong viewport (man nho / dropdown gan day man
+            -- hinh truoc day lot ra ngoai man hinh xuong duoi).
+            pcall(function()
+                local vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
+                local w = DropdownHolderCanvas.Size.X.Offset
+                local h = DropdownHolderCanvas.Size.Y.Offset
+                baseX = math.clamp(baseX, 4, math.max(4, vp.X - w - 4))
+                baseY = math.clamp(baseY, 4, math.max(4, vp.Y - h - 4))
+            end)
+
             DropdownHolderCanvas.Position = UDim2.fromOffset(baseX, baseY)
         end
 
 		local ListSizeX = 0
 		local function RecalculateListSize()
 			local searchOffset = (Dropdown.Searchable or Dropdown.Multi) and 42 or 0
+			local h
 			if #Dropdown.Values > MAX_DROPDOWN_ITEMS then
-				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, (42 * MAX_DROPDOWN_ITEMS) - 10 + searchOffset)
+				h = (42 * MAX_DROPDOWN_ITEMS) - 10 + searchOffset
 			else
-				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, DropdownListLayout.AbsoluteContentSize.Y + 24 + searchOffset)
+				h = DropdownListLayout.AbsoluteContentSize.Y + 24 + searchOffset
 			end
+			-- FIX: dropdown khong cao hon man hinh (man thap truoc day tran duoi).
+			pcall(function()
+				local vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
+				h = math.clamp(h, 60, math.max(80, vp.Y - 16))
+			end)
+			DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, h)
 		end
 
 		local function RecalculateCanvasSize()
