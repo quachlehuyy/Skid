@@ -2039,7 +2039,8 @@ local function makeLensPart(mat, col, tr)
 end
 
 local LensGlass = makeLensPart(Enum.Material.Glass, Color3.fromRGB(255, 255, 255), 1)
-local LensTint  = makeLensPart(Enum.Material.Neon,  Color3.fromRGB(220, 235, 255), 1)
+-- TintPlane: Neon xanh lạnh tối — tạo màu sắc và độ dày cho kính (demo-nighthub.lua)
+local LensTint  = makeLensPart(Enum.Material.Neon,  Color3.fromRGB(18, 22, 30), 1)
 
 local LensDOF = Instance.new("DepthOfFieldEffect")
 LensDOF.Name          = "LiquidGlassDOF"
@@ -2052,7 +2053,7 @@ LensDOF.Parent        = Lighting
 
 local LensBlur = Instance.new("BlurEffect")
 LensBlur.Name    = "LiquidGlassBlur"
-LensBlur.Size    = 8
+LensBlur.Size    = math.clamp(0.45 * 18, 0, 18)  -- Tương ứng FrostInit = 0.45
 LensBlur.Enabled = false
 LensBlur.Parent  = Lighting
 
@@ -2067,30 +2068,28 @@ end
 local function syncLens(targetPos, targetSize)
 	local cam = workspace.CurrentCamera
 	if not cam or cam.ViewportSize.X <= 0 or cam.ViewportSize.Y <= 0 then return end
-	if not Library.UseAcrylic then
-		LensGlass.Transparency = 1
-		LensTint.Transparency  = 1
-		LensDOF.Enabled        = false
-		LensBlur.Enabled       = false
-		return
-	end
 
+	-- Đảm bảo folder trong camera hiện tại (camera có thể thay đổi)
 	if LensFolder.Parent ~= cam then
 		LensFolder.Parent = cam
 	end
 
 	local depth = 2.0
-	local pos = targetPos
+	local pos  = targetPos
 	local size = targetSize
+	-- Nếu không truyền tham số, đọc từ Window.Root
 	if not pos and Library.Window and Library.Window.Root then
-		pos = Library.Window.Root.AbsolutePosition
+		pos  = Library.Window.Root.AbsolutePosition
 		size = Library.Window.Root.AbsoluteSize
 	end
 	if not pos or not size or size.X <= 0 or size.Y <= 0 then return end
 
+	-- IgnoreGuiInset = true → AbsolutePosition tính từ (0,0) góc viewport
+	-- khớp hệ toạ độ của ViewportPointToRay (kỹ thuật 2)
 	local cx = pos.X + size.X * 0.5
 	local cy = pos.Y + size.Y * 0.5
 
+	-- Chiếu tâm + 2 mép → tính worldW, worldH
 	local wCenter = vpToWorld(cx, cy, depth)
 	local wRight  = vpToWorld(cx + size.X * 0.5, cy, depth)
 	local wDown   = vpToWorld(cx, cy + size.Y * 0.5, depth)
@@ -2099,6 +2098,8 @@ local function syncLens(targetPos, targetSize)
 	local worldH = (wDown  - wCenter).Magnitude * 2
 
 	local camCF = cam.CFrame
+	-- CFrame.fromMatrix(pos, right, up, backVec)
+	-- backVec = -LookVector → +Z của Part hướng về camera, tránh flip hiển thị
 	local cf = CFrame.fromMatrix(wCenter,
 		camCF.RightVector,
 		camCF.UpVector,
@@ -2107,6 +2108,7 @@ local function syncLens(targetPos, targetSize)
 
 	LensGlass.Size   = Vector3.new(worldW, worldH, 0.01)
 	LensGlass.CFrame = cf
+	-- TintPlane 0.018 studs phía sau RefractionPlane
 	LensTint.Size    = Vector3.new(worldW, worldH, 0.01)
 	LensTint.CFrame  = cf * CFrame.new(0, 0, -0.018)
 
@@ -2125,17 +2127,22 @@ local Acrylic = {
 }
 
 function Acrylic.SetVisible(v)
-	local visible = v and (Library.UseAcrylic ~= false)
+	local visible = v == true
+	-- RefractionPlane: Transparency 0.92 = trong suốt 92% → khúc xạ vật lý
+	-- TintPlane:       Transparency 0.96 = mờ 96% → màu sắc nhẹ (không tối)
 	LensGlass.Transparency = visible and 0.92 or 1
 	LensTint.Transparency  = visible and 0.96 or 1
-	LensBlur.Enabled       = visible
-	LensDOF.Enabled        = visible
+	local blurSize = math.clamp(0.45 * 18, 0, 18)
+	LensBlur.Size    = visible and blurSize or 0
+	LensBlur.Enabled = visible and blurSize > 0.5
+	LensDOF.Enabled  = visible
 end
 
 function Acrylic.Enable()
-	if Library.UseAcrylic == false then return end
 	LensDOF.Enabled        = true
-	LensBlur.Enabled       = true
+	local blurSize = math.clamp(0.45 * 18, 0, 18)
+	LensBlur.Size    = blurSize
+	LensBlur.Enabled = blurSize > 0.5
 	LensGlass.Transparency = 0.92
 	LensTint.Transparency  = 0.96
 end
@@ -4706,38 +4713,42 @@ Components.Window = (function()
 			SpreadX = 56, SpreadY = 56, OffsetY = 4, Transparency = 0.58, ZIndex = 1,
 		})
 
-		-- ── Layer 0: Frosted Glass Base Frame (Nền kính đục mờ, không tối) ──
+		-- ── Layer 0: Frosted Glass Base Frame
+		-- BackgroundColor3 = màu nền thuần (theme-driven nhưng đặt cứng ở đây
+		-- vì ThemeTag sẽ ghi đè bằng AcrylicMain của theme → tối với dark theme)
+		-- Dùng màu xanh lạnh nhạt, BackgroundTransparency 0.18 để thấy nền 3D
 		local AcrylicFrame = New("Frame", {
 			Name                   = "AcrylicFrame",
 			Size                   = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.30,
-			BackgroundColor3       = Color3.fromRGB(240, 246, 255),
+			BackgroundTransparency = 0.18,
+			BackgroundColor3       = Color3.fromRGB(24, 28, 38),
 			BorderSizePixel        = 0,
 			Interactable           = false,
 			ZIndex                 = 2,
-			ThemeTag               = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+			-- Gradient màu: xanh lạnh nhạt trên → xanh tím đậm dưới
+			-- KHÔNG dùng ThemeTag cho Color vì muốn màu cố định (xanh lạnh)
 			New("UIGradient", {
 				Name     = "GlassBgGradient",
 				Rotation = 100,
 				Color    = ColorSequence.new({
-					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(0.50, Color3.fromRGB(240, 246, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(220, 232, 250)),
+					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(52, 72, 108)),
+					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(14, 18, 26)),
 				}),
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.20),
-					NumberSequenceKeypoint.new(1.00, 0.08),
+					NumberSequenceKeypoint.new(0.00, 0.30),
+					NumberSequenceKeypoint.new(1.00, 0.05),
 				}),
-				ThemeTag = { Color = "AcrylicGradient" },
 			}),
 		})
 
-		-- ── Frosted Overlay ("Kính sữa" đục mờ chân thực từ demo-nighthub.lua) ──
+		-- ── Frosted Overlay — "Kính sữa" (kỹ thuật 3B từ demo-nighthub.lua)
+		-- FrostInit = 0.45 → BackgroundTransparency = clamp(1 - 0.45*0.82, 0.18, 1) ≈ 0.631
+		-- Màu trắng xanh nhạt, không tối: Color3.fromRGB(200, 210, 230)
 		local FrostedOverlay = Glass.FrostedOverlay(Glass.Radius.Window, {
-			Color        = Color3.fromRGB(242, 246, 255),
-			Transparency = 0.74,
+			Color        = Color3.fromRGB(200, 210, 230),
+			Transparency = math.clamp(1 - 0.45 * 0.82, 0.18, 1.0),
 			ZIndex       = 3,
 		})
 
@@ -4987,9 +4998,10 @@ Components.Window = (function()
 		end)
 
 		-- ── DYNAMIC LIGHTING & LENS SYNC (demo-nighthub.lua) ──
+		-- 10 kỹ thuật Liquid Glass: lightAngle (6) + syncLens (2) + Fresnel (6) + Sheen (10)
 		local lightAngle = 45
-		local lastCamCF = Camera.CFrame
-		local lastPos = Window.Root.AbsolutePosition
+		local lastCamCF  = workspace.CurrentCamera and workspace.CurrentCamera.CFrame or CFrame.identity
+		local lastPos    = Window.Root.AbsolutePosition
 
 		local RenderConn = RunService.RenderStepped:Connect(function(dt)
 			if not Window.Root or not Window.Root.Parent or not Window.Root.Visible then
