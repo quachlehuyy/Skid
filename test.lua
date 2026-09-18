@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.2.1",
+	Version = "1.4.0",
 
 	OpenFrames = {},
 	Options = {},
@@ -2559,7 +2559,10 @@ Glass.InsetRect = InsetRect
 -- lop dong -> KHONG pha layout, KHONG chan chuot.
 -- =============================================================
 Glass.Config3D = Glass.Config3D or {
-	Enabled = true,
+	-- CHE DO TINH (mac dinh): tat TOAN BO motion 3D (tilt/breathe/shimmer theo
+	-- chuot/hover-scale/ripple/pop). Chi giu lop kinh TINH (frost/specular/rim
+	--/top-light/bong do). Muon mo lai motion: dat Enabled = true.
+	Enabled = false,
 	-- Tat nghieng/to/tho cua CUA SO: quay + phong to lam nguoi dung tuong
 	-- animate loi. Giu shimmer caustics + parallax gradient (khong doi layout).
 	TiltMaxDeg = 0,
@@ -2691,6 +2694,8 @@ end
 
 -- Vong lap parallax 3D: 1 RenderStepped cho moi surface da dang ky
 function Glass.RegisterSurface3D(entry)
+	-- Tat motion: khong bao gio tao loop (tra ve bang rong, khong lam gi).
+	if not (Glass.Config3D and Glass.Config3D.Enabled) then return {} end
 	table.insert(Glass._Surfaces3D, entry)
 	if not Glass._Loop3D then
 		Glass._Loop3D = RunService.RenderStepped:Connect(function(dt)
@@ -2822,22 +2827,14 @@ function Glass.AttachWindow3D(window, acrylicFrame)
 	return entry
 end
 
--- Mo cua so: fade + scale NHE (khong overshoot: Back ease phong to qua co
--- lam cua so giat to ra -> cam giac animate loi)
+-- Mo cua so: HIEN NGAY, khong scale/fade (tung gay giat phong to).
 function Glass.PopIn(gui, scaleFrom)
 	if not gui then return end
-	scaleFrom = scaleFrom or 0.96
-	local sc = LG3D_Find(gui, "LiquidPop", "UIScale")
-	if not sc then
-		sc = New("UIScale", { Name = "LiquidPop", Scale = scaleFrom, Parent = gui })
-	else
-		sc.Scale = scaleFrom
-	end
-	TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
-	if gui:IsA("CanvasGroup") then
-		gui.GroupTransparency = 1
-		TweenService:Create(gui, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { GroupTransparency = 0 }):Play()
-	end
+	pcall(function()
+		local sc = LG3D_Find(gui, "LiquidPop", "UIScale")
+		if sc then sc.Scale = 1 end
+		if gui:IsA("CanvasGroup") then gui.GroupTransparency = 0 end
+	end)
 end
 
 -- Hover / nhan / ripple cho element (Liquid Glass 3D micro-interaction)
@@ -2845,52 +2842,8 @@ end
 -- cho ripple. Chi dung UIScale/UIGradient/UIStroke -> khong pha AutomaticSize.
 Glass._Magnetic3D = Glass._Magnetic3D or {}
 function Glass.Magnetic(frame, opts)
-	if not frame or Glass._Magnetic3D[frame] then return end
-	opts = opts or {}
-	Glass._Magnetic3D[frame] = true
-	local hoverS = opts.HoverScale or Glass.Config3D.HoverScale
-	local pressS = opts.PressScale or Glass.Config3D.PressScale
-	local sc = LG3D_Find(frame, "LiquidHover", "UIScale")
-	if not sc then
-		sc = New("UIScale", { Name = "LiquidHover", Scale = 1, Parent = frame })
-	end
-	-- Tim vien dau tien de lam glow khi hover (neu co)
-	local stroke = nil
-	pcall(function()
-		stroke = frame:FindFirstChildWhichIsA("UIStroke")
-	end)
-	local baseStrokeT = nil
-	if stroke then
-		baseStrokeT = stroke.Transparency
-	end
-	local inHover = false
-	Creator.AddSignal(frame.MouseEnter, function()
-		inHover = true
-		TweenService:Create(sc, TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = hoverS }):Play()
-		if stroke and baseStrokeT then
-			pcall(function()
-				TweenService:Create(stroke, TweenInfo.new(0.2, Enum.EasingStyle.Quint), { Transparency = math.max(0, baseStrokeT - 0.12) }):Play()
-			end)
-		end
-	end)
-	Creator.AddSignal(frame.MouseLeave, function()
-		inHover = false
-		TweenService:Create(sc, TweenInfo.new(0.25, Enum.EasingStyle.Quint), { Scale = 1 }):Play()
-		if stroke and baseStrokeT then
-			pcall(function()
-				TweenService:Create(stroke, TweenInfo.new(0.25, Enum.EasingStyle.Quint), { Transparency = baseStrokeT }):Play()
-			end)
-		end
-	end)
-	if frame:IsA("TextButton") or frame:IsA("ImageButton") then
-		Creator.AddSignal(frame.MouseButton1Down, function()
-			TweenService:Create(sc, TweenInfo.new(0.1, Enum.EasingStyle.Quint), { Scale = pressS }):Play()
-		end)
-		Creator.AddSignal(frame.MouseButton1Up, function()
-			TweenService:Create(sc, TweenInfo.new(0.18, Enum.EasingStyle.Back), { Scale = inHover and hoverS or 1 }):Play()
-		end)
-		Creator.AddSignal(frame.MouseButton1Click, function() Glass.Ripple(frame) end)
-	end
+	-- Tat hoan toan: khong scale/glow/ripple khi hover-nhan (tung gay loi
+	-- phong to). Giu ham de cac cho goi cu khong loi.
 end
 
 -- Gan hieu ung 3D nhe cho panel phu (dialog/dropdown/notify): caustics chay +
@@ -2941,33 +2894,8 @@ function Glass.AttachPanel3D(panelFrame, radius)
 	})
 end
 
--- Gon song tron tu diem click
+-- Tat ripple (khong lan song khi bam). Giu ham de khong loi cho goi cu.
 function Glass.Ripple(frame)
-	if not frame then return end
-	local ok, absPos, absSize = pcall(function() return frame.AbsolutePosition, frame.AbsoluteSize end)
-	if not ok then return end
-	local m = Glass._Mouse3D
-	local cx, cy = absSize.X / 2, absSize.Y / 2
-	if m.X > 0 then
-		cx = math.clamp(m.X - absPos.X, 0, absSize.X)
-		cy = math.clamp(m.Y - absPos.Y, 0, absSize.Y)
-	end
-	local maxR = math.sqrt(absSize.X ^ 2 + absSize.Y ^ 2) * 0.6
-	local dot = New("Frame", {
-		Name = "LiquidRipple", AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromOffset(cx, cy), Size = UDim2.fromOffset(8, 8),
-		BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.55,
-		Interactable = false, ZIndex = 50, Parent = frame,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-		New("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.4, Thickness = 1.5 }),
-	})
-	TweenService:Create(dot, TweenInfo.new(Glass.Config3D.RippleTime, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Size = UDim2.fromOffset(maxR * 2, maxR * 2), BackgroundTransparency = 1 }):Play()
-	local st = dot:FindFirstChildWhichIsA("UIStroke")
-	if st then
-		TweenService:Create(st, TweenInfo.new(Glass.Config3D.RippleTime, Enum.EasingStyle.Quint), { Transparency = 1 }):Play()
-	end
-	task.delay(Glass.Config3D.RippleTime + 0.05, function() pcall(function() dot:Destroy() end) end)
 end
 
 -- Bong do mem phong cach liquid glass (9-slice hollow soft shadow, khong loi nen thua)
@@ -4044,11 +3972,9 @@ Components.Tab = (function()
 			-- lop kinh + vien sang len
 			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 0 }):Play()
 			TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.18 }):Play()
-			-- accent bar grows
-			TweenService:Create(AccentBar, TI_BACK, {
-				Size                   = UDim2.new(0, 3, 0.60, 0),
-				BackgroundTransparency = 0,
-			}):Play()
+			-- accent bar hien ngay (khong keo dan size)
+			AccentBar.Size = UDim2.new(0, 3, 0.60, 0)
+			AccentBar.BackgroundTransparency = 0
 			-- cap nhat registry de khi doi theme thi giu dung mau Accent
 			if Creator.Registry[TitleLabel] then
 				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Accent" }
@@ -4073,10 +3999,8 @@ Components.Tab = (function()
 			}):Play()
 			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 1 }):Play()
 			TweenService:Create(PillStroke, TI_NORM, { Transparency = 1 }):Play()
-			TweenService:Create(AccentBar, TI_NORM, {
-				Size                   = UDim2.new(0, 3, 0, 0),
-				BackgroundTransparency = 1,
-			}):Play()
+			AccentBar.Size = UDim2.new(0, 3, 0, 0)
+			AccentBar.BackgroundTransparency = 1
 			-- cap nhat registry de khi doi theme thi giu mau Text
 			if Creator.Registry[TitleLabel] then
 				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Text" }
@@ -4208,37 +4132,26 @@ Components.Tab = (function()
 			target.SetTransparency(0.89)
 		end
 
-		-- update header text + selector bar (existing window logic)
+		-- update header text + selector bar (instant, khong spring truot-gian)
 		Window.TabDisplay.Text = target.Name
 		Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
-		Window.SelectorPosMotor:setGoal(
-			Flipper.Spring.new(TabModule:GetCurrentTabPos(), { frequency = 6 })
-		)
+		do
+			local y = TabModule:GetCurrentTabPos()
+			Selector.Position = UDim2.new(0, 0, 0, y + 17)
+			Selector.Size = UDim2.new(0, 4, 0, 20)
+		end
 
-		-- container swap animation (unchanged)
-		task.spawn(function()
-			Window.ContainerHolder.Parent = Window.ContainerAnim
-			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(15, { frequency = 10 }))
-			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(1,  { frequency = 10 }))
-			task.wait(0.12)
-			for _, Container in next, TabModule.Containers do
-				Container.Visible = false
-			end
-			TabModule.Containers[Tab].Visible = true
-			-- FIX TRAN: tab vua hien lai thi layout/text can 1-2 frame moi do
-			-- chuan (TextWrapped luc an do sai) -> ep CanvasSize lai ngay + sau
-			-- 2 frame. Section tu sync qua signal cua no khi layout doi.
-			pcall(function()
-				local cf = TabModule.Containers[Tab]
-				local lay = cf and cf:FindFirstChildWhichIsA("UIListLayout")
-				if cf and lay then
-					cf.CanvasSize = UDim2.new(0, 0, 0, lay.AbsoluteContentSize.Y + 14)
-				end
-			end)
-			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(0, { frequency = 5 }))
-			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(0, { frequency = 8 }))
-			task.wait(0.12)
-			Window.ContainerHolder.Parent = Window.ContainerCanvas
+		-- doi container NGAY LAP TUC (khong truot/mo dan, khong reparent qua
+		-- lai giua CanvasGroup). Holder o yen trong ContainerCanvas -> het
+		-- mot duong gay loi hien thi.
+		for _, Container in next, TabModule.Containers do
+			Container.Visible = false
+		end
+		TabModule.Containers[Tab].Visible = true
+		-- tab vua hien lai thi layout/text can 1-2 frame moi do chuan
+		-- (TextWrapped luc an do sai) -> ep CanvasSize lai sau 2 frame.
+		-- Section tu sync qua signal cua no khi layout doi.
+		task.defer(function()
 			task.defer(function()
 				pcall(function()
 					local cf = TabModule.Containers[Tab]
@@ -4441,7 +4354,7 @@ Components.Dialog = (function()
 			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 			Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 			Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-			Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
+			Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 4 }),
 			Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 			Glass.Rim({ Transparency = 0.20, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
@@ -4466,17 +4379,20 @@ Components.Dialog = (function()
 
 		function NewDialog:Open()
 			Library.DialogOpen = true
-			NewDialog.Scale.Scale = 1.1
-			TintTransparency(0.75)
-			RootTransparency(0)
-			Scale(1)
+			-- Hien ngay (khong zoom/mo dan).
+			NewDialog.Scale.Scale = 1
+			pcall(function()
+				NewDialog.TintFrame.BackgroundTransparency = 0.75
+				NewDialog.Root.GroupTransparency = 0
+			end)
 		end
 
 		function NewDialog:Close()
 			Library.DialogOpen = false
-			TintTransparency(1)
-			RootTransparency(1)
-			Scale(1.1)
+			pcall(function()
+				NewDialog.TintFrame.BackgroundTransparency = 1
+				NewDialog.Root.GroupTransparency = 1
+			end)
 			-- Bo vien sang truoc khi mo dan: UIStroke KHONG mo theo
 			-- GroupTransparency cua CanvasGroup (no ve o ngoai bien texture),
 			-- nen neu de lai se thay mot khung sang lo lung trong 0.15s.
@@ -4487,7 +4403,6 @@ Components.Dialog = (function()
 			if Stroke then
 				Stroke:Destroy()
 			end
-			task.wait(0.15)
 			NewDialog.TintFrame:Destroy()
 		end
 
@@ -4668,7 +4583,7 @@ Components.Notification = (function()
 		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.20, Thickness = 1.4, ZIndex = 4 }),
@@ -4718,26 +4633,17 @@ Components.Notification = (function()
 			local ContentSize = NewNotification.LabelHolder.AbsoluteSize.Y
 			NewNotification.Holder.Size = UDim2.new(1, 0, 0, 58 + ContentSize)
 
-			RootMotor:setGoal({
-				Scale = Spring(0, { frequency = 5 }),
-				Offset = Spring(0, { frequency = 5 }),
-			})
+			-- Hien ngay tai vi tri cuoi (khong truot tu phai vao).
+			NewNotification.Root.Position = UDim2.new(0, 0, 0, 0)
+			NotificationShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
 		end
 
 		function NewNotification:Close()
 			if not NewNotification.Closed then
 				NewNotification.Closed = true
-				task.spawn(function()
-					RootMotor:setGoal({
-						Scale = Spring(1, { frequency = 5 }),
-						Offset = Spring(60, { frequency = 5 }),
-					})
-					task.wait(0.4)
-					-- if Library.UseAcrylic then
-					-- 	NewNotification.AcrylicPaint.Model:Destroy()
-					-- end
-					NewNotification.Holder:Destroy()
-				end)
+				-- Xoa ngay (khong truot ra). task.delay Duration ben duoi
+				-- van giu thong bao du thoi gian truoc khi goi ham nay.
+				NewNotification.Holder:Destroy()
 			end
 		end
 
@@ -5476,7 +5382,7 @@ Components.Window = (function()
 		    Glass.TransparencyGradient({ Top = 0.85, Mid = 0.78, Bottom = 0.70 }),
 		    Glass.Depth(Glass.Radius.Window, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Window, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Window, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.4, Transparency = 0.08, ZIndex = 4 }),
 		    -- bong trong tao chieu sau + vien khuc xa
@@ -5690,15 +5596,15 @@ Components.Window = (function()
 			SizeX = math.clamp(SizeX, 420, math.max(440, vpM.X - 16))
 			SizeY = math.clamp(SizeY, 320, math.max(340, vpM.Y - 40))
 			SizeMotor:setGoal({
-				X = Flipper[Instant and "Instant" or "Spring"].new(SizeX, { frequency = 6 }),
-				Y = Flipper[Instant and "Instant" or "Spring"].new(SizeY, { frequency = 6 }),
+				X = Flipper.Instant.new(SizeX),
+				Y = Flipper.Instant.new(SizeY),
 			})
 			Window.Size = UDim2.fromOffset(SizeX, SizeY)
 
 			if not NoPos then
 				PosMotor:setGoal({
-					X = Spring(Value and 0 or Window.Position.X.Offset, { frequency = 6 }),
-					Y = Spring(Value and 0 or Window.Position.Y.Offset, { frequency = 6 }),
+					X = Instant(Value and 0 or Window.Position.X.Offset),
+					Y = Instant(Value and 0 or Window.Position.Y.Offset),
 				})
 			end
 		end
@@ -5907,9 +5813,10 @@ Components.Window = (function()
 		end
 
 		Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function()
-			LastValue = TabModule:GetCurrentTabPos() + 16
-			LastTime = 0
-			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
+			-- Selector di chuyen NGAY theo tab (khong spring de tranh gian hinh)
+			local y = TabModule:GetCurrentTabPos()
+			Selector.Position = UDim2.new(0, 0, 0, y + 17)
+			Selector.Size = UDim2.new(0, 4, 0, 20)
 		end)
 
 		return Window
@@ -6079,14 +5986,14 @@ ElementsTable.Toggle = (function()
 		-- OFF state
 		local function applyOff()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.new(0, 0, 1, 0)   }):Play()
-			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 3, 0.5, 0) }):Play()
+			TweenService:Create(Thumb, TI_FAST, { Position = UDim2.new(0, 3, 0.5, 0) }):Play()
 			TweenService:Create(Thumb, TI_FAST, { BackgroundColor3 = Color3.fromRGB(255, 255, 255) }):Play()
 		end
 
 		-- ON state
 		local function applyOn()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.fromScale(1, 1)    }):Play()
-			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 25, 0.5, 0)}):Play()
+			TweenService:Create(Thumb, TI_FAST, { Position = UDim2.new(0, 25, 0.5, 0)}):Play()
 			TweenService:Create(Thumb, TI_FAST, { BackgroundColor3 = KnobOnColor() }):Play()
 		end
 
@@ -6461,7 +6368,7 @@ ElementsTable.Dropdown = (function()
 		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.20, Thickness = 1.4, ZIndex = 4 }),
@@ -6716,16 +6623,9 @@ ElementsTable.Dropdown = (function()
 			RecalculateListSize()
 			RecalculateListPosition()
 
-			-- minimal: fade in + slight scale from 0.97 → 1
-			DropdownHolderFrame.Size = UDim2.fromScale(1, 0)
-			TweenService:Create(DropdownHolderFrame,
-				TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-				{ Size = UDim2.fromScale(1, 1) }
-			):Play()
-			TweenService:Create(DropdownIco,
-				TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-				{ Rotation = -90 }
-			):Play()
+			-- Hien ngay full size (khong phong to dan tu 0).
+			DropdownHolderFrame.Size = UDim2.fromScale(1, 1)
+			DropdownIco.Rotation = -90
 			-- vach duoi sang han khi dang mo (handler MouseLeave da doc trang
 			-- thai `Dropdown.Opened` nen 2 cho nay khop nhau)
 			TweenService:Create(DropdownUnderline, TI_UL,
@@ -6741,11 +6641,7 @@ ElementsTable.Dropdown = (function()
 			DropdownDisplay.Interactable = false
 			DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
 			DropdownHolderCanvas.Visible = false
-			TweenService:Create(
-				DropdownIco,
-				TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-				{ Rotation = 90 }
-			):Play()
+			DropdownIco.Rotation = 90
 			DropdownSearch:ReleaseFocus(false)
 			TweenService:Create(DropdownUnderline, TI_UL,
 				{ BackgroundTransparency = 0.5 }):Play()
