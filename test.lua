@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.5.0",
+	Version = "1.5.1",
 
 	OpenFrames = {},
 	Options = {},
@@ -2582,7 +2582,7 @@ Glass.Config3D = Glass.Config3D or {
 	-- DO DUC KHI MO / DONG TRONG SUOT (0 = dac nhu hinh 2, 1 = trong nhu cu)
 	-- Hinh loi: gradient Top 0.85/Bottom 0.70 qua trong -> chu bi chim vao background.
 	-- Mac dinh moi: 0.38 / 0.30 / 0.22 (duc vua, giong hinh mau thu 2).
-	GlassOpacity = 0.70,
+	GlassOpacity = 0.60,
 	GlassTop = 0.38,
 	GlassMid = 0.30,
 	GlassBottom = 0.22,
@@ -3022,7 +3022,7 @@ function Glass.SetOpacity(Opacity)
 	end
 	for _, gui in ipairs(game:GetService("CoreGui"):GetDescendants()) do
 		if gui:IsA("Frame") and gui.Name == "GlassMilk" then
-			gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.75, 0.25, 1)
+			gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.30, 0.50, 1)
 		end
 		if gui:IsA("UIGradient") and gui.Name == "GlassTransparencyGradient" then
 			local rt = gui:GetAttribute("RawTop")
@@ -3052,17 +3052,16 @@ function Glass.SetOpacity(Opacity)
 			})
 		end
 	end
-	-- Lop sua phu + blur that theo do duc (kieu demo-nighthub)
+	-- Lop sua phu theo do duc (blur that da go)
 	if Library and Library.GUI then
 		pcall(function()
 			for _, gui in ipairs(Library.GUI:GetDescendants()) do
 				if gui:IsA("Frame") and gui.Name == "GlassMilk" then
-					gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.75, 0.25, 1)
+					gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.30, 0.50, 1)
 				end
 			end
 		end)
 	end
-	pcall(function() Glass.ApplyFrostBlur(Opacity) end)
 	-- Dong bo thanh keo trong Settings neu co
 	if Library and Library.Options and Library.Options.GlassOpacity then
 		pcall(function()
@@ -3555,11 +3554,11 @@ function Glass.Fringe(Radius, Props)
 	return root
 end
 
--- Do duc cua lop sua theo GlassOpacity (0 = trong suot, cang cao cang sua).
+-- Do duc cua lop sua theo GlassOpacity (nhat, chi hoi sua).
 function Glass.MilkOpacity()
 	local o = Glass.Config3D and Glass.Config3D.GlassOpacity
-	if o == nil then o = 0.70 end
-	return math.clamp(1 - o * 0.75, 0.25, 1)
+	if o == nil then o = 0.60 end
+	return math.clamp(1 - o * 0.30, 0.50, 1)
 end
 
 -- Lop sua trang-xanh tao cam giac "kinh sua" khi duc cao (nam tren frost).
@@ -3578,30 +3577,23 @@ function Glass.Milk(Radius, Props)
 	})
 end
 
--- Blur that toan man hinh theo do duc (nen 3D nhoe, UI giu sac net).
-Glass._BlurFx = Glass._BlurFx or nil
+-- Blur that: DA GO (gay mo toan man hinh ke ca khi minimize UI nen cam
+-- giac nhu vinh vien). Giu ham rong de code cu goi khong loi.
+Glass._BlurFx = nil
 function Glass.ApplyFrostBlur(Opacity)
-	if Opacity == nil then
-		Opacity = (Glass.Config3D and Glass.Config3D.GlassOpacity) or 0.70
-	end
-	local ok, lighting = pcall(game.GetService, game, "Lighting")
-	if not ok or not lighting then return end
-	local fx = Glass._BlurFx
-	if fx and not fx.Parent then fx = nil Glass._BlurFx = nil end
-	if not fx then
-		local ok2, inst = pcall(Instance.new, "BlurEffect")
-		if not ok2 or not inst then return end
-		fx = inst
-		fx.Name = "GlassFrostBlur"
-		pcall(function() fx.Parent = lighting end)
-		Glass._BlurFx = fx
-	end
-	local size = math.clamp(Opacity * 18, 0, 18)
-	pcall(function()
-		fx.Size = size
-		fx.Enabled = size > 0.5
-	end)
+	return
 end
+
+-- Don blur that con sot tu ban 1.5.0 (neu session cu de lai trong Lighting)
+pcall(function()
+	local lighting = game:GetService("Lighting")
+	for _, fx in ipairs(lighting:GetChildren()) do
+		if fx:IsA("BlurEffect") and fx.Name == "GlassFrostBlur" then
+			pcall(function() fx.Enabled = false end)
+			pcall(function() fx:Destroy() end)
+		end
+	end
+end)
 
 -- LayoutOrder duy nhat cho moi element/section.
 -- Truoc day tat ca deu = 7 -> UIListLayout phai dua vao thu tu child de xep,
@@ -4558,12 +4550,11 @@ Components.Dialog = (function()
 			Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 4 }),
 			Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 			Glass.Rim({ Transparency = 0.20, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			Glass.RimBevel(Glass.Radius.Card, { ZIndex = 5 }),
-			Glass.Fringe(Glass.Radius.Card, { ZIndex = 5 }),
 			NewDialog.Scale,
 			NewDialog.Title,
 			NewDialog.ButtonHolderFrame,
@@ -4790,11 +4781,10 @@ Components.Notification = (function()
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 		    Glass.RimBevel(Glass.Radius.Card, { ZIndex = 4 }),
-		    Glass.Fringe(Glass.Radius.Card, { ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.20, Mode = Enum.ApplyStrokeMode.Contextual }),
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
@@ -5594,14 +5584,13 @@ Components.Window = (function()
 		    Glass.Depth(Glass.Radius.Window, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Milk(Glass.Radius.Window, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Window, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Window, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.4, Transparency = 0.08, ZIndex = 4 }),
 		    -- bong trong tao chieu sau + vien khuc xa
 		    Glass.InnerShadow(Glass.Radius.Window, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 		    -- Mep vat 3 lop + sac sai kieu demo (thay RimLayer don)
 		    Glass.RimBevel(Glass.Radius.Window, { ZIndex = 5 }),
-		    Glass.Fringe(Glass.Radius.Window, { ZIndex = 5 }),
 		})
 		-- Phan xa day mo (mat duoi kinh) — tao rieng vi can 2 Frame
 		do
@@ -6581,11 +6570,10 @@ ElementsTable.Dropdown = (function()
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.68, Mid = 0.88, ZIndex = 3 }),
+		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
 		    Glass.RimBevel(Glass.Radius.Card, { ZIndex = 4 }),
-		    Glass.Fringe(Glass.Radius.Card, { ZIndex = 4 }),
 		    Glass.Rim({ Transparency = 0.22, Tag = "DropdownBorder" }),
 		    SearchBase,
 		    DropdownScrollFrame,
@@ -9894,7 +9882,7 @@ local InterfaceManager = {} do
 		Theme = "Liquid Glass",
 		Acrylic = true,
 		Transparency = true,
-		GlassOpacity = 70,
+		GlassOpacity = 60,
 		MenuKeybind = "M"
 	}
 
@@ -9969,7 +9957,7 @@ local InterfaceManager = {} do
 			Settings.Transparency = Library.Transparency
 		end
 		if Settings.GlassOpacity == nil then
-			Settings.GlassOpacity = (Glass.Config3D and Glass.Config3D.GlassOpacity or 0.70) * 100
+			Settings.GlassOpacity = (Glass.Config3D and Glass.Config3D.GlassOpacity or 0.60) * 100
 		end
 
 		-- Ap dung ngay nhung gi vua doc duoc
@@ -10023,7 +10011,7 @@ local InterfaceManager = {} do
 		section:AddSlider("GlassOpacity", {
 			Title = "Glass Opacity",
 			Description = "Do duc cua mat kinh. 0% = trong suot, 100% = dac.",
-			Default = math.clamp(math.floor((Settings.GlassOpacity or 70) + 0.5), 0, 100),
+			Default = math.clamp(math.floor((Settings.GlassOpacity or 60) + 0.5), 0, 100),
 			Min = 0,
 			Max = 100,
 			Rounding = 0,
@@ -10086,8 +10074,6 @@ function Library:CreateWindow(Config)
 	Library.Window = Window
 	InterfaceManager:SetTheme(Library.Theme)
 	Library:SetTheme(Library.Theme)
-	-- Ap do duc + bat blur that ngay khi mo window (khong doi keo slider)
-	pcall(function() Glass.SetOpacity(Glass.Config3D.GlassOpacity or 0.70) end)
 
 	--local Dragging, DragInput, MousePos, StartPos = false
 
