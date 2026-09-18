@@ -9484,7 +9484,7 @@ function Library:ToggleAcrylic(Value)
 			-- de bam toggle "Acrylic" khong nem loi.
 			local Model = Library.Window.AcrylicPaint.Model
 			if Model then
-				Model.Transparency = Value and 0.98 or 1
+				Model.Transparency = Value and 0.6 or 1
 			end
 			if Value then
 				Acrylic.Enable()
