@@ -2038,8 +2038,8 @@ local function makeLensPart(mat, col, tr)
 	return p
 end
 
-local LensGlass = makeLensPart(Enum.Material.Glass, Color3.fromRGB(255, 255, 255), 0.92)
-local LensTint  = makeLensPart(Enum.Material.Neon,  Color3.fromRGB(225, 238, 255), 0.96)
+local LensGlass = makeLensPart(Enum.Material.Glass, Color3.fromRGB(255, 255, 255), 1)
+local LensTint  = makeLensPart(Enum.Material.Neon,  Color3.fromRGB(220, 235, 255), 1)
 
 local LensDOF = Instance.new("DepthOfFieldEffect")
 LensDOF.Name          = "LiquidGlassDOF"
@@ -2057,13 +2057,28 @@ LensBlur.Enabled = false
 LensBlur.Parent  = Lighting
 
 local function vpToWorld(px, py, depth)
-	local ray = Camera:ViewportPointToRay(px, py, 0)
-	local t   = depth / math.max(ray.Direction:Dot(Camera.CFrame.LookVector), 1e-6)
+	local cam = workspace.CurrentCamera
+	if not cam then return Vector3.zero end
+	local ray = cam:ViewportPointToRay(px, py, 0)
+	local t   = depth / math.max(ray.Direction:Dot(cam.CFrame.LookVector), 1e-6)
 	return ray.Origin + ray.Direction * t
 end
 
 local function syncLens(targetPos, targetSize)
-	if not Camera or Camera.ViewportSize.X <= 0 or Camera.ViewportSize.Y <= 0 then return end
+	local cam = workspace.CurrentCamera
+	if not cam or cam.ViewportSize.X <= 0 or cam.ViewportSize.Y <= 0 then return end
+	if not Library.UseAcrylic then
+		LensGlass.Transparency = 1
+		LensTint.Transparency  = 1
+		LensDOF.Enabled        = false
+		LensBlur.Enabled       = false
+		return
+	end
+
+	if LensFolder.Parent ~= cam then
+		LensFolder.Parent = cam
+	end
+
 	local depth = 2.0
 	local pos = targetPos
 	local size = targetSize
@@ -2083,7 +2098,7 @@ local function syncLens(targetPos, targetSize)
 	local worldW = (wRight - wCenter).Magnitude * 2
 	local worldH = (wDown  - wCenter).Magnitude * 2
 
-	local camCF = Camera.CFrame
+	local camCF = cam.CFrame
 	local cf = CFrame.fromMatrix(wCenter,
 		camCF.RightVector,
 		camCF.UpVector,
@@ -2110,13 +2125,15 @@ local Acrylic = {
 }
 
 function Acrylic.SetVisible(v)
-	LensGlass.Transparency = v and 0.92 or 1
-	LensTint.Transparency  = v and 0.96 or 1
-	LensBlur.Enabled       = v and (Library.UseAcrylic ~= false)
-	LensDOF.Enabled        = v and (Library.UseAcrylic ~= false)
+	local visible = v and (Library.UseAcrylic ~= false)
+	LensGlass.Transparency = visible and 0.92 or 1
+	LensTint.Transparency  = visible and 0.96 or 1
+	LensBlur.Enabled       = visible
+	LensDOF.Enabled        = visible
 end
 
 function Acrylic.Enable()
+	if Library.UseAcrylic == false then return end
 	LensDOF.Enabled        = true
 	LensBlur.Enabled       = true
 	LensGlass.Transparency = 0.92
@@ -4983,26 +5000,20 @@ Components.Window = (function()
 			local sz = Window.Root.AbsoluteSize
 			if sz.X <= 0 or sz.Y <= 0 then return end
 
-			-- Quán tính kéo (drag inertia stretch)
-			local speed = (now - lastPos).Magnitude / math.max(dt, 1 / 240)
 			lastPos = now
-			if Dragging then
-				local stretchImpulse = math.clamp(speed, 0, 3000) * 0.00008
-				Window.Root.Size = UDim2.fromOffset(
-					sz.X * (1 + stretchImpulse * 0.035),
-					sz.Y * (1 - stretchImpulse * 0.020)
-				)
-			end
 
 			-- Hướng ánh sáng: chuột + góc quay camera
 			local m = UserInputService:GetMouseLocation()
 			local rel = Vector2.new(m.X - now.X, m.Y - now.Y)
 			local targetAngle = math.deg(math.atan2(rel.Y - sz.Y * 0.5, rel.X - sz.X * 0.5))
 
-			local camDelta = lastCamCF:ToObjectSpace(Camera.CFrame)
-			local _, camYaw = camDelta:ToEulerAnglesYXZ()
-			lastCamCF = Camera.CFrame
-			targetAngle = targetAngle + math.deg(camYaw) * 5
+			local cam = workspace.CurrentCamera
+			if cam then
+				local camDelta = lastCamCF:ToObjectSpace(cam.CFrame)
+				local _, camYaw = camDelta:ToEulerAnglesYXZ()
+				lastCamCF = cam.CFrame
+				targetAngle = targetAngle + math.deg(camYaw) * 5
+			end
 
 			local diff = (targetAngle - lightAngle + 180) % 360 - 180
 			lightAngle = lightAngle + diff * math.min(dt * 5, 1)
@@ -9122,6 +9133,8 @@ function Library:CreateWindow(Config)
 	Config.TabWidth = Config.TabWidth or 160
 	if Library.UseAcrylic then
 		Acrylic.init()
+	else
+		Acrylic.Disable()
 	end
 
 	local Window = Components.Window({
