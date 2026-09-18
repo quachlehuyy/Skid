@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.2.0",
+	Version = "1.2.1",
 
 	OpenFrames = {},
 	Options = {},
@@ -2579,7 +2579,7 @@ Glass.Config3D = Glass.Config3D or {
 	-- DO DUC KHI MO / DONG TRONG SUOT (0 = dac nhu hinh 2, 1 = trong nhu cu)
 	-- Hinh loi: gradient Top 0.85/Bottom 0.70 qua trong -> chu bi chim vao background.
 	-- Mac dinh moi: 0.38 / 0.30 / 0.22 (duc vua, giong hinh mau thu 2).
-	GlassOpacity = 0.62,
+	GlassOpacity = 0.70,
 	GlassTop = 0.38,
 	GlassMid = 0.30,
 	GlassBottom = 0.22,
@@ -6018,11 +6018,11 @@ ElementsTable.Toggle = (function()
 			}),
 		})
 
-		-- ── Accent fill (clipped inside track) ───────────────
+		-- ── Accent fill kieu Night Hub (rut - dam, vivid) ───
 		local Fill = New("Frame", {
 			Size             = UDim2.new(0, 0, 1, 0),   -- starts empty
 			BackgroundColor3 = Color3.fromRGB(0, 122, 255),
-			BackgroundTransparency = 0.18,
+			BackgroundTransparency = 0.05,
 			ZIndex           = 2,
 			ThemeTag         = { BackgroundColor3 = "Accent" },
 			Parent           = Track,
@@ -6068,29 +6068,30 @@ ElementsTable.Toggle = (function()
 		local TI_BACK  = TweenInfo.new(0.20, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
 		local TI_QUICK = TweenInfo.new(0.10, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
+		-- Kieu Night Hub: TAT = num trang, BAT = num mau ToggleToggled cua theme
+		-- (moi theme tu co mau accent + num rieng, khong can sua tung theme).
+		local function KnobOnColor()
+			local ok, c = pcall(function() return Creator.GetThemeProperty("ToggleToggled") end)
+			if ok and typeof(c) == "Color3" then return c end
+			return Color3.fromRGB(25, 27, 32)
+		end
+
 		-- OFF state
 		local function applyOff()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.new(0, 0, 1, 0)   }):Play()
 			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 3, 0.5, 0) }):Play()
+			TweenService:Create(Thumb, TI_FAST, { BackgroundColor3 = Color3.fromRGB(255, 255, 255) }):Play()
 		end
 
 		-- ON state
 		local function applyOn()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.fromScale(1, 1)    }):Play()
 			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 25, 0.5, 0)}):Play()
+			TweenService:Create(Thumb, TI_FAST, { BackgroundColor3 = KnobOnColor() }):Play()
 		end
 
-		-- Press squish
-		Creator.AddSignal(ToggleFrame.Frame.MouseButton1Down, function()
-			TweenService:Create(Thumb, TI_QUICK, {
-				Size = UDim2.fromOffset(Toggle.Value and 18 or 24, 20),
-			}):Play()
-		end)
-		Creator.AddSignal(ToggleFrame.Frame.MouseButton1Up, function()
-			TweenService:Create(Thumb, TI_BACK, {
-				Size = UDim2.fromOffset(20, 20),
-			}):Play()
-		end)
+		-- KHOA SIZE: bo hieu ung bop/meo num khi nhan (nhan lam doi kich
+		-- thuoc gay cam giac loi phong to). Chi giu truot vi tri + doi mau.
 
 		-- ── Public API ────────────────────────────────────────
 		function Toggle:OnChanged(Func)
@@ -6301,35 +6302,20 @@ ElementsTable.Dropdown = (function()
 			})
 		end
 
-		-- เพิ่ม hover effect สำหรับ clear button
+		-- เพิ่ม hover effect สำหรับ clear button (chi mo chu, KHONG doi size)
 		if ClearButton then
 			local ClearHoverMotor, SetClearHover = Creator.SpringMotor(0.15, ClearButton, "BackgroundTransparency")
 			Creator.AddSignal(ClearButton.MouseEnter, function()
 				SetClearHover(0.05)
-				-- เพิ่ม scale effect
-				TweenService:Create(ClearButton, TweenInfo.new(0.2, Enum.EasingStyle.Quart), {
-					Size = UDim2.fromOffset(32, 32)
-				}):Play()
 			end)
 			Creator.AddSignal(ClearButton.MouseLeave, function()
 				SetClearHover(0.15)
-				-- คืนขนาดเดิม
-				TweenService:Create(ClearButton, TweenInfo.new(0.2, Enum.EasingStyle.Quart), {
-					Size = UDim2.fromOffset(30, 30)
-				}):Play()
 			end)
 			Creator.AddSignal(ClearButton.MouseButton1Down, function()
 				SetClearHover(0.0)
-				-- เพิ่ม press effect
-				TweenService:Create(ClearButton, TweenInfo.new(0.1, Enum.EasingStyle.Quart), {
-					Size = UDim2.fromOffset(28, 28)
-				}):Play()
 			end)
 			Creator.AddSignal(ClearButton.MouseButton1Up, function()
 				SetClearHover(0.05)
-				TweenService:Create(ClearButton, TweenInfo.new(0.1, Enum.EasingStyle.Quart), {
-					Size = UDim2.fromOffset(32, 32)
-				}):Play()
 			end)
 
 			-- ฟังก์ชันล้างค่าทั้งหมด
@@ -7554,6 +7540,9 @@ ElementsTable.Slider = (function()
 			}),
 		})
 
+		-- Vong sang accent quanh num (lay san de lam glow khi keo, KHONG doi size)
+		local SliderDotStroke = SliderDot:FindFirstChildWhichIsA("UIStroke")
+
 		-- ── Rail track ────────────────────────────────────────
 		local SliderTrack = New("Frame", {
 			Size        = UDim2.new(1, -20, 0, 6),
@@ -7605,7 +7594,10 @@ ElementsTable.Slider = (function()
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
 				Dragging = true
-				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(18, 18) }):Play()
+				-- KHOA SIZE: num giu nguyen 16px, chi sang vien accent (khong phong to)
+				if SliderDotStroke then
+					TweenService:Create(SliderDotStroke, TI_THUMB, { Transparency = 0 }):Play()
+				end
 			end
 		end)
 
@@ -7614,7 +7606,9 @@ ElementsTable.Slider = (function()
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
 				Dragging = false
-				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(14, 14) }):Play()
+				if SliderDotStroke then
+					TweenService:Create(SliderDotStroke, TI_THUMB, { Transparency = 0.20 }):Play()
+				end
 			end
 		end)
 
@@ -7651,7 +7645,7 @@ ElementsTable.Slider = (function()
 
 			local pct = (self.Value - Slider.Min) / (Slider.Max - Slider.Min)
 
-			TweenService:Create(SliderDot,  TI_MOVE, { Position = UDim2.new(pct, -7, 0.5, 0) }):Play()
+			TweenService:Create(SliderDot,  TI_MOVE, { Position = UDim2.new(pct, -8, 0.5, 0) }):Play()
 			TweenService:Create(SliderFill, TI_MOVE, { Size     = UDim2.fromScale(pct, 1)      }):Play()
 
 			if not Typing then
@@ -9790,7 +9784,7 @@ local InterfaceManager = {} do
 		Theme = "Liquid Glass",
 		Acrylic = true,
 		Transparency = true,
-		GlassOpacity = 62,
+		GlassOpacity = 70,
 		MenuKeybind = "M"
 	}
 
@@ -9865,7 +9859,7 @@ local InterfaceManager = {} do
 			Settings.Transparency = Library.Transparency
 		end
 		if Settings.GlassOpacity == nil then
-			Settings.GlassOpacity = (Glass.Config3D and Glass.Config3D.GlassOpacity or 0.62) * 100
+			Settings.GlassOpacity = (Glass.Config3D and Glass.Config3D.GlassOpacity or 0.70) * 100
 		end
 
 		-- Ap dung ngay nhung gi vua doc duoc
@@ -9919,7 +9913,7 @@ local InterfaceManager = {} do
 		section:AddSlider("GlassOpacity", {
 			Title = "Glass Opacity",
 			Description = "Do duc cua mat kinh. 0% = trong suot, 100% = dac.",
-			Default = math.clamp(math.floor((Settings.GlassOpacity or 62) + 0.5), 0, 100),
+			Default = math.clamp(math.floor((Settings.GlassOpacity or 70) + 0.5), 0, 100),
 			Min = 0,
 			Max = 100,
 			Rounding = 0,
@@ -10252,20 +10246,12 @@ function Library:CreateWindow(Config)
 	MainIconCorner.CornerRadius = UDim.new(0, 14)
 	MainIconCorner.Parent = MainIcon
 
-	-- Micro-animation: Glass optical flare and icon bounce on hover
+	-- Micro-animation: chi sang vien (KHONG doi size icon de tranh cam giac loi)
 	AddSignal(Main.MouseEnter, function()
 		TweenService:Create(MainStroke, TweenInfo.new(0.2), { Transparency = 0.05 }):Play()
-		TweenService:Create(MainIcon, TweenInfo.new(0.2), { Size = UDim2.new(1, 2, 1, 2) }):Play()
 	end)
 	AddSignal(Main.MouseLeave, function()
 		TweenService:Create(MainStroke, TweenInfo.new(0.25), { Transparency = 0.25 }):Play()
-		TweenService:Create(MainIcon, TweenInfo.new(0.25), { Size = UDim2.fromScale(1, 1) }):Play()
-	end)
-	AddSignal(Main.MouseButton1Down, function()
-		TweenService:Create(MainIcon, TweenInfo.new(0.1), { Size = UDim2.new(1, -6, 1, -6) }):Play()
-	end)
-	AddSignal(Main.MouseButton1Up, function()
-		TweenService:Create(MainIcon, TweenInfo.new(0.15), { Size = UDim2.fromScale(1, 1) }):Play()
 	end)
 
 	-- dang ky vao Creator.Registry de tu doi mau khi Library:SetTheme()
