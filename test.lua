@@ -1240,7 +1240,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.1.0",
+	Version = "1.2.0",
 
 	OpenFrames = {},
 	Options = {},
@@ -2560,17 +2560,21 @@ Glass.InsetRect = InsetRect
 -- =============================================================
 Glass.Config3D = Glass.Config3D or {
 	Enabled = true,
-	TiltMaxDeg = 1.6,
+	-- Tat nghieng/to/tho cua CUA SO: quay + phong to lam nguoi dung tuong
+	-- animate loi. Giu shimmer caustics + parallax gradient (khong doi layout).
+	TiltMaxDeg = 0,
 	TiltSmooth = 7,
 	ParallaxInner = 9,
 	ShadowShiftX = 12,
 	ShadowShiftY = 9,
 	ShimmerSpeed = 0.32,
 	ShimmerAmpDeg = 16,
-	BreathingAmp = 0.0035,
+	BreathingAmp = 0,
 	BreathingSpeed = 1.0,
-	HoverScale = 1.022,
-	PressScale = 0.972,
+	-- Tat phong to khi hover/nhan element: bam lam func to ra gay cam giac loi.
+	-- Giu ripple + vien sang lam feedback. Muon mo lai: dat 1.022 / 0.972.
+	HoverScale = 1,
+	PressScale = 1,
 	RippleTime = 0.55,
 	-- DO DUC KHI MO / DONG TRONG SUOT (0 = dac nhu hinh 2, 1 = trong nhu cu)
 	-- Hinh loi: gradient Top 0.85/Bottom 0.70 qua trong -> chu bi chim vao background.
@@ -2818,17 +2822,18 @@ function Glass.AttachWindow3D(window, acrylicFrame)
 	return entry
 end
 
--- Mo cua so: scale kieu long + fade CanvasGroup
+-- Mo cua so: fade + scale NHE (khong overshoot: Back ease phong to qua co
+-- lam cua so giat to ra -> cam giac animate loi)
 function Glass.PopIn(gui, scaleFrom)
 	if not gui then return end
-	scaleFrom = scaleFrom or 0.94
+	scaleFrom = scaleFrom or 0.96
 	local sc = LG3D_Find(gui, "LiquidPop", "UIScale")
 	if not sc then
 		sc = New("UIScale", { Name = "LiquidPop", Scale = scaleFrom, Parent = gui })
 	else
 		sc.Scale = scaleFrom
 	end
-	TweenService:Create(sc, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(sc, TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 	if gui:IsA("CanvasGroup") then
 		gui.GroupTransparency = 1
 		TweenService:Create(gui, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { GroupTransparency = 0 }):Play()
@@ -3973,8 +3978,9 @@ Components.Tab = (function()
 			IconLabel,
 			TitleLabel,
 		})
-		-- LIQUID GLASS 3D micro-interaction cho tab (scale nay + ripple)
-		pcall(function() Glass.Magnetic(Tab.Frame, { HoverScale = 1.03, PressScale = 0.96 }) end)
+		-- LIQUID GLASS 3D micro-interaction cho tab (chi ripple + vien sang,
+		-- khong scale de khoi cam giac nut bi phong to)
+		pcall(function() Glass.Magnetic(Tab.Frame) end)
 
 		-- ── Container scroll frame: FIX TRAN + tech moi ──
 		-- AutomaticCanvasSize.Y (2024+) tu tinh canvas -> khong bao gio thieu
@@ -4366,6 +4372,7 @@ Components.Dialog = (function()
 			Size = UDim2.new(1, 0, 0, 70),
 			Position = UDim2.new(0, 0, 1, -70),
 			BackgroundTransparency = 0.70,
+			ZIndex = 10,
 			ThemeTag = {
 				BackgroundColor3 = "DialogHolder",
 			},
@@ -4392,6 +4399,8 @@ Components.Dialog = (function()
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Size = UDim2.new(1, 0, 0, 22),
 			Position = UDim2.fromOffset(20, 25),
+			-- Chu dialog PHAI tren lop frost/specular (khong thi bi mo)
+			ZIndex = 10,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BackgroundTransparency = 1,
 			AutoLocalize = false,
@@ -4431,7 +4440,7 @@ Components.Dialog = (function()
 			}),
 			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 			Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-			Glass.Frost(Glass.Radius.Card, { Transparency = 0.88, ZIndex = 1 }),
+			Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
 			Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 4 }),
 			Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
@@ -4550,6 +4559,7 @@ Components.Notification = (function()
 
 		NewNotification.Title = New("TextLabel", {
 			Position = UDim2.new(0, 14, 0, 17),
+			ZIndex = 10,
 			Text = Config.Title,
 			RichText = true,
 			TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -4606,6 +4616,7 @@ Components.Notification = (function()
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(14, 40),
+			ZIndex = 10,
 			Size = UDim2.new(1, -28, 0, 0),
 		}, {
 			New("UIListLayout", {
@@ -4620,6 +4631,7 @@ Components.Notification = (function()
 		NewNotification.CloseButton = New("TextButton", {
 			Text = "",
 			Position = UDim2.new(1, -14, 0, 13),
+			ZIndex = 10,
 			Size = UDim2.fromOffset(20, 20),
 			AnchorPoint = Vector2.new(1, 0),
 			BackgroundTransparency = 1,
@@ -4655,7 +4667,7 @@ Components.Notification = (function()
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
 		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.88, ZIndex = 1 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
@@ -4905,8 +4917,8 @@ Components.TitleBar = function(Config)
 		end)
 		AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
 
-		-- LIQUID GLASS 3D: nay + ripple cho nut titlebar
-		pcall(function() Glass.Magnetic(Button.Frame, { HoverScale = 1.08, PressScale = 0.92 }) end)
+		-- LIQUID GLASS 3D: ripple + vien sang cho nut titlebar (khong scale)
+		pcall(function() Glass.Magnetic(Button.Frame) end)
 
 		Button.SetCallback = function(Func) Button.Callback = Func end
 		return Button
@@ -5463,7 +5475,7 @@ Components.Window = (function()
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
 		    Glass.TransparencyGradient({ Top = 0.85, Mid = 0.78, Bottom = 0.70 }),
 		    Glass.Depth(Glass.Radius.Window, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.88, ZIndex = 1 }),
+		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.4, Transparency = 0.08, ZIndex = 4 }),
@@ -5531,7 +5543,10 @@ Components.Window = (function()
 			Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 1,
 			ClipsDescendants = true,
-			ZIndex = 1,
+			-- Noi dung PHAI nam TREN nen kinh (AcrylicFrame Z=2): truoc day
+			-- lop frost/specular phu len chu -> chu bi mo di. Z=3 dua toan bo
+			-- content len tren, kinh chi con la nen phia sau.
+			ZIndex = 3,
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
 			Window.TabDisplay,
@@ -6396,7 +6411,7 @@ ElementsTable.Dropdown = (function()
 			Size = UDim2.new(1, (Dropdown.Multi and -46 or -16), 0, 30),
 			Position = UDim2.fromOffset(8, 7),
 			BackgroundTransparency = 0.85,
-			ZIndex = 4,
+			ZIndex = 10,
 			ThemeTag = {
 				BackgroundColor3 = "Input",
 			},
@@ -6422,6 +6437,8 @@ ElementsTable.Dropdown = (function()
 			Size = UDim2.new(1, -8, 1, hasTopControls and -46 or -12),
 			Position = UDim2.fromOffset(4, hasTopControls and 42 or 6),
 			BackgroundTransparency = 1,
+			-- List PHAI tren lop frost/specular cua holder (khong thi bi mo)
+			ZIndex = 10,
 			BottomImage = "rbxassetid://6889812791",
 			MidImage = "rbxassetid://6889812721",
 			TopImage = "rbxassetid://6276641225",
@@ -6457,7 +6474,7 @@ ElementsTable.Dropdown = (function()
 		    }),
 		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
 		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.88, ZIndex = 1 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
 		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
 		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
@@ -6470,7 +6487,7 @@ ElementsTable.Dropdown = (function()
 		if ClearButton then
 			ClearButton.Parent = DropdownHolderFrame
 			ClearButton.Position = UDim2.new(1, -36, 0, 7)
-			ClearButton.ZIndex = 5
+			ClearButton.ZIndex = 11
 		end
 
 		local DropdownShadow = Glass.Shadow({
