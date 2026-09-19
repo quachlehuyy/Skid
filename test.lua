@@ -45,56 +45,58 @@ local Themes = {
 	-- ─────────────────────────────────────────────────────────────
 	["Liquid Glass"] = {
 		Name = "Liquid Glass",
-		Accent = Color3.fromRGB(0, 122, 255), -- iOS Apple Blue
+		-- iOS 26/27 system blue. Kinh toi mo duc, bong, net nhu anh mau.
+		Accent = Color3.fromRGB(64, 156, 255),
 
-		AcrylicMain = Color3.fromRGB(240, 245, 255),
+		-- Nen kinh navy/charcoal toi, mo sua (frosted milky) - khong trang.
+		AcrylicMain = Color3.fromRGB(26, 32, 46),
 		AcrylicBorder = Color3.fromRGB(255, 255, 255),
 		AcrylicGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(240, 246, 255)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(220, 232, 250)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(44, 54, 78)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(28, 35, 52)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(18, 23, 36)),
 		}),
-		AcrylicNoise = 0.98,
+		AcrylicNoise = 0.9,
 
-		TitleBarLine = Color3.fromRGB(255, 255, 255),
+		TitleBarLine = Color3.fromRGB(90, 110, 150),
 		Tab = Color3.fromRGB(255, 255, 255),
 
-		Element = Color3.fromRGB(255, 255, 255),
+		Element = Color3.fromRGB(48, 58, 80),
 		ElementBorder = Color3.fromRGB(255, 255, 255),
-		InElementBorder = Color3.fromRGB(210, 225, 248),
-		ElementTransparency = 0.88,
+		InElementBorder = Color3.fromRGB(90, 150, 230),
+		ElementTransparency = 0.9,
 
-		ToggleSlider = Color3.fromRGB(0, 122, 255),
+		ToggleSlider = Color3.fromRGB(64, 156, 255),
 		ToggleToggled = Color3.fromRGB(255, 255, 255),
 		TransparenToggle = 0.25,
 
-		SliderRail = Color3.fromRGB(180, 195, 220),
+		SliderRail = Color3.fromRGB(80, 95, 125),
 
-		DropdownFrame = Color3.fromRGB(255, 255, 255),
-		DropdownHolder = Color3.fromRGB(245, 248, 255),
+		DropdownFrame = Color3.fromRGB(48, 58, 80),
+		DropdownHolder = Color3.fromRGB(30, 37, 54),
 		DropdownBorder = Color3.fromRGB(255, 255, 255),
-		DropdownOption = Color3.fromRGB(215, 232, 255),
+		DropdownOption = Color3.fromRGB(48, 58, 80),
 
-		Keybind = Color3.fromRGB(255, 255, 255),
+		Keybind = Color3.fromRGB(48, 58, 80),
 
-		Input = Color3.fromRGB(255, 255, 255),
-		InputFocused = Color3.fromRGB(255, 255, 255),
-		InputIndicator = Color3.fromRGB(160, 175, 200),
-		InputIndicatorFocus = Color3.fromRGB(0, 122, 255),
+		Input = Color3.fromRGB(30, 37, 54),
+		InputFocused = Color3.fromRGB(44, 54, 76),
+		InputIndicator = Color3.fromRGB(120, 150, 200),
+		InputIndicatorFocus = Color3.fromRGB(64, 156, 255),
 
-		Dialog = Color3.fromRGB(248, 250, 255),
-		DialogHolder = Color3.fromRGB(240, 245, 255),
-		DialogHolderLine = Color3.fromRGB(255, 255, 255),
-		DialogButton = Color3.fromRGB(255, 255, 255),
+		Dialog = Color3.fromRGB(30, 37, 54),
+		DialogHolder = Color3.fromRGB(26, 32, 46),
+		DialogHolderLine = Color3.fromRGB(90, 110, 150),
+		DialogButton = Color3.fromRGB(44, 54, 76),
 		DialogButtonBorder = Color3.fromRGB(255, 255, 255),
 		DialogBorder = Color3.fromRGB(255, 255, 255),
-		DialogInput = Color3.fromRGB(255, 255, 255),
-		DialogInputLine = Color3.fromRGB(0, 122, 255),
+		DialogInput = Color3.fromRGB(30, 37, 54),
+		DialogInputLine = Color3.fromRGB(64, 156, 255),
 
-		Text = Color3.fromRGB(18, 22, 32),
-		SubText = Color3.fromRGB(95, 108, 128),
-		Hover = Color3.fromRGB(255, 255, 255),
-		HoverChange = 0.08,
+		Text = Color3.fromRGB(255, 255, 255),
+		SubText = Color3.fromRGB(168, 178, 196),
+		Hover = Color3.fromRGB(70, 90, 130),
+		HoverChange = 0.06,
 	},
 	["Liquid Glass Dark"] = {
 		Name = "Liquid Glass Dark",
@@ -1240,7 +1242,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.6.1",
+	Version = "1.1.0",
 
 	OpenFrames = {},
 	Options = {},
@@ -2549,355 +2551,6 @@ local function InsetRect(Inset, Height)
 end
 Glass.InsetRect = InsetRect
 
--- =============================================================
--- LIQUID GLASS 3D ENGINE (tech moi nhat Roblox 2024-2026)
---  UIShadow (blur engine that) + slice fallback
---  UIGradient animated Rotation/Offset (caustics chay nhu long)
---  RenderStepped parallax 1 connection (fake 3D depth, tilt)
---  UIScale breathing / hover / PopIn (cam giac long)
--- Chi dung UIComponent (UIGradient/UIShadow/UIScale/UICorner) cho
--- lop dong -> KHONG pha layout, KHONG chan chuot.
--- =============================================================
-Glass.Config3D = Glass.Config3D or {
-	-- CHE DO TINH (mac dinh): tat TOAN BO motion 3D (tilt/breathe/shimmer theo
-	-- chuot/hover-scale/ripple/pop). Chi giu lop kinh TINH (frost/specular/rim
-	--/top-light/bong do). Muon mo lai motion: dat Enabled = true.
-	Enabled = false,
-	-- Tat nghieng/to/tho cua CUA SO: quay + phong to lam nguoi dung tuong
-	-- animate loi. Giu shimmer caustics + parallax gradient (khong doi layout).
-	TiltMaxDeg = 0,
-	TiltSmooth = 7,
-	ParallaxInner = 9,
-	ShadowShiftX = 12,
-	ShadowShiftY = 9,
-	ShimmerSpeed = 0.32,
-	ShimmerAmpDeg = 16,
-	BreathingAmp = 0,
-	BreathingSpeed = 1.0,
-	-- Tat phong to khi hover/nhan element: bam lam func to ra gay cam giac loi.
-	-- Giu ripple + vien sang lam feedback. Muon mo lai: dat 1.022 / 0.972.
-	HoverScale = 1,
-	PressScale = 1,
-	RippleTime = 0.55,
-	-- DO DUC KHI MO / DONG TRONG SUOT (0 = dac nhu hinh 2, 1 = trong nhu cu)
-	-- Hinh loi: gradient Top 0.85/Bottom 0.70 qua trong -> chu bi chim vao background.
-	-- Mac dinh moi: 0.38 / 0.30 / 0.22 (duc vua, giong hinh mau thu 2).
-	GlassOpacity = 0.60,
-	GlassTop = 0.38,
-	GlassMid = 0.30,
-	GlassBottom = 0.22,
-}
-Glass._Surfaces3D = Glass._Surfaces3D or {}
-Glass._Loop3D = Glass._Loop3D or nil
-Glass._Mouse3D = Glass._Mouse3D or Vector2.new(0, 0)
-Glass._Tilt3D = Glass._Tilt3D or Vector2.new(0, 0)
-Glass._Time03D = Glass._Time03D or os.clock()
-
-local function LG3D_Clamp01(x) if x < 0 then return 0 elseif x > 1 then return 1 end return x end
-local function LG3D_Lerp(a, b, t) return a + (b - a) * t end
-local function LG3D_Find(parent, name, class)
-	if not parent then return nil end
-	local c = parent:FindFirstChild(name)
-	if c and (not class or c:IsA(class)) then return c end
-	return nil
-end
-
--- Shadow that (UIShadow) — de Glass.Shadow cu van chay, them ban that
-function Glass.ShadowUI(parent, Props)
-	Props = Props or {}
-	local ok, sh = pcall(Instance.new, "UIShadow")
-	if ok and sh and typeof(sh) == "Instance" and sh:IsA("UIShadow") then
-		sh.Name = Props.Name or "GlassShadowUI"
-		sh.BlurRadius = UDim.new(0, Props.Blur or 26)
-		sh.Spread = UDim2.fromOffset(Props.SpreadX or Props.Spread or 10, Props.SpreadY or Props.Spread or 10)
-		sh.Offset = UDim2.fromOffset(Props.OffsetX or 0, Props.OffsetY or 8)
-		sh.Transparency = Props.Transparency or 0.55
-		sh.Color = Props.Color or Color3.fromRGB(0, 0, 0)
-		sh.ZIndex = Props.ZIndex or -1
-		sh.Parent = parent
-		return sh
-	end
-	Props.Parent = parent
-	return Glass.Shadow(Props)
-end
-
--- Caustics: 2 lop UIGradient (dai sang cheo + highlight tron theo chuot)
-function Glass.Caustics(surfaceFrame, Radius)
-	if not surfaceFrame or LG3D_Find(surfaceFrame, "LiquidCaustics", "Frame") then return nil end
-	Radius = Radius or Glass.Radius.Window
-	local ca = New("Frame", {
-		Name = "LiquidCaustics", Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0,
-		Interactable = false, ZIndex = 3,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius) }),
-		New("UIGradient", {
-			Name = "CausticsA", Rotation = 28,
-			Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(200, 230, 255)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 235, 220)),
-			}),
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 1),
-				NumberSequenceKeypoint.new(0.30, 0.93),
-				NumberSequenceKeypoint.new(0.50, 0.88),
-				NumberSequenceKeypoint.new(0.70, 0.93),
-				NumberSequenceKeypoint.new(1.00, 1),
-			}),
-		}),
-	})
-	local mouse = New("UIGradient", {
-		Name = "CausticsMouse", Rotation = 90,
-		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(180, 210, 255)),
-		}),
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0.00, 0.82),
-			NumberSequenceKeypoint.new(0.45, 0.96),
-			NumberSequenceKeypoint.new(1.00, 1),
-		}),
-		Offset = Vector2.new(0, -0.25),
-		Parent = ca,
-	})
-	pcall(function()
-		if Glass.HasRadialGradient then mouse.Type = Enum.GradientType.Radial end
-	end)
-	ca.Parent = surfaceFrame
-	return ca
-end
-
--- Vach sang dinh song (thay TopLight tinh): cong theo chuot
-function Glass.LiveTopLight(surfaceFrame, Inset)
-	if not surfaceFrame or LG3D_Find(surfaceFrame, "LiquidTopLight", "Frame") then return nil end
-	Inset = Inset or 24
-	local f = New("Frame", {
-		Name = "LiquidTopLight",
-		Size = UDim2.new(1, -Inset * 2, 0, 2),
-		Position = UDim2.new(0, Inset, 0, 1),
-		BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0,
-		Interactable = false, ZIndex = 4,
-	}, {
-		New("UIGradient", {
-			Name = "LiveGrad",
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 1),
-				NumberSequenceKeypoint.new(0.50, 0.10),
-				NumberSequenceKeypoint.new(1.00, 1),
-			}),
-		}),
-	})
-	f.Parent = surfaceFrame
-	return f
-end
-
--- Vong lap parallax 3D: 1 RenderStepped cho moi surface da dang ky
-function Glass.RegisterSurface3D(entry)
-	-- Tat motion: khong bao gio tao loop (tra ve bang rong, khong lam gi).
-	if not (Glass.Config3D and Glass.Config3D.Enabled) then return {} end
-	table.insert(Glass._Surfaces3D, entry)
-	if not Glass._Loop3D then
-		Glass._Loop3D = RunService.RenderStepped:Connect(function(dt)
-			if not Glass.Config3D.Enabled then return end
-			if #Glass._Surfaces3D == 0 then
-				-- Tu ngat khi khong con surface (tra lai tai nguyen)
-				local c = Glass._Loop3D
-				Glass._Loop3D = nil
-				if c then pcall(function() c:Disconnect() end) end
-				return
-			end
-			local t = os.clock() - Glass._Time03D
-			local cfg = Glass.Config3D
-			local mp = Glass._Mouse3D
-			pcall(function()
-				local loc = UserInputService:GetMouseLocation()
-				mp = Vector2.new(loc.X, loc.Y)
-				Glass._Mouse3D = mp
-			end)
-			local vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
-			local nx = LG3D_Clamp01(mp.X / math.max(vp.X, 1)) * 2 - 1
-			local ny = LG3D_Clamp01(mp.Y / math.max(vp.Y, 1)) * 2 - 1
-			local k = math.clamp(dt * cfg.TiltSmooth, 0, 1)
-			Glass._Tilt3D = Vector2.new(LG3D_Lerp(Glass._Tilt3D.X, nx, k), LG3D_Lerp(Glass._Tilt3D.Y, ny, k))
-			for i = #Glass._Surfaces3D, 1, -1 do
-				local s = Glass._Surfaces3D[i]
-				local gui = s.Gui
-				if not gui or not gui.Parent then
-					table.remove(Glass._Surfaces3D, i)
-				elseif gui.Visible then
-					local lx, ly = Glass._Tilt3D.X, Glass._Tilt3D.Y
-					pcall(function()
-						local c = gui.AbsolutePosition + gui.AbsoluteSize / 2
-						if gui.AbsoluteSize.X > 1 then
-							lx = math.clamp((mp.X - c.X) / (gui.AbsoluteSize.X * 0.5), -1, 1)
-							ly = math.clamp((mp.Y - c.Y) / (gui.AbsoluteSize.Y * 0.5), -1, 1)
-						end
-					end)
-					if s.IsWindow and s.Root then
-						local target = lx * cfg.TiltMaxDeg * 0.45
-						s.Root.Rotation = LG3D_Lerp(s.Root.Rotation, (s.BaseRot or 0) + target, math.clamp(dt * 6, 0, 1))
-					end
-					if s.CausticsA then
-						local wob = math.sin(t * cfg.ShimmerSpeed * math.pi * 2) * cfg.ShimmerAmpDeg
-						s.CausticsA.Rotation = (s.BaseCausticsRot or 28) + wob + lx * 14
-						s.CausticsA.Offset = Vector2.new(lx * 0.08 + math.sin(t * 0.7) * 0.04, ly * 0.08 + math.cos(t * 0.55) * 0.04)
-					end
-					if s.CausticsMouse then
-						s.CausticsMouse.Offset = Vector2.new(lx * 0.28, -0.25 + ly * 0.28)
-						s.CausticsMouse.Rotation = 90 + lx * 22
-					end
-					if s.TopLightGrad then
-						s.TopLightGrad.Offset = Vector2.new(lx * 0.22, 0)
-					end
-					if s.TopLight then
-						s.TopLight.Position = UDim2.new(0, (s.TopBaseX or 24) - lx * cfg.ParallaxInner * 0.35, 0, 1 - ly * 1.2)
-					end
-					if s.RimGrad then
-						s.RimGrad.Rotation = (s.BaseRimRot or 90) + lx * 12
-					end
-					if s.BreatheScale then
-						s.BreatheScale.Scale = 1 + math.sin(t * cfg.BreathingSpeed * math.pi * 2) * cfg.BreathingAmp
-					end
-					if s.Shadow and typeof(s.Shadow) == "Instance" and s.Shadow:IsA("UIShadow") then
-						s.Shadow.Offset = UDim2.fromOffset((s.ShadowBaseX or 0) + Glass._Tilt3D.X * cfg.ShadowShiftX, (s.ShadowBaseY or 10) + Glass._Tilt3D.Y * cfg.ShadowShiftY)
-					end
-				end
-			end
-		end)
-	end
-	return entry
-end
-
--- Gan 3D cho nen kinh (goi sau khi tao AcrylicFrame / Window.Root)
-function Glass.AttachWindow3D(window, acrylicFrame)
-	if not window or not window.Root then return nil end
-	local root = window.Root
-	acrylicFrame = acrylicFrame or LG3D_Find(root, "AcrylicFrame") or root
-	local breathe = LG3D_Find(acrylicFrame, "LiquidBreathe", "UIScale")
-	if not breathe then
-		breathe = New("UIScale", { Name = "LiquidBreathe", Scale = 1, Parent = acrylicFrame })
-	end
-	for _, s in ipairs(Glass._Surfaces3D) do
-		if s.Gui == acrylicFrame then return s end
-	end
-	local sh = Glass.ShadowUI(acrylicFrame, { Blur = 30, SpreadX = 10, SpreadY = 10, OffsetY = 12, Transparency = 0.5, ZIndex = -1 })
-	-- Neu tao duoc UIShadow that thi xoa slice cu tren Root (tranh 2 bong chong nhau qua dam)
-	if sh and typeof(sh) == "Instance" and sh:IsA("UIShadow") then
-		local slice = LG3D_Find(root, "GlassShadow", "ImageLabel")
-		if slice then pcall(function() slice:Destroy() end) end
-		-- AttachWindow3D co the duoc goi 2 lan (hook + pcall) -> xoa UIShadow thua
-		for _, c in ipairs(acrylicFrame:GetChildren()) do
-			if c ~= sh and c:IsA("UIShadow") and c.Name == "GlassShadowUI" then
-				pcall(function() c:Destroy() end)
-			end
-		end
-	end
-	local ca = Glass.Caustics(acrylicFrame, Glass.Radius.Window)
-	-- TAI DUNG vach GlassTopLight co san (da co LiveGrad) thay vi tao them
-	local tl = LG3D_Find(acrylicFrame, "LiquidTopLight", "Frame")
-		or LG3D_Find(acrylicFrame, "GlassTopLight", "Frame")
-		or Glass.LiveTopLight(acrylicFrame, 24)
-	local rimGrad = nil
-	local rim = LG3D_Find(acrylicFrame, "GlassRim", "Frame")
-	if rim then
-		local st = rim:FindFirstChildWhichIsA("UIStroke")
-		if st then rimGrad = st:FindFirstChildWhichIsA("UIGradient") end
-	end
-	local entry = Glass.RegisterSurface3D({
-		Gui = acrylicFrame, Root = root, IsWindow = true, BaseRot = root.Rotation,
-		CausticsA = ca and ca:FindFirstChild("CausticsA"),
-		CausticsMouse = ca and ca:FindFirstChild("CausticsMouse"),
-		BaseCausticsRot = 28,
-		TopLight = tl, TopLightGrad = tl and tl:FindFirstChild("LiveGrad"), TopBaseX = 24,
-		Shadow = sh, ShadowBaseX = 0, ShadowBaseY = 12,
-		RimGrad = rimGrad, BaseRimRot = 90, BreatheScale = breathe,
-	})
-	Glass.PopIn(root)
-	pcall(function()
-		root:GetPropertyChangedSignal("Visible"):Connect(function()
-			if root.Visible then Glass.PopIn(root) end
-		end)
-		root.Destroying:Connect(function()
-			for i, s in ipairs(Glass._Surfaces3D) do
-				if s.Gui == acrylicFrame then table.remove(Glass._Surfaces3D, i) break end
-			end
-		end)
-	end)
-	return entry
-end
-
--- Mo cua so: HIEN NGAY, khong scale/fade (tung gay giat phong to).
-function Glass.PopIn(gui, scaleFrom)
-	if not gui then return end
-	pcall(function()
-		local sc = LG3D_Find(gui, "LiquidPop", "UIScale")
-		if sc then sc.Scale = 1 end
-		if gui:IsA("CanvasGroup") then gui.GroupTransparency = 0 end
-	end)
-end
-
--- Hover / nhan / ripple cho element (Liquid Glass 3D micro-interaction)
--- UPGRADE 2026: them phat sang vien (UIStroke glow) + ClipsDescendants an toan
--- cho ripple. Chi dung UIScale/UIGradient/UIStroke -> khong pha AutomaticSize.
-Glass._Magnetic3D = Glass._Magnetic3D or {}
-function Glass.Magnetic(frame, opts)
-	-- Tat hoan toan: khong scale/glow/ripple khi hover-nhan (tung gay loi
-	-- phong to). Giu ham de cac cho goi cu khong loi.
-end
-
--- Gan hieu ung 3D nhe cho panel phu (dialog/dropdown/notify): caustics chay +
--- top-light song theo chuot + breathing + UIShadow that. Khong xoay Root nhu
--- window (panel nho xoay se chong mat), chi parallax ben trong.
-function Glass.AttachPanel3D(panelFrame, radius)
-	if not panelFrame then return nil end
-	for _, s in ipairs(Glass._Surfaces3D) do
-		if s.Gui == panelFrame then return s end
-	end
-	radius = radius or Glass.Radius.Card
-	-- Dam bao co du lop dong (neu panel tao tu code cu thieu)
-	pcall(function()
-		if not LG3D_Find(panelFrame, "LiquidCaustics", "Frame") then
-			Glass.Caustics(panelFrame, radius)
-		end
-	end)
-	local ca = LG3D_Find(panelFrame, "LiquidCaustics", "Frame")
-	local tl = LG3D_Find(panelFrame, "LiquidTopLight", "Frame")
-		or LG3D_Find(panelFrame, "GlassTopLight", "Frame")
-	local rimGrad = nil
-	local rim = LG3D_Find(panelFrame, "GlassRim", "Frame")
-	if rim then
-		local st = rim:FindFirstChildWhichIsA("UIStroke")
-		if st then rimGrad = st:FindFirstChildWhichIsA("UIGradient") end
-	end
-	local breathe = LG3D_Find(panelFrame, "LiquidBreathe", "UIScale")
-	if not breathe then
-		breathe = New("UIScale", { Name = "LiquidBreathe", Scale = 1, Parent = panelFrame })
-	end
-	local sh = nil
-	pcall(function()
-		for _, c in ipairs(panelFrame:GetChildren()) do
-			if c:IsA("UIShadow") then sh = c break end
-		end
-		if not sh then
-			sh = Glass.ShadowUI(panelFrame, { Blur = 26, SpreadX = 8, SpreadY = 8, OffsetY = 10, Transparency = 0.5, ZIndex = -1 })
-		end
-	end)
-	return Glass.RegisterSurface3D({
-		Gui = panelFrame, Root = nil, IsWindow = false,
-		CausticsA = ca and ca:FindFirstChild("CausticsA"),
-		CausticsMouse = ca and ca:FindFirstChild("CausticsMouse"),
-		BaseCausticsRot = 28,
-		TopLight = tl, TopLightGrad = tl and tl:FindFirstChild("LiveGrad"), TopBaseX = 16,
-		Shadow = sh, ShadowBaseX = 0, ShadowBaseY = 10,
-		RimGrad = rimGrad, BaseRimRot = 90, BreatheScale = nil,
-	})
-end
-
--- Tat ripple (khong lan song khi bam). Giu ham de khong loi cho goi cu.
-function Glass.Ripple(frame)
-end
-
 -- Bong do mem phong cach liquid glass (9-slice hollow soft shadow, khong loi nen thua)
 function Glass.Shadow(Props)
 	Props = Props or {}
@@ -2925,42 +2578,9 @@ function Glass.Shadow(Props)
 	})
 end
 
--- UPGRADE: Glass.Shadow doi sang UIShadow that khi co Parent that.
-do
-	local SliceBuilder = Glass.Shadow
-	function Glass.Shadow(Props)
-		Props = Props or {}
-		if Props.Parent then
-			local ok, sh = pcall(Instance.new, "UIShadow")
-			if ok and sh and typeof(sh) == "Instance" and sh:IsA("UIShadow") then
-				sh.Name = "GlassShadowUI"
-				sh.BlurRadius = UDim.new(0, Props.Blur or 26)
-				sh.Spread = UDim2.fromOffset(Props.SpreadX or Props.Spread or 10, Props.SpreadY or Props.Spread or 10)
-				sh.Offset = UDim2.fromOffset(Props.OffsetX or 0, Props.OffsetY or 8)
-				sh.Transparency = Props.Transparency or 0.55
-				sh.Color = Props.Color or Color3.fromRGB(0, 0, 0)
-				sh.ZIndex = Props.ZIndex or -1
-				sh.Parent = Props.Parent
-				return sh
-			end
-		end
-		return SliceBuilder(Props)
-	end
-end
-
 -- Gradient do trong suot: trong suot pha le long cao (Liquid Glass Gradient iOS 27)
 -- Ho tro ca 2 cach goi: Glass.TransparencyGradient({ Top = ..., Parent = ... })
 -- va Glass.TransparencyGradient(Instance, Top, Mid, Bottom)
--- MOI: tu dong cong `Glass.Config3D.GlassOpacity` de tang giam do duc tap trung.
---   Opacity 0..1: 0 = giu nguyen gia tri truyen vao (trong), 1 = gan nhu dac.
---   Cong thuc: T' = clamp(T - Opacity * (1 - T) * 1.6, 0, 1)
---   Vi du T=0.85, Opacity=0.62 -> T' ~ 0.38 (duc vua nhu hinh mau).
-function Glass.ApplyOpacity(T)
-	local o = Glass.Config3D and Glass.Config3D.GlassOpacity or 0
-	if not o or o <= 0 then return T end
-	if T >= 1 then return 1 end
-	return math.clamp(T - o * (1 - T) * 1.6, 0, 1)
-end
 function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 	local Parent, Top, Mid, Bottom, Rotation, MidKeypoint
 	if typeof(Props) == "Instance" then
@@ -2980,16 +2600,6 @@ function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 		MidKeypoint = Props.MidKeypoint or 0.45
 	end
 
-	-- Ap opacity tap trung (co the tat bang GlassOpacity = 0).
-	-- Props.Raw = true -> giu nguyen gia tri goc (dung cho tooltip/hieu ung nhe).
-	local Raw = (typeof(Props) ~= "Instance") and Props.Raw
-	local RawTop, RawMid, RawBottom = Top, Mid, Bottom
-	if not Raw then
-		Top = Glass.ApplyOpacity(Top)
-		Mid = Glass.ApplyOpacity(Mid)
-		Bottom = Glass.ApplyOpacity(Bottom)
-	end
-
 	local Grad = New("UIGradient", {
 		Name         = "GlassTransparencyGradient",
 		Rotation     = Rotation,
@@ -3002,75 +2612,7 @@ function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 	if Parent then
 		Grad.Parent = Parent
 	end
-	-- Luu gia tri GOC (truoc opacity) + MidKeypoint de SetOpacity tinh lai chuan
-	Grad:SetAttribute("RawTop", RawTop)
-	Grad:SetAttribute("RawMid", RawMid)
-	Grad:SetAttribute("RawBottom", RawBottom)
-	Grad:SetAttribute("RawMidPos", MidKeypoint)
 	return Grad
-end
-
--- Doi do duc TOAN BO UI ngay lap tuc (khong can tao lai window).
---   Opacity 0..1: 0 = trong suot toi da (nhu cu), 1 = dac gan nhu khong thay nen.
---   Goi y theo hinh mau thu 2: 0.55 - 0.7.
-function Glass.SetOpacity(Opacity)
-	Opacity = math.clamp(tonumber(Opacity) or 0.62, 0, 1)
-	Glass.Config3D.GlassOpacity = Opacity
-	local function apply(T)
-		if T >= 1 then return 1 end
-		return math.clamp(T - Opacity * (1 - T) * 1.6, 0, 1)
-	end
-	for _, gui in ipairs(game:GetService("CoreGui"):GetDescendants()) do
-		if gui:IsA("Frame") and gui.Name == "GlassMilk" then
-			gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.30, 0.50, 1)
-		end
-		if gui:IsA("UIGradient") and gui.Name == "GlassTransparencyGradient" then
-			local rt = gui:GetAttribute("RawTop")
-			local rm = gui:GetAttribute("RawMid")
-			local rb = gui:GetAttribute("RawBottom")
-			local mp = gui:GetAttribute("RawMidPos") or 0.45
-			if rt == nil then
-				-- Gradient cu (tao truoc ban nay) khong co attribute:
-				-- dung gia tri hien tai lam goc (chuan vi chua tung bi ap 2 lan
-				-- theo kieu moi; co the hoi lech nhung khong nhay dot ngot).
-				local ks = gui.Transparency.Keypoints
-				if #ks >= 3 then
-					rt, rm, rb = ks[1].Value, ks[2].Value, ks[3].Value
-					mp = ks[2].Time
-				else
-					continue
-				end
-				gui:SetAttribute("RawTop", rt)
-				gui:SetAttribute("RawMid", rm)
-				gui:SetAttribute("RawBottom", rb)
-				gui:SetAttribute("RawMidPos", mp)
-			end
-			gui.Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, apply(rt)),
-				NumberSequenceKeypoint.new(mp, apply(rm or rt)),
-				NumberSequenceKeypoint.new(1.00, apply(rb or rt)),
-			})
-		end
-	end
-	-- Lop sua phu theo do duc (blur that da go)
-	if Library and Library.GUI then
-		pcall(function()
-			for _, gui in ipairs(Library.GUI:GetDescendants()) do
-				if gui:IsA("Frame") and gui.Name == "GlassMilk" then
-					gui.BackgroundTransparency = math.clamp(1 - Opacity * 0.30, 0.50, 1)
-				end
-			end
-		end)
-	end
-	-- Dong bo thanh keo trong Settings neu co
-	if Library and Library.Options and Library.Options.GlassOpacity then
-		pcall(function()
-			local o = Library.Options.GlassOpacity
-			if o.Value ~= math.floor(Opacity * 100 + 0.5) then
-				o:SetValue(math.floor(Opacity * 100 + 0.5))
-			end
-		end)
-	end
 end
 
 -- (1)+(2) VANH KHUC XA + TAN SAC QUANG HOC (Chromatic Aberration Rim)
@@ -3246,7 +2788,6 @@ function Glass.RimLayer(Radius, Props)
 end
 
 -- Vach sang mong sat canh tren (specular line)
--- Doi ten gradient thanh "LiveGrad" de vong lap 3D dich duoc ve sang theo chuot.
 function Glass.TopLight(Props)
 	Props = Props or {}
 	local Inset = Props.Inset or 20
@@ -3260,7 +2801,6 @@ function Glass.TopLight(Props)
 		ZIndex                 = Props.ZIndex or 4,
 	}, {
 		New("UIGradient", {
-			Name = "LiveGrad",
 			Transparency = NumberSequence.new({
 				NumberSequenceKeypoint.new(0.00, 1),
 				NumberSequenceKeypoint.new(0.15, Props.Transparency or 0.18),
@@ -3292,9 +2832,6 @@ function Glass.Tint(Radius, Props)
 end
 
 -- Lop hat mo phong be mat kinh nham sieu min (frosted glass micro-noise)
--- UPGRADE KINH DUC 2026: mac dinh duc hon (0.88 thay vi 0.96), hat min hon
--- (96px), them ImageColor3 trang de hat noi ro tren ca theme toi. Chi dung
--- ImageLabel + UICorner -> khong anh huong layout, khong chan chuot.
 function Glass.Frost(Radius, Props)
 	Props = Props or {}
 	return New("ImageLabel", {
@@ -3302,488 +2839,15 @@ function Glass.Frost(Radius, Props)
 		Size                   = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 		Image                  = "rbxassetid://9968344227",
-		ImageColor3            = Props.Color or Color3.fromRGB(255, 255, 255),
-		ImageTransparency      = Props.Transparency or 0.88,
+		ImageTransparency      = Props.Transparency or 0.96,
 		ScaleType              = Enum.ScaleType.Tile,
-		TileSize               = Props.Tile or UDim2.fromOffset(96, 96),
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 1,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
-	})
-end
-
--- Bong trong tao chieu sau 3D cho kinh duc (inner shadow): vien duoi toi dan,
--- vien tren sang. Dung UIStroke Gradient (UIComponent) + Frame mo 2 dau nen
--- KHONG anh layout. Chi gan cho container CO DINH (window/dialog/dropdown).
-function Glass.InnerShadow(Radius, Props)
-	Props = Props or {}
-	local R = Radius or Glass.Radius.Window
-	return New("Frame", {
-		Name                   = "GlassInnerShadow",
-		Size                   = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 2,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-		New("UIStroke", {
-			Thickness       = Props.Thickness or 2,
-			Transparency    = Props.Transparency or 0.55,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color           = Props.Color or Color3.fromRGB(10, 18, 32),
-		}, {
-			New("UIGradient", {
-				Rotation = 90,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.85),
-					NumberSequenceKeypoint.new(0.55, 0.92),
-					NumberSequenceKeypoint.new(1.00, 0.15),
-				}),
-			}),
-		}),
-	})
-end
-
--- Lop day kinh duc (depth tint): nua duoi dam hon nua tren de tam kinh co
--- do day nhu kinh that. Frame trong suot + UIGradient mau den/trang.
-function Glass.Depth(Radius, Props)
-	Props = Props or {}
-	local R = Radius or Glass.Radius.Window
-	return New("Frame", {
-		Name                   = "GlassDepth",
-		Size                   = UDim2.fromScale(1, 1),
-		BackgroundColor3       = Props.Color or Color3.fromRGB(10, 20, 40),
-		BackgroundTransparency = 0,
+		TileSize               = UDim2.fromOffset(128, 128),
 		Interactable           = false,
 		ZIndex                 = Props.ZIndex or 0,
 	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-		New("UIGradient", {
-			Rotation = 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.96),
-				NumberSequenceKeypoint.new(0.55, 0.90),
-				NumberSequenceKeypoint.new(1.00, 0.72),
-			}),
-		}),
-	})
-end
-
--- Anh xa cong 2 mat (dual specular): mat tren sang manh + phan xa day mo.
--- Thay the Specular 1 lop cu cho window/dialog/dropdown (kinh duc can ca 2).
-function Glass.DualSpecular(Radius, Props)
-	Props = Props or {}
-	local R = Radius or Glass.Radius.Window
-	local top = New("Frame", {
-		Name                   = "GlassSpecularTop",
-		Size                   = UDim2.new(1, 0, 0.42, 0),
-		Position               = UDim2.fromScale(0, 0),
-		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 0,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 3,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-		New("UIGradient", {
-			Rotation = 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, Props.Top or 0.78),
-				NumberSequenceKeypoint.new(0.45, Props.Mid or 0.92),
-				NumberSequenceKeypoint.new(1.00, 1.00),
-			}),
-		}),
-	})
-	local bottom = New("Frame", {
-		Name                   = "GlassSpecularBottom",
-		Size                   = UDim2.new(1, 0, 0.22, 0),
-		Position               = UDim2.new(0, 0, 0.78, 0),
-		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 0,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 3,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-		New("UIGradient", {
-			Rotation = 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 1.00),
-				NumberSequenceKeypoint.new(0.55, 0.94),
-				NumberSequenceKeypoint.new(1.00, Props.BottomBounce or 0.82),
-			}),
-		}),
-	})
-	return top, bottom
-end
-
--- ─────────────────────────────────────────────────────────────
--- KIEU DEMO-NIGHTHUB: mep kinh vat bang 3 UIStroke long nhau (moi lop thut
--- 1px, bo goc giam dan, gradient nguoc nhau) + vien sac sai chromatic +
--- lop sua Milk + blur that. Bo han bevel bang Part 3D (hinh chu nhat khong
--- the cat theo UICorner -> goc luon tran ra thanh dau nhon).
--- Tat ca TINH, khong animation.
--- ─────────────────────────────────────────────────────────────
-local function BevelRimFrame(parent, inset, radius, zidx)
-	return New("Frame", {
-		BackgroundTransparency = 1,
-		BorderSizePixel = 0,
-		Position = UDim2.fromOffset(inset, inset),
-		Size = UDim2.new(1, -inset * 2, 1, -inset * 2),
-		Interactable = false,
-		ZIndex = zidx or 5,
-		Parent = parent,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, math.max(radius - inset, 2)) }),
-	})
-end
-
--- Vien vat 3 lop: ngoai sang-mo xen ke, giua vach sang hep, trong toi dan.
-function Glass.RimBevel(Radius, Props)
-	Props = Props or {}
-	local R = Radius or Glass.Radius.Window
-	local Z = Props.ZIndex or 5
-	local root = New("Frame", {
-		Name = "GlassBevel",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Interactable = false,
-		ZIndex = Z,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-	})
-	local outer = BevelRimFrame(root, 0, R, Z)
-	New("UIStroke", {
-		Thickness = 1.5,
-		Color = Color3.fromRGB(255, 255, 255),
-		Transparency = 0.30,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		LineJoinMode = Enum.LineJoinMode.Round,
-		Parent = outer,
-	}, {
-		New("UIGradient", {
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.15),
-				NumberSequenceKeypoint.new(0.20, 0.75),
-				NumberSequenceKeypoint.new(0.50, 0.10),
-				NumberSequenceKeypoint.new(0.80, 0.75),
-				NumberSequenceKeypoint.new(1.00, 0.15),
-			}),
-		}),
-	})
-	local mid = BevelRimFrame(root, 1, R, Z)
-	New("UIStroke", {
-		Thickness = 1.0,
-		Color = Color3.fromRGB(255, 255, 255),
-		Transparency = 0.50,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		LineJoinMode = Enum.LineJoinMode.Round,
-		Parent = mid,
-	}, {
-		New("UIGradient", {
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 1),
-				NumberSequenceKeypoint.new(0.38, 1),
-				NumberSequenceKeypoint.new(0.50, 0.05),
-				NumberSequenceKeypoint.new(0.62, 1),
-				NumberSequenceKeypoint.new(1.00, 1),
-			}),
-		}),
-	})
-	local inner = BevelRimFrame(root, 2, R, Z)
-	New("UIStroke", {
-		Thickness = 1.0,
-		Color = Color3.fromRGB(0, 0, 0),
-		Transparency = 0.45,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		LineJoinMode = Enum.LineJoinMode.Round,
-		Parent = inner,
-	}, {
-		New("UIGradient", {
-			Rotation = 90,
-			Color = ColorSequence.new({
-				ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255)),
-			}),
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.0, 0.40),
-				NumberSequenceKeypoint.new(0.5, 1.00),
-				NumberSequenceKeypoint.new(1.0, 0.60),
-			}),
-		}),
-	})
-	return root
-end
-
--- Sac sai chromatic: 2 vien do/xanh lech 1px (khuc xa mep kinh).
-function Glass.Fringe(Radius, Props)
-	Props = Props or {}
-	local R = Radius or Glass.Radius.Window
-	local Z = Props.ZIndex or 5
-	local root = New("Frame", {
-		Name = "GlassFringe",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Interactable = false,
-		ZIndex = Z,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-	})
-	local function fringe(col, ox, oy)
-		local f = New("Frame", {
-			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
-			Position = UDim2.fromOffset(ox, oy),
-			Size = UDim2.new(1, -math.abs(ox), 1, -math.abs(oy)),
-			Interactable = false,
-			ZIndex = Z,
-			Parent = root,
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, math.max(R - 1, 2)) }),
-		})
-		New("UIStroke", {
-			Thickness = 1,
-			Color = col,
-			Transparency = 0.68,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			LineJoinMode = Enum.LineJoinMode.Round,
-			Parent = f,
-		})
-	end
-	fringe(Color3.fromRGB(255, 60, 80), -1, -1)
-	fringe(Color3.fromRGB(60, 200, 255), 1, 1)
-	return root
-end
-
--- Do duc cua lop sua theo GlassOpacity (nhat, chi hoi sua).
-function Glass.MilkOpacity()
-	local o = Glass.Config3D and Glass.Config3D.GlassOpacity
-	if o == nil then o = 0.60 end
-	return math.clamp(1 - o * 0.30, 0.50, 1)
-end
-
--- Lop sua trang-xanh tao cam giac "kinh sua" khi duc cao (nam tren frost).
-function Glass.Milk(Radius, Props)
-	Props = Props or {}
-	return New("Frame", {
-		Name = "GlassMilk",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Color3.fromRGB(200, 210, 230),
-		BackgroundTransparency = Glass.MilkOpacity(),
-		BorderSizePixel = 0,
-		Interactable = false,
-		ZIndex = Props.ZIndex or 1,
-	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
 	})
 end
-
--- Blur that: DA GO (gay mo toan man hinh ke ca khi minimize UI nen cam
--- giac nhu vinh vien). Giu ham rong de code cu goi khong loi.
-Glass._BlurFx = nil
-function Glass.ApplyFrostBlur(Opacity)
-	return
-end
-
--- Don blur that con sot tu ban 1.5.0 (neu session cu de lai trong Lighting)
-pcall(function()
-	local lighting = game:GetService("Lighting")
-	for _, fx in ipairs(lighting:GetChildren()) do
-		if fx:IsA("BlurEffect") and fx.Name == "GlassFrostBlur" then
-			pcall(function() fx.Enabled = false end)
-			pcall(function() fx:Destroy() end)
-		end
-	end
-end)
-
--- ─────────────────────────────────────────────────────────────
--- LOP KINH THAT (demo-nighthub): 2 tam Part (Glass khuc xa that + Neon tint
--- tao chieu sau) chieu theo viewport bang camera:ViewportPointToRay (API
--- chuan, tu xu ly FOV/aspect) + DOF nhe dung tieu cu o mat kinh.
--- Khong dung bevel Part (tran goc), khong BlurEffect (tung bi cam), khong
--- animation: RenderStepped chi TRACK vi tri (bo qua khi khong doi).
--- Tat ca pcall + tu don khi destroy/re-execute.
--- ─────────────────────────────────────────────────────────────
-local Lens = {
-	Folder = nil,
-	Glass = nil,
-	Tint = nil,
-	DOF = nil,
-	Conn = nil,
-	Window = nil,
-	Enabled = true,
-	Depth = 2.0,
-	LastPos = nil,
-	LastSize = nil,
-	LastCF = nil,
-	LastVis = nil,
-}
-
-function Lens.FrostV()
-	return (Glass.Config3D and Glass.Config3D.GlassOpacity) or 0.60
-end
-
-function Lens.Sweep()
-	pcall(function()
-		local cam = game:GetService("Workspace").CurrentCamera
-		if cam then
-			local old = cam:FindFirstChild("GlassLens")
-			if old then old:Destroy() end
-		end
-	end)
-	pcall(function()
-		local lighting = game:GetService("Lighting")
-		for _, fx in ipairs(lighting:GetChildren()) do
-			if fx:IsA("DepthOfFieldEffect") and fx.Name == "GlassLensDOF" then
-				fx:Destroy()
-			end
-		end
-	end)
-end
-
-function Lens.Hide()
-	pcall(function()
-		if Lens.Glass then Lens.Glass.Transparency = 1 end
-		if Lens.Tint then Lens.Tint.Transparency = 1 end
-		if Lens.DOF then Lens.DOF.Enabled = false end
-	end)
-end
-
-function Lens.SetEnabled(v)
-	Lens.Enabled = v and true or false
-	if not Lens.Enabled then
-		Lens.LastVis = false
-		Lens.Hide()
-	else
-		Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
-	end
-end
-
-function Lens.Track(window)
-	Lens.Window = window
-	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
-end
-
-function Lens.VpToWorld(px, py, depth)
-	-- ScreenPointToRay cung he toa do voi AbsolutePosition cua GUI thuong
-	-- (da gom GuiInset) -> khop panel. ViewportPointToRay + tru inset tay
-	-- da lam lens lech len tren o ban 1.6.0.
-	local cam = game:GetService("Workspace").CurrentCamera
-	local ray = cam:ScreenPointToRay(px, py)
-	local denom = ray.Direction:Dot(cam.CFrame.LookVector)
-	if math.abs(denom) < 1e-6 then return nil end
-	return ray.Origin + ray.Direction * (depth / denom)
-end
-
-function Lens.Tick()
-	local w = Lens.Window
-	local vis = Lens.Enabled and w and w.Root and w.Root.Visible and w.Root.Parent and true or false
-	if not vis then
-		if Lens.LastVis ~= false then Lens.Hide() end
-		Lens.LastVis = false
-		return
-	end
-	local okR, pos, size = pcall(function()
-		return w.Root.AbsolutePosition, w.Root.AbsoluteSize
-	end)
-	if not okR or not pos or not size or size.X < 2 or size.Y < 2 then
-		if Lens.LastVis ~= false then Lens.Hide() end
-		Lens.LastVis = false
-		return
-	end
-	local okC, cam = pcall(function() return game:GetService("Workspace").CurrentCamera end)
-	if not okC or not cam then return end
-	local cf = cam.CFrame
-	if Lens.LastVis == true and Lens.LastPos == pos and Lens.LastSize == size and Lens.LastCF == cf then
-		return
-	end
-	-- Dung thang AbsolutePosition, KHONG tru GuiInset (tru la lech kinh).
-	local cx = pos.X + size.X * 0.5
-	local cy = pos.Y + size.Y * 0.5
-	local depth = Lens.Depth
-	local ok, wc, wr, wd = pcall(function()
-		return Lens.VpToWorld(cx, cy, depth),
-			Lens.VpToWorld(cx + size.X * 0.5, cy, depth),
-			Lens.VpToWorld(cx, cy + size.Y * 0.5, depth)
-	end)
-	if not ok or not wc or not wr or not wd then return end
-	local worldW = (wr - wc).Magnitude * 2
-	local worldH = (wd - wc).Magnitude * 2
-	if worldW <= 0 or worldH <= 0 then return end
-	local frame = CFrame.fromMatrix(wc, cf.RightVector, cf.UpVector, -cf.LookVector)
-	local fv = Lens.FrostV()
-	pcall(function()
-		if Lens.Glass and Lens.Glass.Parent then
-			Lens.Glass.Size = Vector3.new(worldW, worldH, 0.01)
-			Lens.Glass.CFrame = frame
-			Lens.Glass.Transparency = math.clamp(0.98 - fv * 0.12, 0.82, 0.98)
-		end
-		if Lens.Tint and Lens.Tint.Parent then
-			Lens.Tint.Size = Vector3.new(worldW, worldH, 0.01)
-			Lens.Tint.CFrame = frame * CFrame.new(0, 0, -0.018)
-			Lens.Tint.Transparency = math.clamp(0.99 - fv * 0.30, 0.60, 0.99)
-		end
-	end)
-	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = pos, size, cf, true
-end
-
-function Lens.Start(window)
-	Lens.Sweep()
-	Lens.Window = window
-	Lens.Enabled = true
-	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
-	local okCam, cam = pcall(function() return game:GetService("Workspace").CurrentCamera end)
-	if not okCam or not cam then return end
-	local folder = nil
-	do
-		local ok, f = pcall(Instance.new, "Folder")
-		if not ok or not f then return end
-		folder = f
-		folder.Name = "GlassLens"
-		pcall(function() folder.Parent = cam end)
-	end
-	Lens.Folder = folder
-	local function makePart(mat, col, tr)
-		local part = nil
-		pcall(function()
-			part = Instance.new("Part")
-			part.Name = "LensPane"
-			part.Material = mat
-			part.Color = col
-			part.Transparency = tr
-			part.Anchored = true
-			part.CanCollide = false
-			part.CanTouch = false
-			part.CanQuery = false
-			part.CastShadow = false
-			part.TopSurface = Enum.SurfaceType.Smooth
-			part.BottomSurface = Enum.SurfaceType.Smooth
-			part.Size = Vector3.new(1, 1, 0.01)
-			part.Parent = folder
-		end)
-		return part
-	end
-	Lens.Glass = makePart(Enum.Material.Glass, Color3.fromRGB(255, 255, 255), 0.92)
-	Lens.Tint = makePart(Enum.Material.Neon, Color3.fromRGB(18, 22, 30), 0.96)
-	-- KHONG dung DOF: no lam mo TOAN bo the gioi ngoai UI (ban 1.6.0 loi).
-	-- Kinh chi khuc xa + tint, do frost gia lap bang lop 2D co san.
-	if Lens.Conn then pcall(function() Lens.Conn:Disconnect() end) Lens.Conn = nil end
-	pcall(function()
-		Lens.Conn = RunService.RenderStepped:Connect(function() Lens.Tick() end)
-	end)
-end
-
-function Lens.Destroy()
-	if Lens.Conn then pcall(function() Lens.Conn:Disconnect() end) Lens.Conn = nil end
-	Lens.Window = nil
-	pcall(function() if Lens.Folder then Lens.Folder:Destroy() end end)
-	Lens.Folder, Lens.Glass, Lens.Tint = nil, nil, nil
-	pcall(function() if Lens.DOF then Lens.DOF:Destroy() end end)
-	Lens.DOF = nil
-	Lens.LastPos, Lens.LastSize, Lens.LastCF, Lens.LastVis = nil, nil, nil, nil
-end
-
--- Don ngay DOF + lens thua cua ban 1.6.0 khi load file (mo toan man hinh)
-pcall(function() Lens.Sweep() end)
 
 -- LayoutOrder duy nhat cho moi element/section.
 -- Truoc day tat ca deu = 7 -> UIListLayout phai dua vao thu tu child de xep,
@@ -3893,40 +2957,21 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	})
 
 	Element.Border = New("UIStroke", {
-		Thickness = 1.4,
-		Transparency = 0.12,
+		Thickness = 1.2,
+		Transparency = 0.16,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.fromRGB(255, 255, 255),
 		ThemeTag = {
 			Color = "ElementBorder",
 		},
 	}, {
-		-- vien KINH DUC: tren sang ro, giua mo, duoi hoi sang lai (phan xa day)
+		-- vien sang o canh tren, nhat dan xuong duoi (liquid glass rim)
 		New("UIGradient", {
 			Rotation = 90,
 			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.02),
-				NumberSequenceKeypoint.new(0.45, 0.55),
-				NumberSequenceKeypoint.new(0.80, 0.70),
-				NumberSequenceKeypoint.new(1.00, 0.22),
-			}),
-		}),
-	})
-
-	-- Bong trong 3D cho element (UIStroke thu 2 -> khong pha AutomaticSize).
-	-- Day toi dan = cam giac kinh co do day, tren sang = anh sang chieu xuong.
-	Element.InnerBorder = New("UIStroke", {
-		Thickness = 1,
-		Transparency = 0.70,
-		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		Color = Color3.fromRGB(10, 18, 32),
-	}, {
-		New("UIGradient", {
-			Rotation = 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.90),
-				NumberSequenceKeypoint.new(0.55, 0.95),
-				NumberSequenceKeypoint.new(1.00, 0.25),
+				NumberSequenceKeypoint.new(0.00, 0.04),
+				NumberSequenceKeypoint.new(0.55, 0.65),
+				NumberSequenceKeypoint.new(1.00, 0.28),
 			}),
 		}),
 	})
@@ -3940,7 +2985,6 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		BackgroundColor3 = Color3.fromRGB(130, 130, 130),
 		Parent = Parent,
 		AutomaticSize = Enum.AutomaticSize.Y,
-		ClipsDescendants = true,
 		Text = "",
 		LayoutOrder = ElementOrder,
 		ThemeTag = {
@@ -3950,9 +2994,8 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Glass.Radius.Element),
 		}),
-		Glass.TransparencyGradient({ Top = 0.84, Mid = 0.78, Bottom = 0.70 }),
+		Glass.TransparencyGradient({ Top = 0.5, Mid = 0.44, Bottom = 0.36 }),
 		Element.Border,
-		Element.InnerBorder,
 		Element.LabelHolder,
 	})
 
@@ -4014,7 +3057,7 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		end)
 		Creator.AddSignal(Element.Frame.MouseLeave, function()
 			TweenService:Create(Element.Border, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {
-				Transparency = 0.12,
+				Transparency = 0.28,
 			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Down, function()
@@ -4029,9 +3072,6 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		end)
 	end
 
-	-- LIQUID GLASS 3D: hover nay + nhan + ripple (an toan, co pcall)
-	pcall(function() Glass.Magnetic(Element.Frame) end)
-
 	return Element
 end
 
@@ -4043,24 +3083,14 @@ Components.Section = function(Title, Parent)
 	Section.Layout = New("UIListLayout", {
 		Padding = UDim.new(0, 6),
 		SortOrder = Enum.SortOrder.LayoutOrder,
-		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 	})
 
-	-- FIX TRAN XUONG DUOI (2026): dung AutomaticSize.Y lam nguon su that,
-	-- signal chi la fallback cho client cu. Container bat dau tu H=0 (khong
-	-- con `0,26` de khoi de len section sau trong 1-2 frame dau), Root cung
-	-- tu dong cao theo. ClipsDescendants=false de bong/ripple khong bi cat.
 	Section.Container = New("Frame", {
-		Size = UDim2.new(1, 0, 0, 0),
+		Size = UDim2.new(1, 0, 0, 26),
 		Position = UDim2.fromOffset(0, 26),
 		BackgroundTransparency = 1,
-		AutomaticSize = Enum.AutomaticSize.Y,
-		ClipsDescendants = false,
 	}, {
 		Section.Layout,
-		New("UIPadding", {
-			PaddingBottom = UDim.new(0, 2),
-		}),
 	})
 
 	local SectionOrder = NextLayoutOrder()
@@ -4097,8 +3127,6 @@ Components.Section = function(Title, Parent)
 	Section.Root = New("Frame", {
 		BackgroundTransparency = 1,
 		Size = UDim2.new(1, 0, 0, 26),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		ClipsDescendants = false,
 		LayoutOrder = SectionOrder,
 		Parent = Parent,
 	}, {
@@ -4113,29 +3141,9 @@ Components.Section = function(Title, Parent)
 		Section.TitleLabel.Text = Text
 	end
 
-	local function SyncSectionSize()
-		local h = Section.Layout.AbsoluteContentSize.Y
-		-- Giua 2 che do (AutomaticSize + set tay) de client cu van dung:
-		-- AutomaticSize.Y dam bao khong bao gio tran, set tay giu min-height.
-		pcall(function()
-			Section.Container.Size = UDim2.new(1, 0, 0, h)
-			Section.Root.Size = UDim2.new(1, 0, 0, h + 28)
-		end)
-	end
-
-	Creator.AddSignal(Section.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), SyncSectionSize)
-	-- Them/xoa element truc tiep khong phai luc nao cung kich layout signal
-	-- kip thoi (nhat la khi tab dang an) -> hook them ChildAdded/Removed.
-	Creator.AddSignal(Section.Container.ChildAdded, function() task.defer(SyncSectionSize) end)
-	Creator.AddSignal(Section.Container.ChildRemoved, function() task.defer(SyncSectionSize) end)
-	-- Sync ngay lap tuc + sau 1 frame (TextWrapped/AutomaticSize can 1 frame
-	-- moi co AbsoluteContentSize chuan). Khong co 2 dong nay thi them nhieu
-	-- element lien tuc se thay tran 1-2 frame.
-	SyncSectionSize()
-	task.defer(SyncSectionSize)
-	task.defer(function()
-		task.wait(0.1)
-		pcall(SyncSectionSize)
+	Creator.AddSignal(Section.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+		Section.Container.Size = UDim2.new(1, 0, 0, Section.Layout.AbsoluteContentSize.Y)
+		Section.Root.Size = UDim2.new(1, 0, 0, Section.Layout.AbsoluteContentSize.Y + 28)
 	end)
 	
 	return Section
@@ -4279,7 +3287,6 @@ Components.Tab = (function()
 			Size             = UDim2.new(1, 0, 0, 34),
 			BackgroundTransparency = 1,
 			Parent           = Parent,
-			ClipsDescendants = true,
 			ThemeTag         = { BackgroundColor3 = "Tab" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
@@ -4288,19 +3295,11 @@ Components.Tab = (function()
 			IconLabel,
 			TitleLabel,
 		})
-		-- LIQUID GLASS 3D micro-interaction cho tab (chi ripple + vien sang,
-		-- khong scale de khoi cam giac nut bi phong to)
-		pcall(function() Glass.Magnetic(Tab.Frame) end)
 
-		-- ── Container scroll frame: FIX TRAN + tech moi ──
-		-- AutomaticCanvasSize.Y (2024+) tu tinh canvas -> khong bao gio thieu
-		-- 1-2px day element cuoi xuong duoi / mat scrollbar. Giu signal thu
-		-- cong cho client cu chua ho tro. PaddingBottom 12 + Canvas +12 de
-		-- element cuoi khong sat day kinh.
+		-- ── Container scroll frame (unchanged) ───────────────
 		local ContainerLayout = New("UIListLayout", {
-			Padding      = UDim.new(0, 6),
+			Padding      = UDim.new(0, 5),
 			SortOrder    = Enum.SortOrder.LayoutOrder,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		})
 
 		Tab.ContainerFrame = New("ScrollingFrame", {
@@ -4312,33 +3311,25 @@ Components.Tab = (function()
 			MidImage               = "rbxassetid://6889812721",
 			TopImage               = "rbxassetid://6276641225",
 			ScrollBarImageColor3   = Color3.fromRGB(255, 255, 255),
-			ScrollBarImageTransparency = 0.65,
-			ScrollBarThickness     = 4,
+			ScrollBarImageTransparency = 0.75,
+			ScrollBarThickness     = 3,
 			BorderSizePixel        = 0,
-			CanvasSize             = UDim2.fromOffset(0, 0),
+			CanvasSize             = UDim2.fromScale(0, 0),
 			ScrollingDirection     = Enum.ScrollingDirection.Y,
-			ElasticBehavior        = Enum.ElasticBehavior.WhenScrollable,
-			ClipsDescendants       = true,
 			ThemeTag               = { ScrollBarImageColor3 = "SubText" },
 		}, {
 			ContainerLayout,
 			New("UIPadding", {
 				PaddingRight  = UDim.new(0, 10),
 				PaddingLeft   = UDim.new(0, 1),
-				PaddingTop    = UDim.new(0, 2),
-				PaddingBottom = UDim.new(0, 12),
+				PaddingTop    = UDim.new(0, 1),
+				PaddingBottom = UDim.new(0, 1),
 			}),
 		})
-		-- Bat AutomaticCanvasSize neu engine ho tro (pcall de khong loi client cu)
-		pcall(function()
-			Tab.ContainerFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		end)
 
 		Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-			pcall(function()
-				Tab.ContainerFrame.CanvasSize =
-					UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 14)
-			end)
+			Tab.ContainerFrame.CanvasSize =
+				UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 2)
 		end)
 
 		-- ── Easing presets ────────────────────────────────────
@@ -4354,9 +3345,11 @@ Components.Tab = (function()
 			-- lop kinh + vien sang len
 			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 0 }):Play()
 			TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.18 }):Play()
-			-- accent bar hien ngay (khong keo dan size)
-			AccentBar.Size = UDim2.new(0, 3, 0.60, 0)
-			AccentBar.BackgroundTransparency = 0
+			-- accent bar grows
+			TweenService:Create(AccentBar, TI_BACK, {
+				Size                   = UDim2.new(0, 3, 0.60, 0),
+				BackgroundTransparency = 0,
+			}):Play()
 			-- cap nhat registry de khi doi theme thi giu dung mau Accent
 			if Creator.Registry[TitleLabel] then
 				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Accent" }
@@ -4381,8 +3374,10 @@ Components.Tab = (function()
 			}):Play()
 			TweenService:Create(PillSheen, TI_NORM, { BackgroundTransparency = 1 }):Play()
 			TweenService:Create(PillStroke, TI_NORM, { Transparency = 1 }):Play()
-			AccentBar.Size = UDim2.new(0, 3, 0, 0)
-			AccentBar.BackgroundTransparency = 1
+			TweenService:Create(AccentBar, TI_NORM, {
+				Size                   = UDim2.new(0, 3, 0, 0),
+				BackgroundTransparency = 1,
+			}):Play()
 			-- cap nhat registry de khi doi theme thi giu mau Text
 			if Creator.Registry[TitleLabel] then
 				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Text" }
@@ -4514,38 +3509,27 @@ Components.Tab = (function()
 			target.SetTransparency(0.89)
 		end
 
-		-- update header text + selector bar (instant, khong spring truot-gian)
+		-- update header text + selector bar (existing window logic)
 		Window.TabDisplay.Text = target.Name
 		Window.TabDisplay.TextColor3 = Creator.GetThemeProperty("Accent")
-		do
-			local bar = Window.SelectorBar
-			if bar then
-				local y = TabModule:GetCurrentTabPos()
-				bar.Position = UDim2.new(0, 0, 0, y + 17)
-				bar.Size = UDim2.new(0, 4, 0, 20)
-			end
-		end
+		Window.SelectorPosMotor:setGoal(
+			Flipper.Spring.new(TabModule:GetCurrentTabPos(), { frequency = 6 })
+		)
 
-		-- doi container NGAY LAP TUC (khong truot/mo dan, khong reparent qua
-		-- lai giua CanvasGroup). Holder o yen trong ContainerCanvas -> het
-		-- mot duong gay loi hien thi.
-		for _, Container in next, TabModule.Containers do
-			Container.Visible = false
-		end
-		TabModule.Containers[Tab].Visible = true
-		-- tab vua hien lai thi layout/text can 1-2 frame moi do chuan
-		-- (TextWrapped luc an do sai) -> ep CanvasSize lai sau 2 frame.
-		-- Section tu sync qua signal cua no khi layout doi.
-		task.defer(function()
-			task.defer(function()
-				pcall(function()
-					local cf = TabModule.Containers[Tab]
-					local lay = cf and cf:FindFirstChildWhichIsA("UIListLayout")
-					if cf and cf.Visible and lay then
-						cf.CanvasSize = UDim2.new(0, 0, 0, lay.AbsoluteContentSize.Y + 14)
-					end
-				end)
-			end)
+		-- container swap animation (unchanged)
+		task.spawn(function()
+			Window.ContainerHolder.Parent = Window.ContainerAnim
+			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(15, { frequency = 10 }))
+			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(1,  { frequency = 10 }))
+			task.wait(0.12)
+			for _, Container in next, TabModule.Containers do
+				Container.Visible = false
+			end
+			TabModule.Containers[Tab].Visible = true
+			Window.ContainerPosMotor:setGoal(Flipper.Spring.new(0, { frequency = 5 }))
+			Window.ContainerBackMotor:setGoal(Flipper.Spring.new(0, { frequency = 8 }))
+			task.wait(0.12)
+			Window.ContainerHolder.Parent = Window.ContainerCanvas
 		end)
 	end
 
@@ -4595,7 +3579,7 @@ Components.Button = function(Theme, Parent, DialogCheck)
 		New("UICorner", {
 			CornerRadius = UDim.new(0, Glass.Radius.Control),
 		}),
-		Glass.TransparencyGradient({ Top = 0.92, Mid = 0.84, Bottom = 0.72 }),
+		Glass.TransparencyGradient({ Top = 0.46, Mid = 0.40, Bottom = 0.30 }),
 		Glass.Sheen(Glass.Radius.Control, { Top = 0.65, Mid = 0.88, Bottom = 1 }),
 		Glass.TopLight({ Inset = 8, Transparency = 0.20, ZIndex = 0 }),
 		Glass.Rim({ Transparency = 0.28, Tag = "DialogButtonBorder" }),
@@ -4670,7 +3654,6 @@ Components.Dialog = (function()
 			Size = UDim2.new(1, 0, 0, 70),
 			Position = UDim2.new(0, 0, 1, -70),
 			BackgroundTransparency = 0.70,
-			ZIndex = 10,
 			ThemeTag = {
 				BackgroundColor3 = "DialogHolder",
 			},
@@ -4697,8 +3680,6 @@ Components.Dialog = (function()
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Size = UDim2.new(1, 0, 0, 22),
 			Position = UDim2.fromOffset(20, 25),
-			-- Chu dialog PHAI tren lop frost/specular (khong thi bi mo)
-			ZIndex = 10,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BackgroundTransparency = 1,
 			AutoLocalize = false,
@@ -4736,15 +3717,10 @@ Components.Dialog = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Card),
 			}),
-			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
-			Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
-		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 4 }),
-			Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-			Glass.Rim({ Transparency = 0.20, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
-			Glass.RimBevel(Glass.Radius.Card, { ZIndex = 5 }),
+			Glass.TransparencyGradient({ Top = 0.42, Mid = 0.36, Bottom = 0.28 }),
+			Glass.Frost(Glass.Radius.Card, { Transparency = 0.9 }),
+			Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 0 }),
+			Glass.Rim({ Transparency = 0.28, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
 			NewDialog.Scale,
 			NewDialog.Title,
 			NewDialog.ButtonHolderFrame,
@@ -4756,30 +3732,22 @@ Components.Dialog = (function()
 			Glass.Shadow({ Blur = 40, OffsetY = 16, Transparency = 0.42 }).Parent =
 				NewDialog.Root
 		end
-		-- LIQUID GLASS 3D: caustics + breathing + PopIn cho dialog
-		pcall(function()
-			Glass.AttachPanel3D(NewDialog.Root, Glass.Radius.Card)
-			Glass.PopIn(NewDialog.Root, 0.92)
-		end)
 
 		local RootMotor, RootTransparency = Creator.SpringMotor(1, NewDialog.Root, "GroupTransparency")
 
 		function NewDialog:Open()
 			Library.DialogOpen = true
-			-- Hien ngay (khong zoom/mo dan).
-			NewDialog.Scale.Scale = 1
-			pcall(function()
-				NewDialog.TintFrame.BackgroundTransparency = 0.75
-				NewDialog.Root.GroupTransparency = 0
-			end)
+			NewDialog.Scale.Scale = 1.1
+			TintTransparency(0.75)
+			RootTransparency(0)
+			Scale(1)
 		end
 
 		function NewDialog:Close()
 			Library.DialogOpen = false
-			pcall(function()
-				NewDialog.TintFrame.BackgroundTransparency = 1
-				NewDialog.Root.GroupTransparency = 1
-			end)
+			TintTransparency(1)
+			RootTransparency(1)
+			Scale(1.1)
 			-- Bo vien sang truoc khi mo dan: UIStroke KHONG mo theo
 			-- GroupTransparency cua CanvasGroup (no ve o ngoai bien texture),
 			-- nen neu de lai se thay mot khung sang lo lung trong 0.15s.
@@ -4790,6 +3758,7 @@ Components.Dialog = (function()
 			if Stroke then
 				Stroke:Destroy()
 			end
+			task.wait(0.15)
 			NewDialog.TintFrame:Destroy()
 		end
 
@@ -4861,7 +3830,6 @@ Components.Notification = (function()
 
 		NewNotification.Title = New("TextLabel", {
 			Position = UDim2.new(0, 14, 0, 17),
-			ZIndex = 10,
 			Text = Config.Title,
 			RichText = true,
 			TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -4918,7 +3886,6 @@ Components.Notification = (function()
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BackgroundTransparency = 1,
 			Position = UDim2.fromOffset(14, 40),
-			ZIndex = 10,
 			Size = UDim2.new(1, -28, 0, 0),
 		}, {
 			New("UIListLayout", {
@@ -4933,7 +3900,6 @@ Components.Notification = (function()
 		NewNotification.CloseButton = New("TextButton", {
 			Text = "",
 			Position = UDim2.new(1, -14, 0, 13),
-			ZIndex = 10,
 			Size = UDim2.fromOffset(20, 20),
 			AnchorPoint = Vector2.new(1, 0),
 			BackgroundTransparency = 1,
@@ -4963,19 +3929,14 @@ Components.Notification = (function()
 		    Size = UDim2.new(1, 0, 1, 0),
 		    Position = UDim2.fromScale(1, 0),
 		    ZIndex = 2,
-		    ClipsDescendants = true,
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
-		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
-		    Glass.TopLight({ Inset = 14, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
-		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-		    Glass.RimBevel(Glass.Radius.Card, { ZIndex = 4 }),
-		    Glass.Rim({ Transparency = 0.20, Mode = Enum.ApplyStrokeMode.Contextual }),
+		    Glass.TransparencyGradient({ Top = 0.42, Mid = 0.36, Bottom = 0.28 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.9 }),
+		    Glass.TopLight({ Inset = 14, Transparency = 0.16, ZIndex = 3 }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
+		    Glass.Rim({ Transparency = 0.28, Mode = Enum.ApplyStrokeMode.Contextual }),
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
 		    NewNotification.LabelHolder,
@@ -4997,11 +3958,6 @@ Components.Notification = (function()
 			NotificationShadow,
 			NewNotification.Root,
 		})
-		-- LIQUID GLASS 3D: caustics + shadow that + PopIn cho notify
-		pcall(function()
-			Glass.AttachPanel3D(NewNotification.Root, Glass.Radius.Card)
-			Glass.Magnetic(NewNotification.Root)
-		end)
 
 		local RootMotor = Flipper.GroupMotor.new({
 			Scale = 1,
@@ -5021,17 +3977,26 @@ Components.Notification = (function()
 			local ContentSize = NewNotification.LabelHolder.AbsoluteSize.Y
 			NewNotification.Holder.Size = UDim2.new(1, 0, 0, 58 + ContentSize)
 
-			-- Hien ngay tai vi tri cuoi (khong truot tu phai vao).
-			NewNotification.Root.Position = UDim2.new(0, 0, 0, 0)
-			NotificationShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+			RootMotor:setGoal({
+				Scale = Spring(0, { frequency = 5 }),
+				Offset = Spring(0, { frequency = 5 }),
+			})
 		end
 
 		function NewNotification:Close()
 			if not NewNotification.Closed then
 				NewNotification.Closed = true
-				-- Xoa ngay (khong truot ra). task.delay Duration ben duoi
-				-- van giu thong bao du thoi gian truoc khi goi ham nay.
-				NewNotification.Holder:Destroy()
+				task.spawn(function()
+					RootMotor:setGoal({
+						Scale = Spring(1, { frequency = 5 }),
+						Offset = Spring(60, { frequency = 5 }),
+					})
+					task.wait(0.4)
+					-- if Library.UseAcrylic then
+					-- 	NewNotification.AcrylicPaint.Model:Destroy()
+					-- end
+					NewNotification.Holder:Destroy()
+				end)
 			end
 		end
 
@@ -5211,9 +4176,6 @@ Components.TitleBar = function(Config)
 		end)
 		AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
 
-		-- LIQUID GLASS 3D: ripple + vien sang cho nut titlebar (khong scale)
-		pcall(function() Glass.Magnetic(Button.Frame) end)
-
 		Button.SetCallback = function(Func) Button.Callback = Func end
 		return Button
 	end
@@ -5350,15 +4312,6 @@ Components.Window = (function()
 	local New = Creator.New
 
 	return function(Config)
-		-- FIX TRAN MAN HINH NHO (2026): clamp Size theo viewport ngay tu dau.
-		-- Truoc day Size 580x460 cung + Position giua man hinh nhung khong
-		-- tru hao GuiInset/topbar -> man <600px bi tran duoi + mat nut resize.
-		local _vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
-		local _reqX = Config.Size and Config.Size.X.Offset or 580
-		local _reqY = Config.Size and Config.Size.Y.Offset or 460
-		local _clampX = math.clamp(_reqX, 420, math.max(440, _vp.X - 24))
-		local _clampY = math.clamp(_reqY, 320, math.max(340, _vp.Y - 60))
-		Config.Size = UDim2.fromOffset(_clampX, _clampY)
 		local Window = {
 			Minimized = false,
 			Maximized = false,
@@ -5366,8 +4319,8 @@ Components.Window = (function()
 			CurrentPos = 0,
 			TabWidth = 0,
 			Position = UDim2.fromOffset(
-				math.clamp(_vp.X / 2 - _clampX / 2, 8, math.max(8, _vp.X - _clampX - 8)),
-				math.clamp(_vp.Y / 2 - _clampY / 2, 8, math.max(8, _vp.Y - _clampY - 8))
+				Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
+				Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
 			),
 		}
 
@@ -5408,9 +4361,6 @@ Components.Window = (function()
 				}),
 			}),
 		})
-		-- Luu tham chieu thanh selector: TabModule:SelectTab o scope khac
-		-- (Components.Tab) khong thay local Selector -> dung Window.SelectorBar.
-		Window.SelectorBar = Selector
 
 		local ResizeStartFrame = New("Frame", {
 			Size = UDim2.fromOffset(20, 20),
@@ -5424,23 +4374,13 @@ Components.Window = (function()
 			ScrollBarImageTransparency = 1,
 			ScrollBarThickness = 0,
 			BorderSizePixel = 0,
-			CanvasSize = UDim2.fromOffset(0, 0),
+			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
-			ElasticBehavior = Enum.ElasticBehavior.WhenScrollable,
-			ClipsDescendants = true,
 		}, {
 			New("UIListLayout", {
 				Padding = UDim.new(0, 4),
-				SortOrder = Enum.SortOrder.LayoutOrder,
-				HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			}),
-			New("UIPadding", {
-				PaddingBottom = UDim.new(0, 8),
 			}),
 		})
-		pcall(function()
-			Window.TabHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		end)
 
 		-- (Da bo mot bien `Icon` = TextButton kem UIPadding + ImageLabel +
 		-- UIAspectRatioConstraint duoc tao o day: no khong bao gio duoc parent
@@ -5504,7 +4444,7 @@ Components.Window = (function()
 			ThemeTag = { BackgroundColor3 = "Input" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			Glass.TransparencyGradient({ Top = 0.84, Mid = 0.78, Bottom = 0.70 }),
+			Glass.TransparencyGradient({ Top = 0.46, Mid = 0.40, Bottom = 0.30 }),
 			Glass.Sheen(Glass.Radius.Control, { Top = 0.65, Mid = 0.88, Bottom = 1 }),
 			Glass.TopLight({ Inset = 12, Transparency = 0.20, ZIndex = 0 }),
 			Glass.RimLayer(Glass.Radius.Control, { Transparency = 0.40, ZIndex = 0 }),
@@ -5529,9 +4469,8 @@ Components.Window = (function()
 
 		-- ── Search: gom ket qua tu TAT CA cac tab vao 1 khung ──
 		local SearchLayout = New("UIListLayout", {
-			Padding   = UDim.new(0, 6),
+			Padding   = UDim.new(0, 5),
 			SortOrder = Enum.SortOrder.LayoutOrder,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		})
 
 		local SearchResults = New("ScrollingFrame", {
@@ -5543,31 +4482,24 @@ Components.Window = (function()
 			MidImage = "rbxassetid://6889812721",
 			TopImage = "rbxassetid://6276641225",
 			ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
-			ScrollBarImageTransparency = 0.65,
-			ScrollBarThickness = 4,
+			ScrollBarImageTransparency = 0.75,
+			ScrollBarThickness = 3,
 			BorderSizePixel = 0,
-			CanvasSize = UDim2.fromOffset(0, 0),
+			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
-			ElasticBehavior = Enum.ElasticBehavior.WhenScrollable,
-			ClipsDescendants = true,
 			ThemeTag = { ScrollBarImageColor3 = "SubText" },
 		}, {
 			SearchLayout,
 			New("UIPadding", {
 				PaddingRight  = UDim.new(0, 10),
 				PaddingLeft   = UDim.new(0, 1),
-				PaddingTop    = UDim.new(0, 2),
-				PaddingBottom = UDim.new(0, 12),
+				PaddingTop    = UDim.new(0, 1),
+				PaddingBottom = UDim.new(0, 1),
 			}),
 		})
-		pcall(function()
-			SearchResults.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		end)
 
 		Creator.AddSignal(SearchLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-			pcall(function()
-				SearchResults.CanvasSize = UDim2.new(0, 0, 0, SearchLayout.AbsoluteContentSize.Y + 14)
-			end)
+			SearchResults.CanvasSize = UDim2.new(0, 0, 0, SearchLayout.AbsoluteContentSize.Y + 2)
 		end)
 
 		-- Danh sach element dang bi "muon" sang khung ket qua
@@ -5734,10 +4666,6 @@ Components.Window = (function()
 			Size             = UDim2.new(1, -Window.TabWidth - 32, 1, -102),
 			Position         = UDim2.fromOffset(Window.TabWidth + 26, 90),
 			BackgroundTransparency = 1,
-			-- FIX LOI TRAN: cat noi dung theo khung (hinh 1 list Island Teleport
-			-- tran ra ngoai vien kinh). Dropdown holder nam o Library.GUI rieng
-			-- nen khong bi cat theo.
-			ClipsDescendants = true,
 		}, {
 			Window.ContainerAnim,
 			Window.ContainerHolder,
@@ -5758,38 +4686,26 @@ Components.Window = (function()
 			SpreadX = 64, SpreadY = 64, OffsetY = 0, Transparency = 0.65, ZIndex = 1,
 		})
 
-		-- Lop nen KINH DUC da tang (Liquid Glass chan thuc 2026)
-		-- Thu tu: Depth (day kinh) -> Frost duc (hat noise) -> Specular cong
-		-- 2 mat (tren sang/duoi phan xa) -> TopLight -> InnerShadow (sau 3D)
-		-- -> Rim (vien khuc xa). Tat ca Interactable=false nen khong chan chuot.
+		-- Lop nen kinh long trong suot da tang (Liquid Glass iOS 27)
+		-- Do mo cao hon (transparency thap) de nen toi mo sua nhu anh mau,
+		-- van thay hau canh nhung khong bi "trong veo".
 		local AcrylicFrame = New("Frame", {
 		    Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 0,
 			ZIndex = 2,
-			ClipsDescendants = true,
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    Glass.TransparencyGradient({ Top = 0.85, Mid = 0.78, Bottom = 0.70 }),
-		    Glass.Depth(Glass.Radius.Window, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Milk(Glass.Radius.Window, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Window, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
+		    Glass.TransparencyGradient({ Top = 0.34, Mid = 0.30, Bottom = 0.24 }),
+		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.9 }),
+		    Glass.Specular(Glass.Radius.Window, { Top = 0.86, Mid = 0.94, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
-		    Glass.TopLight({ Inset = 24, Thickness = 1.4, Transparency = 0.08, ZIndex = 4 }),
-		    -- bong trong tao chieu sau + vien khuc xa
-		    Glass.InnerShadow(Glass.Radius.Window, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-		    -- Mep vat 3 lop + sac sai kieu demo (thay RimLayer don)
-		    Glass.RimBevel(Glass.Radius.Window, { ZIndex = 5 }),
+		    Glass.TopLight({ Inset = 24, Thickness = 1.2, Transparency = 0.14, ZIndex = 4 }),
+		    -- vien trang bo sung (sang tren moi theme, ke ca theme toi)
+		    Glass.RimLayer(Glass.Radius.Window, {
+		        Thickness = 1.2, Transparency = 0.22, ZIndex = 5,
+		    }),
 		})
-		-- Phan xa day mo (mat duoi kinh) — tao rieng vi can 2 Frame
-		do
-			local _, bottomBounce = Glass.DualSpecular(Glass.Radius.Window, { BottomBounce = 0.80, ZIndex = 3 })
-			if bottomBounce then
-				bottomBounce.Name = "GlassBottomBounce"
-				bottomBounce.Parent = AcrylicFrame
-			end
-		end
 
 		Window.AcrylicPaint = {
 		    Frame = AcrylicFrame,
@@ -5809,95 +4725,37 @@ Components.Window = (function()
 			AcrylicFrame.BackgroundTransparency = 0
 		end
 
-		-- Lop kinh that Lens thay the blur cu (khong tao Part/mesh rieng nua).
-		-- Window.AcrylicPaint giu Model = nil (cac ham Destroy/Toggle da guard).
-
-		Window._LG3D_ScaleCount = 0
-		for _, c in ipairs(AcrylicFrame:GetChildren()) do
-			if c:IsA("UIScale") then Window._LG3D_ScaleCount = Window._LG3D_ScaleCount + 1 end
+		-- Blur nen that (Acrylic = true)
+		if Library.UseAcrylic then
+			local ok, Blur = pcall(Acrylic.AcrylicBlur)
+			if ok and Blur then
+				Blur.Frame.Parent          = AcrylicFrame
+				Window.AcrylicPaint.Model  = Blur.Model
+				Window.AcrylicPaint.AddParent     = Blur.AddParent
+				Window.AcrylicPaint.SetVisibility = Blur.SetVisibility
+			end
 		end
-		-- (Bien dem de debug cong don UIScale; khong can thiet cho logic)
-		Window._LG3D_Attached = false
-
-		-- LOP CAT NOI DUNG THEO KINH (2026, sua dut diem tran hinh chup):
-		-- Tat ca frame noi dung (TabDisplay/Container/Search/Tab) lam con cua
-		-- ContentClip thay vi thang Root. ContentClip = Frame 1x1 trong suot,
-		-- ClipsDescendants + UICorner = hinh kinh -> BAT CU thu gi do sai o
-		-- ben trong (canvas do thieu, section chua sync, tab them luc an...)
-		-- thi pixel cung KHONG bao gio lot ra ngoai vien kinh xuong nen game.
-		-- Frame thuong (khong phai CanvasGroup) nen KHONG doi thu tu ve / mau.
-		-- Vi tri cac con giu nguyen vi ContentClip cung kich thuoc + goc voi Root.
-		Window.ContentClip = New("Frame", {
-			Name = "ContentClip",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			ClipsDescendants = true,
-			-- Noi dung PHAI nam TREN nen kinh (AcrylicFrame Z=2): truoc day
-			-- lop frost/specular phu len chu -> chu bi mo di. Z=3 dua toan bo
-			-- content len tren, kinh chi con la nen phia sau.
-			ZIndex = 3,
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-			Window.TabDisplay,
-			Window.ContainerCanvas,
-			SearchBox,
-			TabFrame,
-		})
-
+		
 		Window.Root = New("Frame", {
 		    BackgroundTransparency = 1,
 		    Size = Window.Size,
 		    Position = Window.Position,
 		    Parent = Config.Parent,
-		    ClipsDescendants = false,
 		}, {
 		    WindowShadow,   -- ZIndex = 1 (lop duoi cung, do bong an theo mau theme)
 		    Glass.Refract(Glass.Radius.Window, { Band = 1.5, Transparency = 0.60, ZIndex = 1 }),
 		    AcrylicFrame,   -- ZIndex = 2 (nen kinh lỏng trong suot hien ro mau theme tu tren xuong)
-		    Window.ContentClip, -- ZIndex = 1, child TAO SAU AcrylicFrame -> ve tren kinh
+		    Window.TabDisplay,
+		    Window.ContainerCanvas,
+		    SearchBox,
+		    TabFrame,
 		    ResizeStartFrame,
-		    -- FIX TRAN: khoa min/max theo viewport hien tai. UISizeConstraint
-		    -- la tech chuan 2024+ de window khong bao gio to hon man hinh
-		    -- (keo resize / doi do phan giai / man mobile nho).
-		    New("UISizeConstraint", {
-		        Name = "WindowViewportClamp",
-		        MinSize = Vector2.new(420, 320),
-		        MaxSize = Vector2.new(
-		            math.max(440, (Camera and Camera.ViewportSize.X or 1920) - 16),
-		            math.max(340, (Camera and Camera.ViewportSize.Y or 1080) - 40)
-		        ),
-		    }),
 		})
-		-- Tu cap nhat gioi han khi xoay man / doi resolution
-		pcall(function()
-			Creator.AddSignal(Camera:GetPropertyChangedSignal("ViewportSize"), function()
-				local vp = Camera.ViewportSize
-				local c = Window.Root:FindFirstChild("WindowViewportClamp")
-				if c and c:IsA("UISizeConstraint") then
-					c.MaxSize = Vector2.new(math.max(440, vp.X - 16), math.max(340, vp.Y - 40))
-				end
-				-- Keo window ve trong man hinh neu dang nam ngoai
-				local sz = Window.Root.AbsoluteSize
-				local ps = Window.Root.Position
-				local nx = math.clamp(ps.X.Offset, -sz.X + 80, math.max(0, vp.X - 80))
-				local ny = math.clamp(ps.Y.Offset, 0, math.max(0, vp.Y - 60))
-				if nx ~= ps.X.Offset or ny ~= ps.Y.Offset then
-					Window.Position = UDim2.fromOffset(nx, ny)
-					Window.Root.Position = Window.Position
-				end
-			end)
-		end)
-
-		-- LIQUID GLASS 3D: shadow that + caustics chay + tilt/parallax + breathing
-		if not Window._LG3D_Attached then
-			Window._LG3D_Attached = true
-			pcall(function() Glass.AttachWindow3D(Window, AcrylicFrame) end)
-		end
 
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
 			SubTitle = Config.SubTitle,
-			Parent = Window.ContentClip,
+			Parent = Window.Root,
 			Window = Window,
 		})
 
@@ -5971,23 +4829,18 @@ Components.Window = (function()
 				OldSizeX = Window.Size.X.Offset
 				OldSizeY = Window.Size.Y.Offset
 			end
-			-- Maximize tru hao topbar/GuiInset 36px de khong tran xuong duoi.
-			local vpM = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
-			local SizeX = Value and math.max(440, vpM.X - 8) or (OldSizeX or Window.Size.X.Offset)
-			local SizeY = Value and math.max(340, vpM.Y - 36) or (OldSizeY or Window.Size.Y.Offset)
-			-- Neu restore ma viewport da nho lai thi clamp tiep
-			SizeX = math.clamp(SizeX, 420, math.max(440, vpM.X - 16))
-			SizeY = math.clamp(SizeY, 320, math.max(340, vpM.Y - 40))
+			local SizeX = Value and Camera.ViewportSize.X or (OldSizeX or Window.Size.X.Offset)
+			local SizeY = Value and Camera.ViewportSize.Y or (OldSizeY or Window.Size.Y.Offset)
 			SizeMotor:setGoal({
-				X = Flipper.Instant.new(SizeX),
-				Y = Flipper.Instant.new(SizeY),
+				X = Flipper[Instant and "Instant" or "Spring"].new(SizeX, { frequency = 6 }),
+				Y = Flipper[Instant and "Instant" or "Spring"].new(SizeY, { frequency = 6 }),
 			})
 			Window.Size = UDim2.fromOffset(SizeX, SizeY)
 
 			if not NoPos then
 				PosMotor:setGoal({
-					X = Instant(Value and 0 or Window.Position.X.Offset),
-					Y = Instant(Value and 0 or Window.Position.Y.Offset),
+					X = Spring(Value and 0 or Window.Position.X.Offset, { frequency = 6 }),
+					Y = Spring(Value and 0 or Window.Position.Y.Offset, { frequency = 6 }),
 				})
 			end
 		end
@@ -6038,13 +4891,7 @@ Components.Window = (function()
 		Creator.AddSignal(UserInputService.InputChanged, function(Input)
 			if Input == DragInput and Dragging then
 				local Delta = Input.Position - MousePos
-				-- FIX: keo khong cho window roi han ra ngoai man hinh (giu
-				-- lai 80px de luon keo lai duoc, chan tran xuong duoi topbar).
-				local vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
-				local sz = Window.Root.AbsoluteSize
-				local nx = math.clamp(StartPos.X.Offset + Delta.X, -sz.X + 80, math.max(0, vp.X - 80))
-				local ny = math.clamp(StartPos.Y.Offset + Delta.Y, 0, math.max(0, vp.Y - 60))
-				Window.Position = UDim2.fromOffset(nx, ny)
+				Window.Position = UDim2.fromOffset(StartPos.X.Offset + Delta.X, StartPos.Y.Offset + Delta.Y)
 				PosMotor:setGoal({
 					X = Instant(Window.Position.X.Offset),
 					Y = Instant(Window.Position.Y.Offset),
@@ -6063,14 +4910,8 @@ Components.Window = (function()
 				local StartSize = Window.Size
 
 				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-				-- FIX: max = viewport (truoc day 2048 cung -> resize to hon
-				-- man hinh la tran ngay). Min 420x320 de mobile van dung duoc.
-				local vp2 = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
 				local TargetSizeClamped =
-					Vector2.new(
-						math.clamp(TargetSize.X, 420, math.max(440, vp2.X - 16)),
-						math.clamp(TargetSize.Y, 320, math.max(340, vp2.Y - 40))
-					)
+					Vector2.new(math.clamp(TargetSize.X, 470, 2048), math.clamp(TargetSize.Y, 380, 2048))
 
 				SizeMotor:setGoal({
 					X = Flipper.Instant.new(TargetSizeClamped.X),
@@ -6087,9 +4928,7 @@ Components.Window = (function()
 		end)
 
 		Creator.AddSignal(Window.TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-			pcall(function()
-				Window.TabHolder.CanvasSize = UDim2.new(0, 0, 0, Window.TabHolder.UIListLayout.AbsoluteContentSize.Y + 8)
-			end)
+			Window.TabHolder.CanvasSize = UDim2.new(0, 0, 0, Window.TabHolder.UIListLayout.AbsoluteContentSize.Y)
 		end)
 
 		Creator.AddSignal(UserInputService.InputBegan, function(Input)
@@ -6196,10 +5035,9 @@ Components.Window = (function()
 		end
 
 		Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function()
-			-- Selector di chuyen NGAY theo tab (khong spring de tranh gian hinh)
-			local y = TabModule:GetCurrentTabPos()
-			Selector.Position = UDim2.new(0, 0, 0, y + 17)
-			Selector.Size = UDim2.new(0, 4, 0, 20)
+			LastValue = TabModule:GetCurrentTabPos() + 16
+			LastTime = 0
+			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
 		return Window
@@ -6308,11 +5146,11 @@ ElementsTable.Toggle = (function()
 			}),
 		})
 
-		-- ── Accent fill kieu Night Hub (rut - dam, vivid) ───
+		-- ── Accent fill (clipped inside track) ───────────────
 		local Fill = New("Frame", {
 			Size             = UDim2.new(0, 0, 1, 0),   -- starts empty
 			BackgroundColor3 = Color3.fromRGB(0, 122, 255),
-			BackgroundTransparency = 0.05,
+			BackgroundTransparency = 0.18,
 			ZIndex           = 2,
 			ThemeTag         = { BackgroundColor3 = "Accent" },
 			Parent           = Track,
@@ -6358,30 +5196,29 @@ ElementsTable.Toggle = (function()
 		local TI_BACK  = TweenInfo.new(0.20, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
 		local TI_QUICK = TweenInfo.new(0.10, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
-		-- Kieu Night Hub: TAT = num trang, BAT = num mau ToggleToggled cua theme
-		-- (moi theme tu co mau accent + num rieng, khong can sua tung theme).
-		local function KnobOnColor()
-			local ok, c = pcall(function() return Creator.GetThemeProperty("ToggleToggled") end)
-			if ok and typeof(c) == "Color3" then return c end
-			return Color3.fromRGB(25, 27, 32)
-		end
-
 		-- OFF state
 		local function applyOff()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.new(0, 0, 1, 0)   }):Play()
-			TweenService:Create(Thumb, TI_FAST, { Position = UDim2.new(0, 3, 0.5, 0) }):Play()
-			TweenService:Create(Thumb, TI_FAST, { BackgroundColor3 = Color3.fromRGB(255, 255, 255) }):Play()
+			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 3, 0.5, 0) }):Play()
 		end
 
 		-- ON state
 		local function applyOn()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.fromScale(1, 1)    }):Play()
-			TweenService:Create(Thumb, TI_FAST, { Position = UDim2.new(0, 25, 0.5, 0)}):Play()
-			TweenService:Create(Thumb, TI_FAST, { BackgroundColor3 = KnobOnColor() }):Play()
+			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 25, 0.5, 0)}):Play()
 		end
 
-		-- KHOA SIZE: bo hieu ung bop/meo num khi nhan (nhan lam doi kich
-		-- thuoc gay cam giac loi phong to). Chi giu truot vi tri + doi mau.
+		-- Press squish
+		Creator.AddSignal(ToggleFrame.Frame.MouseButton1Down, function()
+			TweenService:Create(Thumb, TI_QUICK, {
+				Size = UDim2.fromOffset(Toggle.Value and 18 or 24, 20),
+			}):Play()
+		end)
+		Creator.AddSignal(ToggleFrame.Frame.MouseButton1Up, function()
+			TweenService:Create(Thumb, TI_BACK, {
+				Size = UDim2.fromOffset(20, 20),
+			}):Play()
+		end)
 
 		-- ── Public API ────────────────────────────────────────
 		function Toggle:OnChanged(Func)
@@ -6592,20 +5429,35 @@ ElementsTable.Dropdown = (function()
 			})
 		end
 
-		-- เพิ่ม hover effect สำหรับ clear button (chi mo chu, KHONG doi size)
+		-- เพิ่ม hover effect สำหรับ clear button
 		if ClearButton then
 			local ClearHoverMotor, SetClearHover = Creator.SpringMotor(0.15, ClearButton, "BackgroundTransparency")
 			Creator.AddSignal(ClearButton.MouseEnter, function()
 				SetClearHover(0.05)
+				-- เพิ่ม scale effect
+				TweenService:Create(ClearButton, TweenInfo.new(0.2, Enum.EasingStyle.Quart), {
+					Size = UDim2.fromOffset(32, 32)
+				}):Play()
 			end)
 			Creator.AddSignal(ClearButton.MouseLeave, function()
 				SetClearHover(0.15)
+				-- คืนขนาดเดิม
+				TweenService:Create(ClearButton, TweenInfo.new(0.2, Enum.EasingStyle.Quart), {
+					Size = UDim2.fromOffset(30, 30)
+				}):Play()
 			end)
 			Creator.AddSignal(ClearButton.MouseButton1Down, function()
 				SetClearHover(0.0)
+				-- เพิ่ม press effect
+				TweenService:Create(ClearButton, TweenInfo.new(0.1, Enum.EasingStyle.Quart), {
+					Size = UDim2.fromOffset(28, 28)
+				}):Play()
 			end)
 			Creator.AddSignal(ClearButton.MouseButton1Up, function()
 				SetClearHover(0.05)
+				TweenService:Create(ClearButton, TweenInfo.new(0.1, Enum.EasingStyle.Quart), {
+					Size = UDim2.fromOffset(32, 32)
+				}):Play()
 			end)
 
 			-- ฟังก์ชันล้างค่าทั้งหมด
@@ -6687,7 +5539,7 @@ ElementsTable.Dropdown = (function()
 			Size = UDim2.new(1, (Dropdown.Multi and -46 or -16), 0, 30),
 			Position = UDim2.fromOffset(8, 7),
 			BackgroundTransparency = 0.85,
-			ZIndex = 10,
+			ZIndex = 4,
 			ThemeTag = {
 				BackgroundColor3 = "Input",
 			},
@@ -6713,8 +5565,6 @@ ElementsTable.Dropdown = (function()
 			Size = UDim2.new(1, -8, 1, hasTopControls and -46 or -12),
 			Position = UDim2.fromOffset(4, hasTopControls and 42 or 6),
 			BackgroundTransparency = 1,
-			-- List PHAI tren lop frost/specular cua holder (khong thi bi mo)
-			ZIndex = 10,
 			BottomImage = "rbxassetid://6889812791",
 			MidImage = "rbxassetid://6889812721",
 			TopImage = "rbxassetid://6276641225",
@@ -6722,21 +5572,12 @@ ElementsTable.Dropdown = (function()
 			ScrollBarImageTransparency = 0.5,
 			ScrollBarThickness = 5,
 			BorderSizePixel = 0,
-			CanvasSize = UDim2.fromOffset(0, 0),
+			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
-			ElasticBehavior = Enum.ElasticBehavior.WhenScrollable,
-			ClipsDescendants = true,
 			ThemeTag = { ScrollBarImageColor3 = "SubText" },
 		}, {
 			DropdownListLayout,
-			New("UIPadding", {
-				PaddingBottom = UDim.new(0, 10),
-				PaddingRight = UDim.new(0, 4),
-			}),
 		})
-		pcall(function()
-			DropdownScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-		end)
 
 		local DropdownHolderFrame = New("Frame", {
 		    Size             = UDim2.fromScale(1, 0.6),
@@ -6748,15 +5589,11 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
-		    Glass.Depth(Glass.Radius.Card, { ZIndex = 0 }),
-		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.84, ZIndex = 1 }),
-		    Glass.Milk(Glass.Radius.Card, { ZIndex = 1 }),
-		    Glass.Specular(Glass.Radius.Card, { Top = 0.78, Mid = 0.90, ZIndex = 3 }),
-		    Glass.TopLight({ Inset = 16, Transparency = 0.12, Thickness = 1.4, ZIndex = 3 }),
-		    Glass.InnerShadow(Glass.Radius.Card, { Thickness = 2, Transparency = 0.55, ZIndex = 2 }),
-		    Glass.RimBevel(Glass.Radius.Card, { ZIndex = 4 }),
-		    Glass.Rim({ Transparency = 0.22, Tag = "DropdownBorder" }),
+		    Glass.TransparencyGradient({ Top = 0.30, Mid = 0.24, Bottom = 0.16 }),
+		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.9 }),
+		    Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 3 }),
+		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
+		    Glass.Rim({ Transparency = 0.28, Tag = "DropdownBorder" }),
 		    SearchBase,
 		    DropdownScrollFrame,
 		})
@@ -6764,7 +5601,7 @@ ElementsTable.Dropdown = (function()
 		if ClearButton then
 			ClearButton.Parent = DropdownHolderFrame
 			ClearButton.Position = UDim2.new(1, -36, 0, 7)
-			ClearButton.ZIndex = 11
+			ClearButton.ZIndex = 5
 		end
 
 		local DropdownShadow = Glass.Shadow({
@@ -6783,11 +5620,6 @@ ElementsTable.Dropdown = (function()
 				MinSize = Vector2.new(170, 0),
 			}),
 		})
-		-- LIQUID GLASS 3D cho dropdown: caustics + top-light song + shadow that
-		pcall(function()
-			Glass.AttachPanel3D(DropdownHolderFrame, Glass.Radius.Card)
-			Glass.Magnetic(DropdownInner)
-		end)
 
 		-- Loading indicator frame with better styling
 		local LoadingIndicator = New("Frame", {
@@ -6835,34 +5667,17 @@ ElementsTable.Dropdown = (function()
             local baseX = DropdownInner.AbsolutePosition.X - 1 + XADD
             local baseY = DropdownInner.AbsolutePosition.Y + defaultYOffset
 
-            -- FIX: kep holder trong viewport (man nho / dropdown gan day man
-            -- hinh truoc day lot ra ngoai man hinh xuong duoi).
-            pcall(function()
-                local vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
-                local w = DropdownHolderCanvas.Size.X.Offset
-                local h = DropdownHolderCanvas.Size.Y.Offset
-                baseX = math.clamp(baseX, 4, math.max(4, vp.X - w - 4))
-                baseY = math.clamp(baseY, 4, math.max(4, vp.Y - h - 4))
-            end)
-
             DropdownHolderCanvas.Position = UDim2.fromOffset(baseX, baseY)
         end
 
 		local ListSizeX = 0
 		local function RecalculateListSize()
 			local searchOffset = (Dropdown.Searchable or Dropdown.Multi) and 42 or 0
-			local h
 			if #Dropdown.Values > MAX_DROPDOWN_ITEMS then
-				h = (42 * MAX_DROPDOWN_ITEMS) - 10 + searchOffset
+				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, (42 * MAX_DROPDOWN_ITEMS) - 10 + searchOffset)
 			else
-				h = DropdownListLayout.AbsoluteContentSize.Y + 24 + searchOffset
+				DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, DropdownListLayout.AbsoluteContentSize.Y + 24 + searchOffset)
 			end
-			-- FIX: dropdown khong cao hon man hinh (man thap truoc day tran duoi).
-			pcall(function()
-				local vp = Camera and Camera.ViewportSize or Vector2.new(1920, 1080)
-				h = math.clamp(h, 60, math.max(80, vp.Y - 16))
-			end)
-			DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, h)
 		end
 
 		local function RecalculateCanvasSize()
@@ -7007,9 +5822,16 @@ ElementsTable.Dropdown = (function()
 			RecalculateListSize()
 			RecalculateListPosition()
 
-			-- Hien ngay full size (khong phong to dan tu 0).
-			DropdownHolderFrame.Size = UDim2.fromScale(1, 1)
-			DropdownIco.Rotation = -90
+			-- minimal: fade in + slight scale from 0.97 → 1
+			DropdownHolderFrame.Size = UDim2.fromScale(1, 0)
+			TweenService:Create(DropdownHolderFrame,
+				TweenInfo.new(0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+				{ Size = UDim2.fromScale(1, 1) }
+			):Play()
+			TweenService:Create(DropdownIco,
+				TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+				{ Rotation = -90 }
+			):Play()
 			-- vach duoi sang han khi dang mo (handler MouseLeave da doc trang
 			-- thai `Dropdown.Opened` nen 2 cho nay khop nhau)
 			TweenService:Create(DropdownUnderline, TI_UL,
@@ -7025,7 +5847,11 @@ ElementsTable.Dropdown = (function()
 			DropdownDisplay.Interactable = false
 			DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
 			DropdownHolderCanvas.Visible = false
-			DropdownIco.Rotation = 90
+			TweenService:Create(
+				DropdownIco,
+				TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+				{ Rotation = 90 }
+			):Play()
 			DropdownSearch:ReleaseFocus(false)
 			TweenService:Create(DropdownUnderline, TI_UL,
 				{ BackgroundTransparency = 0.5 }):Play()
@@ -7820,9 +6646,6 @@ ElementsTable.Slider = (function()
 			}),
 		})
 
-		-- Vong sang accent quanh num (lay san de lam glow khi keo, KHONG doi size)
-		local SliderDotStroke = SliderDot:FindFirstChildWhichIsA("UIStroke")
-
 		-- ── Rail track ────────────────────────────────────────
 		local SliderTrack = New("Frame", {
 			Size        = UDim2.new(1, -20, 0, 6),
@@ -7874,10 +6697,7 @@ ElementsTable.Slider = (function()
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
 				Dragging = true
-				-- KHOA SIZE: num giu nguyen 16px, chi sang vien accent (khong phong to)
-				if SliderDotStroke then
-					TweenService:Create(SliderDotStroke, TI_THUMB, { Transparency = 0 }):Play()
-				end
+				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(18, 18) }):Play()
 			end
 		end)
 
@@ -7886,9 +6706,7 @@ ElementsTable.Slider = (function()
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
 				Dragging = false
-				if SliderDotStroke then
-					TweenService:Create(SliderDotStroke, TI_THUMB, { Transparency = 0.20 }):Play()
-				end
+				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(14, 14) }):Play()
 			end
 		end)
 
@@ -7925,7 +6743,7 @@ ElementsTable.Slider = (function()
 
 			local pct = (self.Value - Slider.Min) / (Slider.Max - Slider.Min)
 
-			TweenService:Create(SliderDot,  TI_MOVE, { Position = UDim2.new(pct, -8, 0.5, 0) }):Play()
+			TweenService:Create(SliderDot,  TI_MOVE, { Position = UDim2.new(pct, -7, 0.5, 0) }):Play()
 			TweenService:Create(SliderFill, TI_MOVE, { Size     = UDim2.fromScale(pct, 1)      }):Play()
 
 			if not Typing then
@@ -10064,7 +8882,6 @@ local InterfaceManager = {} do
 		Theme = "Liquid Glass",
 		Acrylic = true,
 		Transparency = true,
-		GlassOpacity = 60,
 		MenuKeybind = "M"
 	}
 
@@ -10138,13 +8955,9 @@ local InterfaceManager = {} do
 		if Settings.Transparency == nil then
 			Settings.Transparency = Library.Transparency
 		end
-		if Settings.GlassOpacity == nil then
-			Settings.GlassOpacity = (Glass.Config3D and Glass.Config3D.GlassOpacity or 0.60) * 100
-		end
 
 		-- Ap dung ngay nhung gi vua doc duoc
 		Library:SetTheme(Settings.Theme)
-		Glass.SetOpacity((Settings.GlassOpacity or 62) / 100)
 		Library:ToggleTransparency(Settings.Transparency)
 		if Library.UseAcrylic then
 			Library:ToggleAcrylic(Settings.Acrylic)
@@ -10189,21 +9002,6 @@ local InterfaceManager = {} do
 			end
 		})
 
-		-- THANH KEO DO DUC (giong hinh mau 2: Blur Strength 100%)
-		section:AddSlider("GlassOpacity", {
-			Title = "Glass Opacity",
-			Description = "Do duc cua mat kinh. 0% = trong suot, 100% = dac.",
-			Default = math.clamp(math.floor((Settings.GlassOpacity or 60) + 0.5), 0, 100),
-			Min = 0,
-			Max = 100,
-			Rounding = 0,
-			Callback = function(Value)
-				Glass.SetOpacity(Value / 100)
-				Settings.GlassOpacity = Value
-				InterfaceManager:SaveSettings()
-			end
-		})
-
 		-- Uu tien phim da luu (Settings.MenuKeybind) hon mac dinh cua cua so:
 		-- ban cu viet `Library.MinimizeKey.Name or Settings.MenuKeybind`, ma
 		-- ve trai LUON co gia tri -> phim nguoi dung tu dat bi bo qua.
@@ -10240,9 +9038,9 @@ function Library:CreateWindow(Config)
 	-- vi tri, nen thieu truong nay se loi "index nil with X".
 	Config.Size = Config.Size or UDim2.fromOffset(580, 460)
 	Config.TabWidth = Config.TabWidth or 160
-	-- He thong blur 3D cu (AcrylicBlur/ScreenPointToRay) KHONG dung nua:
-	-- lop kinh that Lens (ViewportPointToRay) thay the, khoi dong sau khi
-	-- co Window (can Root de track). Giua co Acrylic de tuong thich cu.
+	if Config.Acrylic then
+		Acrylic.init()
+	end
 
 	local Window = Components.Window({
 		Parent = GUI,
@@ -10256,9 +9054,6 @@ function Library:CreateWindow(Config)
 	Library.Window = Window
 	InterfaceManager:SetTheme(Library.Theme)
 	Library:SetTheme(Library.Theme)
-	-- Bat lop kinh that (glass + tint + DOF) va track theo window.
-	-- LUON mo mac dinh (day la ban sac liquid glass); tat bang toggle Acrylic.
-	pcall(function() Lens.Start(Window) end)
 
 	--local Dragging, DragInput, MousePos, StartPos = false
 
@@ -10451,7 +9246,7 @@ function Library:CreateWindow(Config)
 	Main.Name = "Main"
 	Main.Parent = PidUi
 	Main.BackgroundColor3 = Creator.GetThemeProperty("AcrylicMain")
-	Main.BackgroundTransparency = 0.72
+	Main.BackgroundTransparency = 0.28
 	Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	Main.BorderSizePixel = 0
 	Main.ClipsDescendants = false
@@ -10463,7 +9258,7 @@ function Library:CreateWindow(Config)
 	UICorner.CornerRadius = UDim.new(0, 14)
 	UICorner.Parent = Main
 
-	Glass.TransparencyGradient(Main, 0.94, 0.86, 0.76)
+	Glass.TransparencyGradient(Main, 0.42, 0.34, 0.24)
 	Glass.Shadow({ Spread = 24, OffsetY = 4, Transparency = 0.50, ZIndex = 1, Parent = Main })
 
 	-- vien kinh quang hoc theo theme (rim light: sang tren, mo dan xuong duoi)
@@ -10529,12 +9324,20 @@ function Library:CreateWindow(Config)
 	MainIconCorner.CornerRadius = UDim.new(0, 14)
 	MainIconCorner.Parent = MainIcon
 
-	-- Micro-animation: chi sang vien (KHONG doi size icon de tranh cam giac loi)
+	-- Micro-animation: Glass optical flare and icon bounce on hover
 	AddSignal(Main.MouseEnter, function()
 		TweenService:Create(MainStroke, TweenInfo.new(0.2), { Transparency = 0.05 }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.2), { Size = UDim2.new(1, 2, 1, 2) }):Play()
 	end)
 	AddSignal(Main.MouseLeave, function()
 		TweenService:Create(MainStroke, TweenInfo.new(0.25), { Transparency = 0.25 }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.25), { Size = UDim2.fromScale(1, 1) }):Play()
+	end)
+	AddSignal(Main.MouseButton1Down, function()
+		TweenService:Create(MainIcon, TweenInfo.new(0.1), { Size = UDim2.new(1, -6, 1, -6) }):Play()
+	end)
+	AddSignal(Main.MouseButton1Up, function()
+		TweenService:Create(MainIcon, TweenInfo.new(0.15), { Size = UDim2.fromScale(1, 1) }):Play()
 	end)
 
 	-- dang ky vao Creator.Registry de tu doi mau khi Library:SetTheme()
@@ -10660,13 +9463,6 @@ function Library:Destroy()
 		if BlurFolder and BlurFolder.Parent then
 			pcall(function() BlurFolder:Destroy() end)
 		end
-		-- Don lop kinh that + RenderStepped tracking
-		pcall(function() Lens.Destroy() end)
-		-- Xoa blur that cua kinh duc (neu co)
-		if Glass._BlurFx then
-			pcall(function() Glass._BlurFx:Destroy() end)
-			Glass._BlurFx = nil
-		end
 		Creator.Disconnect()
 		-- Icon thu nho o ScreenGui rieng (xem chu thich o Library.MinimizerGUI)
 		if Library.MinimizerGUI then
@@ -10684,9 +9480,23 @@ function Library:Destroy()
 end
 
 function Library:ToggleAcrylic(Value)
-	Library.Acrylic = Value and true or false
-	-- Cong tac lop kinh that (mac dinh mo khi tao window)
-	pcall(function() Lens.SetEnabled(Library.Acrylic) end)
+	if Library.Window then
+		if Library.UseAcrylic then
+			Library.Acrylic = Value
+			-- Model co the la nil neu khong tao duoc Part blur (vd game chan
+			-- ghi vao Camera, hoac executor khong cho tao Part) -> guard lai
+			-- de bam toggle "Acrylic" khong nem loi.
+			local Model = Library.Window.AcrylicPaint.Model
+			if Model then
+				Model.Transparency = Value and 0.98 or 1
+			end
+			if Value then
+				Acrylic.Enable()
+			else
+				Acrylic.Disable()
+			end
+		end
+	end
 end
 
 function Library:ToggleTransparency(Value)
@@ -10705,13 +9515,6 @@ function Library:ToggleTransparency(Value)
 	end
 
 	Frame.BackgroundTransparency = 0
-end
-
--- API nhanh: doi do duc tu code (vi du nut "sua loi trong" 1 cham)
---   Fluent.SetGlassOpacity(0.65)  -- 0..1, cang cao cang duc
---   Fluent.SetGlassOpacity(0)     -- ve trong suot nhu cu
-function Library:SetGlassOpacity(Opacity)
-	Glass.SetOpacity(Opacity)
 end
 
 function Library:Notify(Config)
