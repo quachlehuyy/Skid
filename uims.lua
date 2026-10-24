@@ -9385,7 +9385,7 @@ function Library:ToggleTransparency(Value)
 		Grad.Enabled = Library.Transparency
 	end
 
-	Frame.BackgroundTransparency = 0
+	Frame.BackgroundTransparency = 0.65
 end
 
 -- Doi do trong suot cua nen cua so luc dang chay (0..1). Panel sidebar/noi dung
