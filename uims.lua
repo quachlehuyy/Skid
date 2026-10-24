@@ -1776,6 +1776,11 @@ function Creator.UpdateTheme()
 				-- Kiem tra kieu `if X then` se bo qua no -> element o cac theme
 				-- do giu nguyen do trong cua theme truoc.
 				if Theme_Property ~= nil then
+					-- UIGradient.Color bat buoc la ColorSequence; cac theme dinh
+					-- nghia gia tri don le dang Color3 thi tu dong boc lai.
+					if Object:IsA("UIGradient") and Property == "Color" and typeof(Theme_Property) == "Color3" then
+						Theme_Property = ColorSequence.new(Theme_Property)
+					end
 					Object[Property] = Theme_Property
 				end
 			end
@@ -1800,6 +1805,11 @@ function Creator.AddThemeObject(Object, Properties)
 	for Property, ColorIdx in next, Properties do
 		local Theme_Property = Creator.GetThemeProperty(ColorIdx)
 		if Theme_Property ~= nil then
+			-- UIGradient.Color bat buoc la ColorSequence; gia tri Color3 don le
+			-- (vi du DarkGlassGlow cho corner glow) duoc boc lai tu dong.
+			if Object:IsA("UIGradient") and Property == "Color" and typeof(Theme_Property) == "Color3" then
+				Theme_Property = ColorSequence.new(Theme_Property)
+			end
 			Object[Property] = Theme_Property
 		end
 	end
