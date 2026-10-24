@@ -2414,6 +2414,9 @@ local AddSignal = Creator.AddSignal
 --      dinh (Window.Root, Dialog, Notification, Dropdown holder...).
 -- ─────────────────────────────────────────────────────────────────────
 local Glass = {
+	-- Do trong suot cua cac panel chinh (cua so, dropdown, dialog, thong bao).
+	-- So cang nho cang dac. Top/Mid/Bottom la dau/giua/cuoi gradient doc.
+	Panel = { Top = 0.30, Mid = 0.22, Bottom = 0.14 },
 	-- ban kinh bo goc theo tung cap do (pixel) chuan iOS 27 / visionOS Squircle
 	Radius = {
 		Window  = 26, -- cua so / dialog
@@ -3768,7 +3771,7 @@ Components.Dialog = (function()
 			New("UICorner", {
 				CornerRadius = UDim.new(0, Glass.Radius.Card),
 			}),
-			Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+			Glass.TransparencyGradient(Glass.Panel),
 			Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 			Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 0 }),
 			Glass.Rim({ Transparency = 0.28, Tag = "DialogBorder", Mode = Enum.ApplyStrokeMode.Contextual }),
@@ -3983,7 +3986,7 @@ Components.Notification = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+		    Glass.TransparencyGradient(Glass.Panel),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 		    Glass.TopLight({ Inset = 14, Transparency = 0.16, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
@@ -4745,7 +4748,7 @@ Components.Window = (function()
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
-		    Glass.TransparencyGradient({ Top = 0.85, Mid = 0.78, Bottom = 0.70 }),
+		    Glass.TransparencyGradient(Glass.Panel),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.97 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
@@ -5638,7 +5641,7 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.TransparencyGradient({ Top = 0.96, Mid = 0.92, Bottom = 0.86 }),
+		    Glass.TransparencyGradient(Glass.Panel),
 		    Glass.Frost(Glass.Radius.Card, { Transparency = 0.97 }),
 		    Glass.TopLight({ Inset = 16, Transparency = 0.16, ZIndex = 3 }),
 		    Glass.RimLayer(Glass.Radius.Card, { Transparency = 0.28, ZIndex = 4 }),
