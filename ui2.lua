@@ -3837,18 +3837,59 @@ Components.Window = (function()
 				Rotation = 90, -- vertical: blue glow on top fading to near-black
 				ThemeTag = { Color = "DarkGlassGradient" },
 			}),
-			-- Ambient radial light: a soft round glow emanating from the top-left
-			-- corner, spilling gently past the window edge like real light bounce.
-			New("ImageLabel", {
+			-- Ambient radial light: concentric translucent rings centered on the
+			-- top-left corner build a smooth radial glow with NO image assets
+			-- (an image-based glow rendered as a broken white square on some
+			-- executors, so this is fully vector-based and cannot fail).
+			-- The container clips at the window bounds; rings use scale sizes so
+			-- the light stretches naturally with the window aspect.
+			New("Frame", {
 				Name = "DarkGlassCornerLight",
 				BackgroundTransparency = 1,
-				Image = "rbxassetid://3570684266", -- soft radial glow
-				ImageTransparency = 0.60,
-				Size = UDim2.fromScale(1.3, 1.3),
-				Position = UDim2.fromScale(0, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5),
+				Size = UDim2.fromScale(1, 1),
+				ClipsDescendants = true,
 				ZIndex = 0,
-				ThemeTag = { ImageColor3 = "DarkGlassGlow" },
+			}, {
+				New("Frame", {
+					Name = "LightRing1",
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromScale(0, 0),
+					Size = UDim2.fromScale(0.35, 0.7),
+					BackgroundTransparency = 0.82,
+					BorderSizePixel = 0,
+					ZIndex = 0,
+					ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+				}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+				New("Frame", {
+					Name = "LightRing2",
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromScale(0, 0),
+					Size = UDim2.fromScale(0.55, 1.1),
+					BackgroundTransparency = 0.87,
+					BorderSizePixel = 0,
+					ZIndex = 0,
+					ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+				}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+				New("Frame", {
+					Name = "LightRing3",
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromScale(0, 0),
+					Size = UDim2.fromScale(0.8, 1.6),
+					BackgroundTransparency = 0.91,
+					BorderSizePixel = 0,
+					ZIndex = 0,
+					ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+				}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+				New("Frame", {
+					Name = "LightRing4",
+					AnchorPoint = Vector2.new(0.5, 0.5),
+					Position = UDim2.fromScale(0, 0),
+					Size = UDim2.fromScale(1.1, 2.2),
+					BackgroundTransparency = 0.95,
+					BorderSizePixel = 0,
+					ZIndex = 0,
+					ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+				}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
 			}),
 			-- Soft corner glow: diagonal sheen radiating from the top-left corner,
 			-- fading out ~1/3 into the window. Sits below all content.
@@ -3866,7 +3907,7 @@ Components.Window = (function()
 					Rotation = 315, -- glow origin at top-left, fading toward bottom-right
 					ThemeTag = { Color = "DarkGlassGlow" },
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.55), -- soft glow at the corner
+						NumberSequenceKeypoint.new(0.00, 0.80), -- subtle sheen under the radial light
 						NumberSequenceKeypoint.new(0.30, 1.00), -- fully faded
 						NumberSequenceKeypoint.new(1.00, 1.00),
 					}),
