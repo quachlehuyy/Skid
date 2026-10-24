@@ -14,7 +14,9 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
 local Themes = {
 	Names = {
-		"Frosted Modern",
+		"Dwac Dark Glass",
+		"Liquid Glass",
+		"Liquid Glass Dark",
 		"Midnight Blue",
 		"Obsidian White",
 		"Crimson Dark",
@@ -40,59 +42,112 @@ local Themes = {
 		"Emerald"
 	},
 	-- ─────────────────────────────────────────────────────────────
-	-- Frosted Modern - nhẹ, mờ, trong suốt, hiện đại
+	-- Liquid Glass (iOS 27) - kính trong suốt, sáng bóng, viền khúc xạ pha lê
 	-- ─────────────────────────────────────────────────────────────
-	["Frosted Modern"] = {
-		Name = "Frosted Modern",
-		Accent = Color3.fromRGB(100, 180, 255), -- Soft Sky Blue
+	["Liquid Glass"] = {
+		Name = "Liquid Glass",
+		Accent = Color3.fromRGB(0, 122, 255), -- iOS Apple Blue
 
-		AcrylicMain = Color3.fromRGB(28, 32, 42),
-		AcrylicBorder = Color3.fromRGB(80, 95, 120),
+		AcrylicMain = Color3.fromRGB(240, 245, 255),
+		AcrylicBorder = Color3.fromRGB(255, 255, 255),
 		AcrylicGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(42, 48, 62)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32, 36, 48)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(22, 26, 36)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(240, 246, 255)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(220, 232, 250)),
 		}),
-		AcrylicNoise = 0.97,
+		AcrylicNoise = 0.98,
 
-		TitleBarLine = Color3.fromRGB(58, 68, 88),
-		Tab = Color3.fromRGB(220, 228, 240),
+		TitleBarLine = Color3.fromRGB(255, 255, 255),
+		Tab = Color3.fromRGB(255, 255, 255),
 
-		Element = Color3.fromRGB(36, 42, 56),
-		ElementBorder = Color3.fromRGB(65, 80, 105),
-		InElementBorder = Color3.fromRGB(100, 180, 255),
-		ElementTransparency = 0.90,
+		Element = Color3.fromRGB(255, 255, 255),
+		ElementBorder = Color3.fromRGB(255, 255, 255),
+		InElementBorder = Color3.fromRGB(210, 225, 248),
+		ElementTransparency = 0.88,
 
-		ToggleSlider = Color3.fromRGB(100, 180, 255),
-		ToggleToggled = Color3.fromRGB(22, 26, 36),
+		ToggleSlider = Color3.fromRGB(0, 122, 255),
+		ToggleToggled = Color3.fromRGB(255, 255, 255),
+		TransparenToggle = 0.25,
 
-		SliderRail = Color3.fromRGB(55, 68, 90),
+		SliderRail = Color3.fromRGB(180, 195, 220),
 
-		DropdownFrame = Color3.fromRGB(36, 42, 56),
-		DropdownHolder = Color3.fromRGB(26, 30, 42),
-		DropdownBorder = Color3.fromRGB(65, 80, 105),
-		DropdownOption = Color3.fromRGB(36, 42, 56),
+		DropdownFrame = Color3.fromRGB(255, 255, 255),
+		DropdownHolder = Color3.fromRGB(245, 248, 255),
+		DropdownBorder = Color3.fromRGB(255, 255, 255),
+		DropdownOption = Color3.fromRGB(215, 232, 255),
 
-		Keybind = Color3.fromRGB(36, 42, 56),
+		Keybind = Color3.fromRGB(255, 255, 255),
 
-		Input = Color3.fromRGB(26, 30, 42),
-		InputFocused = Color3.fromRGB(44, 52, 70),
-		InputIndicator = Color3.fromRGB(100, 160, 225),
-		InputIndicatorFocus = Color3.fromRGB(100, 180, 255),
+		Input = Color3.fromRGB(255, 255, 255),
+		InputFocused = Color3.fromRGB(255, 255, 255),
+		InputIndicator = Color3.fromRGB(160, 175, 200),
+		InputIndicatorFocus = Color3.fromRGB(0, 122, 255),
 
-		Dialog = Color3.fromRGB(32, 38, 50),
-		DialogHolder = Color3.fromRGB(24, 28, 38),
-		DialogHolderLine = Color3.fromRGB(55, 65, 85),
-		DialogButton = Color3.fromRGB(36, 42, 56),
-		DialogButtonBorder = Color3.fromRGB(65, 80, 105),
-		DialogBorder = Color3.fromRGB(65, 80, 105),
-		DialogInput = Color3.fromRGB(26, 30, 42),
-		DialogInputLine = Color3.fromRGB(100, 180, 255),
+		Dialog = Color3.fromRGB(248, 250, 255),
+		DialogHolder = Color3.fromRGB(240, 245, 255),
+		DialogHolderLine = Color3.fromRGB(255, 255, 255),
+		DialogButton = Color3.fromRGB(255, 255, 255),
+		DialogButtonBorder = Color3.fromRGB(255, 255, 255),
+		DialogBorder = Color3.fromRGB(255, 255, 255),
+		DialogInput = Color3.fromRGB(255, 255, 255),
+		DialogInputLine = Color3.fromRGB(0, 122, 255),
 
-		Text = Color3.fromRGB(235, 240, 250),
-		SubText = Color3.fromRGB(160, 175, 200),
-		Hover = Color3.fromRGB(48, 58, 78),
-		HoverChange = 0.06,
+		Text = Color3.fromRGB(18, 22, 32),
+		SubText = Color3.fromRGB(95, 108, 128),
+		Hover = Color3.fromRGB(255, 255, 255),
+		HoverChange = 0.08,
+	},
+	["Liquid Glass Dark"] = {
+		Name = "Liquid Glass Dark",
+		Accent = Color3.fromRGB(45, 220, 255), -- Glowing Neon Cyan
+
+		AcrylicMain = Color3.fromRGB(38, 48, 68),
+		AcrylicBorder = Color3.fromRGB(255, 255, 255),
+		AcrylicGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(65, 85, 125)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(38, 48, 68)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(24, 30, 45)),
+		}),
+		AcrylicNoise = 0.88,
+
+		TitleBarLine = Color3.fromRGB(75, 125, 185),
+		Tab = Color3.fromRGB(255, 255, 255),
+
+		Element = Color3.fromRGB(48, 62, 88),
+		ElementBorder = Color3.fromRGB(110, 175, 255),
+		InElementBorder = Color3.fromRGB(45, 220, 255),
+		ElementTransparency = 0.94,
+
+		ToggleSlider = Color3.fromRGB(45, 220, 255),
+		ToggleToggled = Color3.fromRGB(24, 30, 45),
+
+		SliderRail = Color3.fromRGB(75, 125, 185),
+
+		DropdownFrame = Color3.fromRGB(48, 62, 88),
+		DropdownHolder = Color3.fromRGB(32, 42, 60),
+		DropdownBorder = Color3.fromRGB(110, 175, 255),
+		DropdownOption = Color3.fromRGB(48, 62, 88),
+
+		Keybind = Color3.fromRGB(48, 62, 88),
+
+		Input = Color3.fromRGB(32, 42, 60),
+		InputFocused = Color3.fromRGB(56, 74, 105),
+		InputIndicator = Color3.fromRGB(120, 185, 255),
+		InputIndicatorFocus = Color3.fromRGB(45, 220, 255),
+
+		Dialog = Color3.fromRGB(38, 48, 68),
+		DialogHolder = Color3.fromRGB(32, 42, 60),
+		DialogHolderLine = Color3.fromRGB(75, 125, 185),
+		DialogButton = Color3.fromRGB(48, 62, 88),
+		DialogButtonBorder = Color3.fromRGB(110, 175, 255),
+		DialogBorder = Color3.fromRGB(110, 175, 255),
+		DialogInput = Color3.fromRGB(32, 42, 60),
+		DialogInputLine = Color3.fromRGB(45, 220, 255),
+
+		Text = Color3.fromRGB(255, 255, 255),
+		SubText = Color3.fromRGB(225, 240, 255),
+		Hover = Color3.fromRGB(60, 95, 145),
+		HoverChange = 0.05,
 	},
 	["VSC Dark High Contrast"] = {
 		Accent = Color3.fromHex("#6bb5ff"), -- Glowing Bright VSC Blue
@@ -1182,6 +1237,59 @@ local Themes = {
 	
 		Hover = Color3.fromRGB(42, 80, 60),
 		HoverChange = 0.09,
+	},
+	["Dwac Dark Glass"] = {
+		Name = "Dwac Dark Glass",
+		Accent = Color3.fromRGB(126, 231, 153),
+
+		-- Deep charcoal/forest glass; the restrained gradient keeps gameplay visible.
+		AcrylicMain = Color3.fromRGB(15, 21, 17),
+		AcrylicBorder = Color3.fromRGB(218, 232, 222),
+		AcrylicGradient = ColorSequence.new(
+			Color3.fromRGB(35, 46, 38),
+			Color3.fromRGB(13, 18, 15)
+		),
+		AcrylicNoise = 0.97,
+
+		TitleBarLine = Color3.fromRGB(100, 119, 105),
+		Tab = Color3.fromRGB(255, 255, 255),
+
+		Element = Color3.fromRGB(27, 36, 30),
+		ElementBorder = Color3.fromRGB(93, 111, 99),
+		InElementBorder = Color3.fromRGB(126, 231, 153),
+		ElementTransparency = 0.30,
+
+		ToggleSlider = Color3.fromRGB(126, 231, 153),
+		ToggleToggled = Color3.fromRGB(16, 23, 18),
+		TransparenToggle = 0.26,
+
+		SliderRail = Color3.fromRGB(83, 103, 89),
+
+		DropdownFrame = Color3.fromRGB(27, 36, 30),
+		DropdownHolder = Color3.fromRGB(17, 23, 19),
+		DropdownBorder = Color3.fromRGB(102, 122, 108),
+		DropdownOption = Color3.fromRGB(34, 45, 37),
+
+		Keybind = Color3.fromRGB(27, 36, 30),
+
+		Input = Color3.fromRGB(18, 25, 20),
+		InputFocused = Color3.fromRGB(35, 48, 39),
+		InputIndicator = Color3.fromRGB(155, 173, 160),
+		InputIndicatorFocus = Color3.fromRGB(126, 231, 153),
+
+		Dialog = Color3.fromRGB(25, 34, 28),
+		DialogHolder = Color3.fromRGB(17, 23, 19),
+		DialogHolderLine = Color3.fromRGB(100, 119, 105),
+		DialogButton = Color3.fromRGB(31, 42, 34),
+		DialogButtonBorder = Color3.fromRGB(102, 122, 108),
+		DialogBorder = Color3.fromRGB(102, 122, 108),
+		DialogInput = Color3.fromRGB(18, 25, 20),
+		DialogInputLine = Color3.fromRGB(126, 231, 153),
+
+		Text = Color3.fromRGB(255, 255, 255),
+		SubText = Color3.fromRGB(211, 224, 215),
+		Hover = Color3.fromRGB(43, 61, 48),
+		HoverChange = 0.06,
 	}
 }
 
@@ -1198,8 +1306,10 @@ local Library = {
 
 	Creator = nil,
 
-	-- Theme mac dinh: nhe, mo, hien dai.
-	Theme = "Frosted Modern",
+	-- Theme mac dinh cho Dwac Hub.
+	Theme = "Dwac Dark Glass",
+	-- Lite mode avoids decorative image/gradient layers on frequently repeated controls.
+	PerformanceMode = true,
 
 	DialogOpen = false,
 	UseAcrylic = false,
@@ -1788,7 +1898,14 @@ function Creator.AddThemeObject(Object, Properties)
 		-- con sai vi Registry dung khoa la instance nen `#` luon = 0.
 		Seen = Object.Parent ~= nil,
 	}
-	Creator.UpdateTheme()
+	-- Apply the active theme to this one object only. Calling UpdateTheme() here
+	-- made every new GUI instance re-theme the entire registry (quadratic build cost).
+	for Property, ColorIdx in next, Properties do
+		local Theme_Property = Creator.GetThemeProperty(ColorIdx)
+		if Theme_Property ~= nil then
+			Object[Property] = Theme_Property
+		end
+	end
 	return Object
 end
 
@@ -2113,7 +2230,7 @@ function AcrylicPaint()
 
 		AcrylicPaint.Frame = New("Frame", {
 			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.94,
+			BackgroundTransparency = 0.9,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BorderSizePixel = 0,
 		}, {
@@ -2126,15 +2243,15 @@ function AcrylicPaint()
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
 				ImageColor3 = Color3.fromRGB(0, 0, 0),
-				ImageTransparency = 0.82,
+				ImageTransparency = 0.7,
 			}),
 
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 10),
+				CornerRadius = UDim.new(0, 8),
 			}),
 
 			New("Frame", {
-				BackgroundTransparency = 0.65,
+				BackgroundTransparency = 0.45,
 				Size = UDim2.fromScale(1, 1),
 				Name = "Background",
 				ThemeTag = {
@@ -2142,17 +2259,17 @@ function AcrylicPaint()
 				},
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 10),
+					CornerRadius = UDim.new(0, 8),
 				}),
 			}),
 
 			New("Frame", {
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				BackgroundTransparency = 0.60,
+				BackgroundTransparency = 0.4,
 				Size = UDim2.fromScale(1, 1),
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 10),
+					CornerRadius = UDim.new(0, 8),
 				}),
 
 				New("UIGradient", {
@@ -2165,20 +2282,20 @@ function AcrylicPaint()
 
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344105",
-				ImageTransparency = 0.99,
+				ImageTransparency = 0.98,
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 10),
+					CornerRadius = UDim.new(0, 8),
 				}),
 			}),
 
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344227",
-				ImageTransparency = 0.96,
+				ImageTransparency = 0.9,
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
@@ -2188,7 +2305,7 @@ function AcrylicPaint()
 				},
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 10),
+					CornerRadius = UDim.new(0, 8),
 				}),
 			}),
 
@@ -2198,11 +2315,11 @@ function AcrylicPaint()
 				ZIndex = 2,
 			}, {
 				New("UICorner", {
-					CornerRadius = UDim.new(0, 10),
+					CornerRadius = UDim.new(0, 8),
 				}),
 				New("UIStroke", {
-					Transparency = 0.68,
-					Thickness = 0.8,
+					Transparency = 0.5,
+					Thickness = 1,
 					ThemeTag = {
 						Color = "AcrylicBorder",
 					},
@@ -2321,13 +2438,18 @@ local Glass = {
 -- Vien kinh: sang ro o canh tren, mo dan xuong duoi (giong rim light iOS)
 function Glass.Rim(Props)
 	Props = Props or {}
-	return New("UIStroke", {
+	local stroke = {
 		Thickness       = Props.Thickness or 1.2,
 		Transparency    = Props.Transparency or 0.22,
 		ApplyStrokeMode = Props.Mode or Enum.ApplyStrokeMode.Border,
 		Color           = Color3.fromRGB(255, 255, 255),
 		ThemeTag        = { Color = Props.Tag or "AcrylicBorder" },
-	}, {
+	}
+	if Library.PerformanceMode then
+		-- Single stroke: no per-control gradient shader.
+		return New("UIStroke", stroke)
+	end
+	return New("UIStroke", stroke, {
 		New("UIGradient", {
 			Rotation = Props.Rotation or 90,
 			Transparency = NumberSequence.new({
@@ -2345,12 +2467,24 @@ function Glass.Sheen(Radius, Props)
 	local size = Props.Height
 		and UDim2.new(1, 0, 0, Props.Height)
 		or UDim2.fromScale(1, 1)
+	if Library.PerformanceMode then
+		-- Keep the overlay non-interactive and rounded, but omit a full-size gradient.
+		return New("Frame", {
+			Name = "GlassSheen",
+			Size = size,
+			BackgroundTransparency = 1,
+			Interactable = false,
+			ZIndex = Props.ZIndex or 0,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Control) }),
+		})
+	end
 	return New("Frame", {
 		Name                   = "GlassSheen",
 		Size                   = size,
 		BackgroundColor3       = Props.Color or Color3.fromRGB(255, 255, 255),
 		BackgroundTransparency = 0,
-		Interactable           = false, -- khong hut chuot cua control ben duoi
+		Interactable           = false,
 		ZIndex                 = Props.ZIndex or 0,
 	}, {
 		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Control) }),
@@ -2402,7 +2536,7 @@ function Glass.Accent(Frame, Props)
 	})
 
 	-- (2) Bong kinh o nua tren (specular sheen).
-	if Props.Gloss ~= false then
+	if Props.Gloss ~= false and not Library.PerformanceMode then
 		New("Frame", {
 			Name                   = "GlassAccentGloss",
 			Size                   = UDim2.fromScale(1, 1),
@@ -2425,7 +2559,7 @@ function Glass.Accent(Frame, Props)
 	end
 
 	-- (3) Vach specular 1px sat canh tren.
-	if Props.TopLight then
+	if Props.TopLight and not Library.PerformanceMode then
 		local LightSize, LightPos
 		if Props.LightScale then
 			LightSize = UDim2.new(Props.LightScale, 0, 0, 1)
@@ -2544,6 +2678,14 @@ function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 		MidKeypoint = Props.MidKeypoint or 0.45
 	end
 
+	-- Dwac Dark Glass uses a medium-frost opacity curve so game colors remain
+	-- visible without making labels and controls disappear into the scene.
+	if Library.Theme == "Dwac Dark Glass" and Library.PerformanceMode then
+		Top = math.min(Top, 0.58)
+		Mid = math.min(Mid, 0.48)
+		Bottom = math.min(Bottom, 0.38)
+	end
+
 	local Grad = New("UIGradient", {
 		Name         = "GlassTransparencyGradient",
 		Rotation     = Rotation,
@@ -2564,6 +2706,24 @@ function Glass.Refract(Radius, Props)
 	Props = Props or {}
 	local Band = Props.Band or 1.2
 	local R = Radius or Glass.Radius.Window
+	if Library.PerformanceMode then
+		return New("Frame", {
+			Name = "GlassRefract",
+			Size = UDim2.fromScale(1, 1),
+			Position = UDim2.fromOffset(0, 0),
+			BackgroundTransparency = 1,
+			Interactable = false,
+			ZIndex = Props.ZIndex or 1,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, R) }),
+			New("UIStroke", {
+				Thickness = Band,
+				Transparency = math.clamp(Props.Transparency or 0.60, 0.50, 0.78),
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = Color3.fromRGB(255, 255, 255),
+			}),
+		})
+	end
 	return New("Frame", {
 		Name                   = "GlassRefract",
 		Size                   = UDim2.fromScale(1, 1),
@@ -2582,9 +2742,9 @@ function Glass.Refract(Radius, Props)
 			New("UIGradient", {
 				Rotation = 45,
 				Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 242, 225)), -- warm light top-left
+					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 242, 225)),
 					ColorSequenceKeypoint.new(0.48, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(175, 220, 255)), -- cool azure bottom-right
+					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(175, 220, 255)),
 				}),
 				Transparency = NumberSequence.new({
 					NumberSequenceKeypoint.new(0.00, 0.20),
@@ -2658,6 +2818,19 @@ end
 -- (3) PHAN XA THAU KINH CONG (Curved Specular Lens Sheen)
 function Glass.Specular(Radius, Props)
 	Props = Props or {}
+	if Library.PerformanceMode then
+		return New("Frame", {
+			Name = "GlassSpecular",
+			Size = UDim2.new(1, 0, 0.18, 0),
+			Position = UDim2.fromScale(0, 0),
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 0.94,
+			Interactable = false,
+			ZIndex = Props.ZIndex or 3,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+		})
+	end
 	return New("Frame", {
 		Name                   = "GlassSpecular",
 		Size                   = UDim2.new(1, 0, 0.44, 0),
@@ -2705,6 +2878,23 @@ function Glass.RimLayer(Radius, Props)
 	local size = Props.Height
 		and UDim2.new(1, 0, 0, Props.Height)
 		or UDim2.fromScale(1, 1)
+	if Library.PerformanceMode then
+		return New("Frame", {
+			Name = "GlassRim",
+			Size = size,
+			BackgroundTransparency = 1,
+			Interactable = false,
+			ZIndex = Props.ZIndex or 5,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+			New("UIStroke", {
+				Thickness = Props.Thickness or 1.2,
+				Transparency = math.clamp((Props.Transparency or 0.28) + 0.16, 0.28, 0.72),
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = Color3.fromRGB(255, 255, 255),
+			}),
+		})
+	end
 	return New("Frame", {
 		Name                   = "GlassRim",
 		Size                   = size,
@@ -2735,6 +2925,17 @@ end
 function Glass.TopLight(Props)
 	Props = Props or {}
 	local Inset = Props.Inset or 20
+	if Library.PerformanceMode then
+		return New("Frame", {
+			Name = "GlassTopLight",
+			Size = UDim2.new(1, -Inset * 2, 0, Props.Thickness or 1),
+			Position = UDim2.new(0, Inset, 0, Props.Offset or 1),
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 0.76,
+			Interactable = false,
+			ZIndex = Props.ZIndex or 4,
+		})
+	end
 	return New("Frame", {
 		Name                   = "GlassTopLight",
 		Size                   = UDim2.new(1, -Inset * 2, 0, Props.Thickness or 1.2),
@@ -2778,6 +2979,19 @@ end
 -- Lop hat mo phong be mat kinh nham sieu min (frosted glass micro-noise)
 function Glass.Frost(Radius, Props)
 	Props = Props or {}
+	if Library.PerformanceMode then
+		-- Static tint instead of a tiled noise image; preserves the frosted look cheaply.
+		return New("Frame", {
+			Name = "GlassFrost",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = math.max(Props.Transparency or 0.96, 0.94),
+			Interactable = false,
+			ZIndex = Props.ZIndex or 0,
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
+		})
+	end
 	return New("ImageLabel", {
 		Name                   = "GlassFrost",
 		Size                   = UDim2.fromScale(1, 1),
@@ -4351,7 +4565,8 @@ Components.Window = (function()
 			FontFace         = Font.new("rbxasset://fonts/families/GothamSSm.json"),
 			Text             = "",
 			PlaceholderText  = "Search...",
-			PlaceholderColor3 = Color3.fromRGB(220, 235, 255),
+			PlaceholderColor3 = Color3.fromRGB(211, 224, 215),
+			TextColor3       = Color3.fromRGB(255, 255, 255),
 			TextSize         = 12,
 			TextXAlignment   = Enum.TextXAlignment.Left,
 			TextYAlignment   = Enum.TextYAlignment.Center,
@@ -8821,8 +9036,8 @@ end
 local InterfaceManager = {} do
 	InterfaceManager.Folder = "FluentSettings"
 	InterfaceManager.Settings = {
-		Theme = "Liquid Glass",
-		Acrylic = true,
+		Theme = "Dwac Dark Glass",
+		Acrylic = false,
 		Transparency = true,
 		MenuKeybind = "M"
 	}
@@ -8877,6 +9092,10 @@ local InterfaceManager = {} do
 				for i, v in next, decoded do
 					InterfaceManager.Settings[i] = v
 				end
+				-- Migrate the previous default theme to Dwac Dark Glass once.
+				if InterfaceManager.Settings.Theme == "Liquid Glass" then
+					InterfaceManager.Settings.Theme = "Dwac Dark Glass"
+				end
 			end
 		end
 	end
@@ -8923,7 +9142,7 @@ local InterfaceManager = {} do
 		if Library.UseAcrylic then
 			section:AddToggle("AcrylicToggle", {
 				Title = "Acrylic",
-				Description = "The blurred background requires graphic quality 8+",
+				Description = "Live blur is heavier; keep off for best FPS.",
 				Default = Settings.Acrylic,
 				Callback = function(Value)
 					Library:ToggleAcrylic(Value)
@@ -8968,9 +9187,12 @@ function Library:CreateWindow(Config)
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.RightControl
-	Library.UseAcrylic = Config.Acrylic or false
-	Library.Acrylic = Config.Acrylic or false
-	Library.Theme = Config.Theme or "Liquid Glass"
+	Library.PerformanceMode = Config.PerformanceMode ~= false
+	-- Live 3D blur/DepthOfField is the most expensive option: only enable it
+	-- when the caller explicitly opts out of PerformanceMode.
+	Library.UseAcrylic = (Config.Acrylic == true) and not Library.PerformanceMode
+	Library.Acrylic = Library.UseAcrylic
+	Library.Theme = Config.Theme or "Dwac Dark Glass"
 	-- `Config.Transparency ~= false` chu khong phai `or false`: mac dinh cua
 	-- thu vien la CO trong suot (Library.Transparency = true o dau file), nen
 	-- neu nguoi dung khong truyen truong nay thi phai giu nguyen mac dinh.
@@ -8980,7 +9202,7 @@ function Library:CreateWindow(Config)
 	-- vi tri, nen thieu truong nay se loi "index nil with X".
 	Config.Size = Config.Size or UDim2.fromOffset(580, 460)
 	Config.TabWidth = Config.TabWidth or 160
-	if Config.Acrylic then
+	if Library.UseAcrylic then
 		Acrylic.init()
 	end
 
