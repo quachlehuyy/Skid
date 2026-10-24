@@ -2469,7 +2469,7 @@ local AddSignal = Creator.AddSignal
 local Glass = {
 	-- Do trong suot cua cac panel chinh (cua so, dropdown, dialog, thong bao).
 	-- So cang nho cang dac. Top/Mid/Bottom la dau/giua/cuoi gradient doc.
-	Panel = { Top = 0.46, Mid = 0.40, Bottom = 0.34 },
+	Panel = { Top = 0.40, Mid = 0.40, Bottom = 0.40 },
 	-- ban kinh bo goc theo tung cap do (pixel) chuan iOS 27 / visionOS Squircle
 	Radius = {
 		Window  = 26, -- cua so / dialog
@@ -2482,59 +2482,36 @@ local Glass = {
 }
 
 -- Vien kinh: sang ro o canh tren, mo dan xuong duoi (giong rim light iOS)
+-- ── BO HIEU UNG LIQUID: cac lop bong/khuc xa/specular tra ve doi tuong an ──
+-- (giu nguyen chu ky ham de code cu van chay; nen cua so dung blur that)
+function Glass.Off()
+	return New("Frame", {
+		Name = "GlassOff", Visible = false, BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(0, 0), Interactable = false,
+	}, {
+		New("UICorner", { CornerRadius = UDim.new(0, 0) }),
+	})
+end
+
 function Glass.Rim(Props)
 	Props = Props or {}
 	return New("UIStroke", {
-		Thickness       = Props.Thickness or 1.2,
-		Transparency    = Props.Transparency or 0.22,
+		Thickness       = Props.Thickness or 1,
+		Transparency    = math.max(Props.Transparency or 0.22, 0.5),
 		ApplyStrokeMode = Props.Mode or Enum.ApplyStrokeMode.Border,
 		Color           = Color3.fromRGB(255, 255, 255),
 		ThemeTag        = { Color = Props.Tag or "AcrylicBorder" },
-	}, {
-		New("UIGradient", {
-			Rotation = Props.Rotation or 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, Props.Top or 0.04),
-				NumberSequenceKeypoint.new(0.50, Props.Mid or 0.68),
-				NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.28),
-			}),
-		}),
 	})
 end
 
 -- Lop bong kinh phu tren be mat: dam o dinh, tan dan xuong duoi.
 function Glass.Sheen(Radius, Props)
-	Props = Props or {}
-	local size = Props.Height
-		and UDim2.new(1, 0, 0, Props.Height)
-		or UDim2.fromScale(1, 1)
-	return New("Frame", {
-		Name                   = "GlassSheen",
-		Size                   = size,
-		BackgroundColor3       = Props.Color or Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 0,
-		Interactable           = false, -- khong hut chuot cua control ben duoi
-		ZIndex                 = Props.ZIndex or 0,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Control) }),
-		New("UIGradient", {
-			Rotation = Props.Rotation or 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, Props.Top or 0.74),
-				NumberSequenceKeypoint.new(0.32, Props.Mid or 0.90),
-				NumberSequenceKeypoint.new(0.70, 0.98),
-				NumberSequenceKeypoint.new(1.00, Props.Bottom or 1),
-			}),
-		}),
-	})
+	return Glass.Off()
 end
 
 -- Bien ban pill (bo goc tron hoan toan) cua Sheen
 function Glass.SheenPill(Props)
-	Props = Props or {}
-	local Frame = Glass.Sheen(0, Props)
-	Frame.UICorner.CornerRadius = UDim.new(1, 0)
-	return Frame
+	return Glass.Off()
 end
 
 -- ─────────────────────────────────────────────────────────────
@@ -2543,82 +2520,6 @@ end
 -- cua tab dang chon, thanh selector... de tat ca cung MOT chat kinh.
 -- ─────────────────────────────────────────────────────────────
 function Glass.Accent(Frame, Props)
-	Props = Props or {}
-
-	local Corner = Props.Pill == false
-		and UDim.new(0, Props.Radius or Glass.Radius.Control)
-		or UDim.new(1, 0)
-
-	-- (1) Do sang doc: dinh sang, day dam (anh sang chieu tu tren xuong).
-	New("UIGradient", {
-		Rotation = Props.Rotation or 90,
-		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-			ColorSequenceKeypoint.new(0.45, Color3.fromRGB(246, 246, 246)),
-			ColorSequenceKeypoint.new(1.00, Props.Shade or Color3.fromRGB(210, 210, 210)),
-		}),
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0.00, Props.Top or 0),
-			NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.08),
-		}),
-		Parent = Frame,
-	})
-
-	-- (2) Bong kinh o nua tren (specular sheen).
-	if Props.Gloss ~= false then
-		New("Frame", {
-			Name                   = "GlassAccentGloss",
-			Size                   = UDim2.fromScale(1, 1),
-			BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = 0.85,
-			Interactable           = false,
-			ZIndex                 = 0,
-			Parent                 = Frame,
-		}, {
-			New("UICorner", { CornerRadius = Corner }),
-			New("UIGradient", {
-				Rotation = 90,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, Props.Gloss or 0.76),
-					NumberSequenceKeypoint.new(0.42, 0.92),
-					NumberSequenceKeypoint.new(1.00, 1),
-				}),
-			}),
-		})
-	end
-
-	-- (3) Vach specular 1px sat canh tren.
-	if Props.TopLight then
-		local LightSize, LightPos
-		if Props.LightScale then
-			LightSize = UDim2.new(Props.LightScale, 0, 0, 1)
-			LightPos  = UDim2.new((1 - Props.LightScale) / 2, 0, 0, 2)
-		else
-			local Inset = Props.Inset or 8
-			LightSize = UDim2.new(1, -Inset * 2, 0, 1)
-			LightPos  = UDim2.new(0, Inset, 0, 2)
-		end
-
-		New("Frame", {
-			Name                   = "GlassAccentLight",
-			Size                   = LightSize,
-			Position               = LightPos,
-			BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = 0,
-			Interactable           = false,
-			ZIndex                 = 0,
-			Parent                 = Frame,
-		}, {
-			New("UIGradient", {
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 1),
-					NumberSequenceKeypoint.new(0.50, Props.LightTransparency or 0.28),
-					NumberSequenceKeypoint.new(1.00, 1),
-				}),
-			}),
-		})
-	end
-
 	return Frame
 end
 
@@ -2707,6 +2608,8 @@ function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 		MidKeypoint = Props.MidKeypoint or 0.45
 	end
 
+	-- PHANG: bo do doc sang->toi (liquid), dung 1 muc trong suot (Mid) cho ca 3 diem
+	Top, Bottom = Mid, Mid
 	local Grad = New("UIGradient", {
 		Name         = "GlassTransparencyGradient",
 		Rotation     = Rotation,
@@ -2724,236 +2627,42 @@ end
 
 -- (1)+(2) VANH KHUC XA + TAN SAC QUANG HOC (Chromatic Aberration Rim)
 function Glass.Refract(Radius, Props)
-	Props = Props or {}
-	local Band = Props.Band or 1.2
-	local R = Radius or Glass.Radius.Window
-	return New("Frame", {
-		Name                   = "GlassRefract",
-		Size                   = UDim2.fromScale(1, 1),
-		Position               = UDim2.fromOffset(0, 0),
-		BackgroundTransparency = 1,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 1,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, R) }),
-		New("UIStroke", {
-			Thickness       = Band,
-			Transparency    = Props.Transparency or 0.60,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color           = Color3.fromRGB(255, 255, 255),
-		}, {
-			New("UIGradient", {
-				Rotation = 45,
-				Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 242, 225)), -- warm light top-left
-					ColorSequenceKeypoint.new(0.48, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(175, 220, 255)), -- cool azure bottom-right
-				}),
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.20),
-					NumberSequenceKeypoint.new(0.50, 0.75),
-					NumberSequenceKeypoint.new(1.00, 0.40),
-				}),
-			}),
-		}),
-	})
+	return Glass.Off()
 end
 
 -- (1b) VANH KHUC XA HUONG VAO TRONG
 function Glass.EdgeBand(Radius, Props)
-	Props = Props or {}
-	local R      = Radius or Glass.Radius.Window
-	local Layers = Props.Layers or 2
-	local Base   = Props.Transparency or 0.30
-	local Fade   = Props.Fade or 0.28
-
-	local Warm = Props.Warm or Color3.fromRGB(255, 248, 238)
-	local Cool = Props.Cool or Color3.fromRGB(225, 242, 255)
-
-	local Children = {}
-	for i = 0, Layers - 1 do
-		local Size, Pos = InsetRect(i, Props.Height)
-		local T = math.clamp(Base + Fade * i, 0, 1)
-
-		Children[#Children + 1] = New("Frame", {
-			Name                   = "GlassEdge" .. i,
-			Size                   = Size,
-			Position               = Pos or UDim2.fromOffset(0, 0),
-			BackgroundTransparency = 1,
-			Interactable           = false,
-			ZIndex                 = Props.ZIndex or 0,
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, math.max(R - i, 0)) }),
-			New("UIStroke", {
-				Thickness       = 1,
-				Transparency    = T,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color           = Color3.fromRGB(255, 255, 255),
-			}, {
-				New("UIGradient", {
-					Rotation = 90,
-					Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0.00, Warm),
-						ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 255, 255)),
-						ColorSequenceKeypoint.new(1.00, Cool),
-					}),
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.05),
-						NumberSequenceKeypoint.new(0.55, Props.Mid or 0.72),
-						NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.38),
-					}),
-				}),
-			}),
-		})
-	end
-
-	return New("Frame", {
-		Name                   = "GlassEdgeBand",
-		Size                   = Props.Height
-			and UDim2.new(1, 0, 0, Props.Height)
-			or UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 0,
-	}, Children)
+	return Glass.Off()
 end
 
 -- (3) PHAN XA THAU KINH CONG (Curved Specular Lens Sheen)
 function Glass.Specular(Radius, Props)
-	Props = Props or {}
-	return New("Frame", {
-		Name                   = "GlassSpecular",
-		Size                   = UDim2.new(1, 0, 0.44, 0),
-		Position               = UDim2.fromScale(0, 0),
-		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 0,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 3,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
-		New("UIGradient", {
-			Rotation = 90,
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, Props.Top or 0.86),
-				NumberSequenceKeypoint.new(0.35, Props.Mid or 0.94),
-				NumberSequenceKeypoint.new(1.00, 1.00),
-			}),
-		}),
-	})
+	return Glass.Off()
 end
 
 -- Quang sang mem phia sau
 function Glass.Glow(Props)
-	Props = Props or {}
-	local Spread = Props.Spread or 56
-	return New("ImageLabel", {
-		Name                   = "GlassGlow",
-		Image                  = "rbxassetid://8992230677",
-		ScaleType              = Enum.ScaleType.Slice,
-		SliceCenter            = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
-		AnchorPoint            = Vector2.new(0.5, 0.5),
-		Position               = UDim2.new(0.5, Props.OffsetX or 0, 0.5, Props.OffsetY or 4),
-		Size                   = UDim2.new(1, Spread, 1, Spread),
-		BackgroundTransparency = 1,
-		ImageColor3            = Props.Color or Color3.fromRGB(0, 0, 0),
-		ImageTransparency      = Props.Transparency or 0.62,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 0,
-	})
+	return Glass.Off()
 end
 
 -- Vien sang trang doc lap (specular rim)
 function Glass.RimLayer(Radius, Props)
-	Props = Props or {}
-	local size = Props.Height
-		and UDim2.new(1, 0, 0, Props.Height)
-		or UDim2.fromScale(1, 1)
-	return New("Frame", {
-		Name                   = "GlassRim",
-		Size                   = size,
-		BackgroundTransparency = 1,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 5,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
-		New("UIStroke", {
-			Thickness       = Props.Thickness or 1.2,
-			Transparency    = Props.Transparency or 0.28,
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Color           = Color3.fromRGB(255, 255, 255),
-		}, {
-			New("UIGradient", {
-				Rotation = 90,
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, Props.Top or 0.02),
-					NumberSequenceKeypoint.new(0.50, Props.Mid or 0.74),
-					NumberSequenceKeypoint.new(1.00, Props.Bottom or 0.36),
-				}),
-			}),
-		}),
-	})
+	return Glass.Off()
 end
 
 -- Vach sang mong sat canh tren (specular line)
 function Glass.TopLight(Props)
-	Props = Props or {}
-	local Inset = Props.Inset or 20
-	return New("Frame", {
-		Name                   = "GlassTopLight",
-		Size                   = UDim2.new(1, -Inset * 2, 0, Props.Thickness or 1.2),
-		Position               = UDim2.new(0, Inset, 0, Props.Offset or 1),
-		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = 0,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 4,
-	}, {
-		New("UIGradient", {
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 1),
-				NumberSequenceKeypoint.new(0.15, Props.Transparency or 0.18),
-				NumberSequenceKeypoint.new(0.50, Props.Transparency or 0.12),
-				NumberSequenceKeypoint.new(0.85, Props.Transparency or 0.18),
-				NumberSequenceKeypoint.new(1.00, 1),
-			}),
-		}),
-	})
+	return Glass.Off()
 end
 
 -- Lop mau nen kinh (tint)
 function Glass.Tint(Radius, Props)
-	Props = Props or {}
-	return New("Frame", {
-		Name                   = "GlassTint",
-		Size                   = UDim2.fromScale(1, 1),
-		BackgroundColor3       = Color3.fromRGB(255, 255, 255),
-		BackgroundTransparency = Props.Transparency or 0.55,
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 1,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
-		New("UIGradient", {
-			Rotation = Props.Rotation or 90,
-			ThemeTag = { Color = "AcrylicGradient" },
-		}),
-	})
+	return Glass.Off()
 end
 
 -- Lop hat mo phong be mat kinh nham sieu min (frosted glass micro-noise)
 function Glass.Frost(Radius, Props)
-	Props = Props or {}
-	return New("ImageLabel", {
-		Name                   = "GlassFrost",
-		Size                   = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Image                  = "rbxassetid://9968344227",
-		ImageTransparency      = Props.Transparency or 0.96,
-		ScaleType              = Enum.ScaleType.Tile,
-		TileSize               = UDim2.fromOffset(128, 128),
-		Interactable           = false,
-		ZIndex                 = Props.ZIndex or 0,
-	}, {
-		New("UICorner", { CornerRadius = UDim.new(0, Radius or Glass.Radius.Window) }),
-	})
+	return Glass.Off()
 end
 
 -- LayoutOrder duy nhat cho moi element/section.
@@ -3076,9 +2785,9 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		New("UIGradient", {
 			Rotation = 90,
 			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0.00, 0.04),
+				NumberSequenceKeypoint.new(0.00, 0.65),
 				NumberSequenceKeypoint.new(0.55, 0.65),
-				NumberSequenceKeypoint.new(1.00, 0.28),
+				NumberSequenceKeypoint.new(1.00, 0.65),
 			}),
 		}),
 	})
@@ -3316,9 +3025,9 @@ Components.Tab = (function()
 			New("UIGradient", {
 				Rotation = 90,
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.04),
+					NumberSequenceKeypoint.new(0.00, 0.55),
 					NumberSequenceKeypoint.new(0.55, 0.55),
-					NumberSequenceKeypoint.new(1.00, 0.22),
+					NumberSequenceKeypoint.new(1.00, 0.55),
 				}),
 			}),
 		})
@@ -4536,9 +4245,9 @@ Components.Window = (function()
 			New("UIGradient", {
 				Rotation = 90,
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.05),
+					NumberSequenceKeypoint.new(0.00, 0.65),
 					NumberSequenceKeypoint.new(0.55, 0.65),
-					NumberSequenceKeypoint.new(1.00, 0.28),
+					NumberSequenceKeypoint.new(1.00, 0.65),
 				}),
 			}),
 		})
@@ -5272,9 +4981,9 @@ ElementsTable.Toggle = (function()
 				New("UIGradient", {
 					Rotation = 90,
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.00, 0.55),
 						NumberSequenceKeypoint.new(0.55, 0.55),
-						NumberSequenceKeypoint.new(1.00, 0.25),
+						NumberSequenceKeypoint.new(1.00, 0.55),
 					}),
 				}),
 			}),
@@ -5320,7 +5029,7 @@ ElementsTable.Toggle = (function()
 				Rotation = 90,
 				Color = ColorSequence.new({
 					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(230, 236, 248)),
+					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255)),
 				}),
 			}),
 		})
@@ -5627,9 +5336,9 @@ ElementsTable.Dropdown = (function()
 			New("UIGradient", {
 				Rotation = 90,
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.10),
+					NumberSequenceKeypoint.new(0.00, 0.65),
 					NumberSequenceKeypoint.new(0.55, 0.65),
-					NumberSequenceKeypoint.new(1.00, 0.30),
+					NumberSequenceKeypoint.new(1.00, 0.65),
 				}),
 			}),
 		})
@@ -6118,9 +5827,9 @@ ElementsTable.Dropdown = (function()
 				New("UIGradient", {
 					Rotation = 90,
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.02),
+						NumberSequenceKeypoint.new(0.00, 0.62),
 						NumberSequenceKeypoint.new(0.60, 0.62),
-						NumberSequenceKeypoint.new(1.00, 0.28),
+						NumberSequenceKeypoint.new(1.00, 0.62),
 					}),
 				}),
 			})
@@ -6717,9 +6426,9 @@ ElementsTable.Slider = (function()
 				New("UIGradient", {
 					Rotation = 90,
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.00, 0.55),
 						NumberSequenceKeypoint.new(0.55, 0.55),
-						NumberSequenceKeypoint.new(1.00, 0.25),
+						NumberSequenceKeypoint.new(1.00, 0.55),
 					}),
 				}),
 			}),
@@ -6769,7 +6478,7 @@ ElementsTable.Slider = (function()
 				Rotation = 90,
 				Color = ColorSequence.new({
 					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(228, 234, 246)),
+					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 255, 255)),
 				}),
 			}),
 			New("UIStroke", {
@@ -6967,8 +6676,8 @@ ElementsTable.Keybind = (function()
 			New("UIGradient", {
 				Rotation = 90,
 				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0.00, 0.00),
-					NumberSequenceKeypoint.new(1.00, 0.25),
+					NumberSequenceKeypoint.new(0.00, 0.12),
+					NumberSequenceKeypoint.new(1.00, 0.12),
 				}),
 			}),
 			New("UIPadding", {
@@ -6987,9 +6696,9 @@ ElementsTable.Keybind = (function()
 				New("UIGradient", {
 					Rotation = 90,
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.00, 0.55),
 						NumberSequenceKeypoint.new(0.55, 0.55),
-						NumberSequenceKeypoint.new(1.00, 0.25),
+						NumberSequenceKeypoint.new(1.00, 0.55),
 					}),
 				}),
 			}),
@@ -7197,9 +6906,9 @@ ElementsTable.Colorpicker = (function()
 				New("UIGradient", {
 					Rotation = 90,
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.05),
+						NumberSequenceKeypoint.new(0.00, 0.65),
 						NumberSequenceKeypoint.new(0.50, 0.65),
-						NumberSequenceKeypoint.new(1.00, 0.20),
+						NumberSequenceKeypoint.new(1.00, 0.65),
 					}),
 				}),
 			}),
@@ -7276,9 +6985,9 @@ ElementsTable.Colorpicker = (function()
 					New("UIGradient", {
 						Rotation = 90,
 						Transparency = NumberSequence.new({
-							NumberSequenceKeypoint.new(0.00, 0.08),
+							NumberSequenceKeypoint.new(0.00, 0.70),
 							NumberSequenceKeypoint.new(0.60, 0.70),
-							NumberSequenceKeypoint.new(1.00, 0.30),
+							NumberSequenceKeypoint.new(1.00, 0.70),
 						}),
 					}),
 				}),
@@ -7316,9 +7025,9 @@ ElementsTable.Colorpicker = (function()
 					New("UIGradient", {
 						Rotation = 90,
 						Transparency = NumberSequence.new({
-							NumberSequenceKeypoint.new(0.00, 0.08),
+							NumberSequenceKeypoint.new(0.00, 0.70),
 							NumberSequenceKeypoint.new(0.60, 0.70),
-							NumberSequenceKeypoint.new(1.00, 0.30),
+							NumberSequenceKeypoint.new(1.00, 0.70),
 						}),
 					}),
 				}),
@@ -7356,9 +7065,9 @@ ElementsTable.Colorpicker = (function()
 					New("UIGradient", {
 						Rotation = 90,
 						Transparency = NumberSequence.new({
-							NumberSequenceKeypoint.new(0.00, 0.08),
+							NumberSequenceKeypoint.new(0.00, 0.70),
 							NumberSequenceKeypoint.new(0.60, 0.70),
-							NumberSequenceKeypoint.new(1.00, 0.30),
+							NumberSequenceKeypoint.new(1.00, 0.70),
 						}),
 					}),
 				}),
@@ -9412,6 +9121,7 @@ function Library:CreateWindow(Config)
 		NumberSequenceKeypoint.new(1.00, 0.25),
 	})
 	MainStrokeGradient.Parent = MainStroke
+	MainStrokeGradient.Enabled = false -- bo vien liquid, de vien phang
 
 	-- lop bong kinh phu len icon minimize (khong doi kich thuoc)
 	-- Interactable = false BAT BUOC: frame nay phu kin ca nut, ma trong Roblox
@@ -9427,6 +9137,7 @@ function Library:CreateWindow(Config)
 	MainSheen.Interactable = false
 	MainSheen.ZIndex = 2
 	MainSheen.Parent = Main
+	MainSheen.Visible = false -- bo lop bong liquid tren nut thu nho
 
 	local MainSheenCorner = Instance.new("UICorner")
 	MainSheenCorner.CornerRadius = UDim.new(0, 14)
