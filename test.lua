@@ -1832,9 +1832,9 @@ function Creator.GetThemeProperty(Property)
 		SubText = MutedWhite,
 		DarkGlassMain = BlendColor(Dark, Accent, 0.035),
 		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, BlendColor(Color3.fromRGB(37, 55, 66), Accent, 0.055)),
-			ColorSequenceKeypoint.new(0.48, BlendColor(Color3.fromRGB(16, 34, 34), Accent, 0.075)),
-			ColorSequenceKeypoint.new(1.00, BlendColor(Color3.fromRGB(7, 20, 14), Accent, 0.06)),
+			ColorSequenceKeypoint.new(0.00, BlendColor(Color3.fromRGB(25, 38, 40), Accent, 0.025)),
+			ColorSequenceKeypoint.new(0.48, BlendColor(Color3.fromRGB(11, 24, 22), Accent, 0.035)),
+			ColorSequenceKeypoint.new(1.00, BlendColor(Color3.fromRGB(5, 13, 10), Accent, 0.03)),
 		}),
 		DarkGlassBorder = Color3.fromRGB(220, 232, 229),
 		DarkGlassNoise = 1,
@@ -3775,7 +3775,7 @@ Components.Window = (function()
 			Position = Window.Position,
 			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = Library.Transparency and 0.24 or 0.06,
+			BackgroundTransparency = Library.Transparency and 0.15 or 0.025,
 			BorderSizePixel = 0,
 		}, {
 			New("UICorner", {
@@ -7837,7 +7837,8 @@ local InterfaceManager = {} do
 	InterfaceManager.Settings = {
 		Theme = "Dwac Dark Glass",
 		Transparency = true,
-		MenuKeybind = "M"
+		MenuKeybind = "M",
+		StyleAMigrated = false,
 	}
 
 	function InterfaceManager:SetTheme(name)
@@ -7886,21 +7887,32 @@ local InterfaceManager = {} do
 			local data = readfile(path)
 			local success, decoded = pcall(httpService.JSONDecode, httpService, data)
 
-			if success then
+			if success and type(decoded) == "table" then
 				for i, v in next, decoded do
 					-- Do not import the retired Acrylic toggle from old config files.
 					if i ~= "Acrylic" then
 						InterfaceManager.Settings[i] = v
 					end
 				end
-				-- Use the requested Style A for old default/screenshot themes.
-				-- Other explicitly saved themes remain untouched.
-				if InterfaceManager.Settings.Theme == "Liquid Glass"
-					or InterfaceManager.Settings.Theme == "Liquid Glass Dark"
-					or InterfaceManager.Settings.Theme == "Dark Typewriter" then
-					InterfaceManager.Settings.Theme = "Dwac Dark Glass"
-				end
 			end
+		end
+
+		-- Migrate the previous Style A preview's saved Midnight Blue/default glass
+		-- state once. After this migration, any theme deliberately chosen in the
+		-- dropdown is retained on subsequent launches.
+		if not InterfaceManager.Settings.StyleAMigrated then
+			local PreviousTheme = InterfaceManager.Settings.Theme
+			if PreviousTheme == nil
+				or PreviousTheme == "Midnight Blue"
+				or PreviousTheme == "Liquid Glass"
+				or PreviousTheme == "Liquid Glass Dark"
+				or PreviousTheme == "Dark Typewriter" then
+				InterfaceManager.Settings.Theme = "Dwac Dark Glass"
+			end
+			InterfaceManager.Settings.StyleAMigrated = true
+			pcall(function()
+				self:SaveSettings()
+			end)
 		end
 	end
 
@@ -8348,7 +8360,7 @@ function Library:SetTheme(Value)
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Surface = Paint and Paint.Frame
 	if Surface then
-		Surface.BackgroundTransparency = Library.Transparency and 0.24 or 0.06
+		Surface.BackgroundTransparency = Library.Transparency and 0.15 or 0.025
 	end
 
 	if Components.Tab and Components.Tab.Tabs then
@@ -8397,7 +8409,7 @@ function Library:ToggleTransparency(Value)
 		return
 	end
 
-	Frame.BackgroundTransparency = Library.Transparency and 0.24 or 0.06
+	Frame.BackgroundTransparency = Library.Transparency and 0.15 or 0.025
 end
 
 function Library:Notify(Config)
