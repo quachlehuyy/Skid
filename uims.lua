@@ -1854,6 +1854,14 @@ function Creator.GetThemeProperty(Property)
 		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
 		-- Soft blue light radiating from the top-left corner (corner glow overlay)
 		DarkGlassGlow = BlendColor(Color3.fromRGB(96, 150, 255), Accent, 0.35),
+		-- Sidebar backing: same vertical light→dark sweep as the glass, one step
+		-- lighter, so the tab rail shifts hue together with the background
+		SidebarGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 44, 70)),  -- lighter navy (glow corner)
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(20, 29, 48)),
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(13, 17, 28)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(9, 12, 18)),   -- near-black bottom
+		}),
 		DarkGlassNoise = 1,
 		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
 		-- Cards: a step lighter than the glass so they separate without harsh contrast
@@ -3834,11 +3842,14 @@ Components.Window = (function()
 			}),
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
 			-- before navigation content so labels and buttons stay sharp above it.
+			-- BackgroundColor3 = white + themed gradient: the sidebar shares the same
+			-- light→dark color sweep as the main glass (one step lighter) so both
+			-- surfaces read as a single pane shifting hue toward the glow corner.
 			New("Frame", {
 				Name = "DwacSidebarSurface",
 				Position = UDim2.fromOffset(6, 49),
 				Size = UDim2.new(0, Window.TabWidth + 14, 1, -56),
-				BackgroundColor3 = Color3.fromRGB(9, 11, 17),
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				BackgroundTransparency = Library.Transparency
 					and math.min(Library.SidebarTransparencyValue, 0.10)
 					or 0.02,
@@ -3846,6 +3857,11 @@ Components.Window = (function()
 				ZIndex = 1,
 			}, {
 				New("UICorner", { CornerRadius = UDim.new(0, 18) }),
+				New("UIGradient", {
+					Name = "SidebarColorBlend",
+					Rotation = 90, -- light at the glow corner (top), dark at the opposite end
+					ThemeTag = { Color = "SidebarGlassGradient" },
+				}),
 			}),
 			New("Frame", {
 				Name = "DwacSidebarDivider",
