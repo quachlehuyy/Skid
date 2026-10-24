@@ -1210,8 +1210,8 @@ local Library = {
 	DialogOpen = false,
 	Transparency = true,
 	-- Numeric Roblox BackgroundTransparency values (0 = opaque, 1 = invisible).
-	GlassTransparencyValue = 0.14,
-	SidebarTransparencyValue = 0.10,
+	GlassTransparencyValue = 0.04,
+	SidebarTransparencyValue = 0.05,
 	MinimizeKeybind = nil,
 	MinimizerIcon = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl,
@@ -1826,12 +1826,12 @@ function Creator.GetThemeProperty(Property)
 	local Theme = Themes[Library.Theme] or Themes["Dwac Dark Glass"] or Themes["Dark"]
 	local Accent = (Theme and Theme.Accent) or Color3.fromRGB(126, 231, 153)
 	-- Night Hub matched to the reference screenshot:
-	-- deep near-black navy base, cooler blue on the left, soft violet on the right,
-	-- cards slightly lifted, borders muted, glass transparency kept light so the
-	-- game scene shows through without washing out text.
-	local Dark = Color3.fromRGB(10, 12, 18)
-	local DarkControl = Color3.fromRGB(24, 28, 38)
-	local Border = Color3.fromRGB(58, 66, 84)
+	-- deep near-black navy base, cool blue glow on top fading to near-black,
+	-- cards slightly lifted with muted borders, near-opaque glass so the
+	-- game scene does not wash out text.
+	local Dark = Color3.fromRGB(7, 9, 14)
+	local DarkControl = Color3.fromRGB(21, 27, 38)
+	local Border = Color3.fromRGB(54, 64, 86)
 	local SoftBorder = Color3.fromRGB(42, 48, 62)
 	local White = Color3.fromRGB(245, 247, 252)
 	local MutedWhite = Color3.fromRGB(158, 168, 186)
@@ -1841,24 +1841,24 @@ function Creator.GetThemeProperty(Property)
 		Tab = White,
 		Text = White,
 		SubText = MutedWhite,
-		-- Base surface: slightly cooler than pure black so the blue accent reads cleanly
-		DarkGlassMain = BlendColor(Color3.fromRGB(11, 13, 20), Accent, 0.015),
-		-- Horizontal glass gradient (left → right) matching the screenshot lighting
+		-- Base surface: near-opaque deep navy so the game never bleeds through
+		DarkGlassMain = BlendColor(Color3.fromRGB(10, 13, 22), Accent, 0.02),
+		-- Vertical gradient (top → bottom): deep blue glow fading into near-black,
+		-- matching the Night Hub reference screenshot
 		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 36, 58)), -- cool navy left
-			ColorSequenceKeypoint.new(0.22, Color3.fromRGB(16, 22, 34)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(11, 13, 19)), -- near-black center
-			ColorSequenceKeypoint.new(0.78, Color3.fromRGB(20, 18, 30)), -- muted violet
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(32, 26, 44)), -- soft purple rim
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),  -- deep blue glow top
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),  -- navy
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),   -- dark navy
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
 		}),
-		DarkGlassBorder = Color3.fromRGB(120, 132, 158),
+		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
 		DarkGlassNoise = 1,
 		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
 		-- Cards: a step lighter than the glass so they separate without harsh contrast
-		Element = BlendColor(DarkControl, Accent, 0.03),
+		Element = BlendColor(DarkControl, Accent, 0.04),
 		ElementBorder = BlendColor(Border, Accent, 0.10),
 		InElementBorder = BlendColor(Border, Accent, 0.22),
-		ElementTransparency = 0.18,
+		ElementTransparency = 0.08,
 		ToggleSlider = Accent,
 		ToggleToggled = BlendColor(Dark, Accent, 0.025),
 		TransparenToggle = 0.20,
@@ -3800,7 +3800,7 @@ Components.Window = (function()
 			}),
 			New("UIGradient", {
 				Name = "DarkGlassColorBlend",
-				Rotation = 0,
+				Rotation = 90, -- vertical: blue glow on top fading to near-black
 				ThemeTag = { Color = "DarkGlassGradient" },
 			}),
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
