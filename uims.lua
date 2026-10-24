@@ -23,6 +23,7 @@ local Themes = {
 		"Neon Crimson",		
 		"Neon Orange",
 		"Dark Typewriter",
+		"Dark Glass",
 		"Dark Frost",
 		"VSC Dark High Contrast",
 		"Dark",
@@ -148,6 +149,58 @@ local Themes = {
 		SubText = Color3.fromRGB(225, 240, 255),
 		Hover = Color3.fromRGB(60, 95, 145),
 		HoverChange = 0.05,
+	},
+	["Dark Glass"] = {
+		Name = "Dark Glass",
+		Accent = Color3.fromRGB(74, 222, 146), -- Mint Green
+
+		AcrylicMain = Color3.fromRGB(12, 30, 36),
+		AcrylicBorder = Color3.fromRGB(255, 255, 255),
+		AcrylicGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(24, 52, 58)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(12, 30, 36)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(8, 20, 26)),
+		}),
+		AcrylicNoise = 0.94,
+
+		TitleBarLine = Color3.fromRGB(70, 110, 115),
+		Tab = Color3.fromRGB(74, 222, 146),
+
+		Element = Color3.fromRGB(6, 18, 22),
+		ElementBorder = Color3.fromRGB(200, 230, 225),
+		InElementBorder = Color3.fromRGB(90, 140, 135),
+		ElementTransparency = 0.30,
+
+		ToggleSlider = Color3.fromRGB(74, 222, 146),
+		ToggleToggled = Color3.fromRGB(230, 236, 240),
+
+		SliderRail = Color3.fromRGB(60, 95, 95),
+
+		DropdownFrame = Color3.fromRGB(16, 38, 44),
+		DropdownHolder = Color3.fromRGB(10, 26, 30),
+		DropdownBorder = Color3.fromRGB(120, 170, 165),
+		DropdownOption = Color3.fromRGB(26, 58, 54),
+
+		Keybind = Color3.fromRGB(16, 38, 44),
+
+		Input = Color3.fromRGB(10, 26, 30),
+		InputFocused = Color3.fromRGB(18, 44, 48),
+		InputIndicator = Color3.fromRGB(120, 170, 165),
+		InputIndicatorFocus = Color3.fromRGB(74, 222, 146),
+
+		Dialog = Color3.fromRGB(14, 34, 40),
+		DialogHolder = Color3.fromRGB(10, 26, 30),
+		DialogHolderLine = Color3.fromRGB(50, 85, 88),
+		DialogButton = Color3.fromRGB(20, 48, 52),
+		DialogButtonBorder = Color3.fromRGB(120, 170, 165),
+		DialogBorder = Color3.fromRGB(120, 170, 165),
+		DialogInput = Color3.fromRGB(10, 26, 30),
+		DialogInputLine = Color3.fromRGB(74, 222, 146),
+
+		Text = Color3.fromRGB(236, 244, 244),
+		SubText = Color3.fromRGB(170, 195, 198),
+		Hover = Color3.fromRGB(70, 120, 118),
+		HoverChange = 0.08,
 	},
 	["Dark Frost"] = {
 		Name = "Dark Frost",
@@ -1306,7 +1359,7 @@ local Library = {
 	Creator = nil,
 
 	-- Theme mac dinh theo phong cach Liquid Glass.
-	Theme = "Dark Frost",
+	Theme = "Dark Glass",
 
 	DialogOpen = false,
 	UseAcrylic = false,
@@ -2416,7 +2469,7 @@ local AddSignal = Creator.AddSignal
 local Glass = {
 	-- Do trong suot cua cac panel chinh (cua so, dropdown, dialog, thong bao).
 	-- So cang nho cang dac. Top/Mid/Bottom la dau/giua/cuoi gradient doc.
-	Panel = { Top = 0.50, Mid = 0.44, Bottom = 0.38 },
+	Panel = { Top = 0.46, Mid = 0.40, Bottom = 0.34 },
 	-- ban kinh bo goc theo tung cap do (pixel) chuan iOS 27 / visionOS Squircle
 	Radius = {
 		Window  = 26, -- cua so / dialog
@@ -4745,9 +4798,31 @@ Components.Window = (function()
 		    Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 0,
 			ZIndex = 0, -- nam DUOI noi dung (ZIndex mac dinh 1), neu >= 1 se phu mo len chu
-		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
+			-- Nen MAC DINH cua cua so: kinh teal toi co dinh, KHONG doi theo theme
+			BackgroundColor3 = Color3.fromRGB(12, 30, 36),
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+		    -- panel noi cho sidebar va khu noi dung (vien mo, nen toi nhe)
+		    New("Frame", {
+		        Name = "SidebarPanel",
+		        Position = UDim2.fromOffset(6, 48),
+		        Size = UDim2.new(0, Window.TabWidth + 12, 1, -54),
+		        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+		        BackgroundTransparency = 0.82,
+		    }, {
+		        New("UICorner", { CornerRadius = UDim.new(0, 16) }),
+		        New("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.88, Thickness = 1 }),
+		    }),
+		    New("Frame", {
+		        Name = "ContentPanel",
+		        Position = UDim2.fromOffset(Window.TabWidth + 20, 48),
+		        Size = UDim2.new(1, -(Window.TabWidth + 26), 1, -54),
+		        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+		        BackgroundTransparency = 0.82,
+		    }, {
+		        New("UICorner", { CornerRadius = UDim.new(0, 16) }),
+		        New("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.88, Thickness = 1 }),
+		    }),
 		    Glass.TransparencyGradient(Glass.Panel),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.90 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
@@ -4769,6 +4844,13 @@ Components.Window = (function()
 
 		-- Ap dung ngay trang thai Transparency cua Config
 		local WindowGradient = AcrylicFrame:FindFirstChild("GlassTransparencyGradient")
+		if WindowGradient then
+			WindowGradient.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(26, 56, 62)),
+				ColorSequenceKeypoint.new(0.45, Color3.fromRGB(12, 30, 36)),
+				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(8, 20, 26)),
+			})
+		end
 		if not Library.Transparency then
 			if WindowGradient then WindowGradient.Enabled = false end
 			AcrylicFrame.BackgroundTransparency = 0
@@ -8931,7 +9013,7 @@ end
 local InterfaceManager = {} do
 	InterfaceManager.Folder = "FluentSettings"
 	InterfaceManager.Settings = {
-		Theme = "Dark Frost",
+		Theme = "Dark Glass",
 		Acrylic = true,
 		Transparency = true,
 		MenuKeybind = "M"
@@ -9081,7 +9163,7 @@ function Library:CreateWindow(Config)
 	-- Mac dinh BAT blur nen that (kinh mo duc). Muon tat: CreateWindow({ Acrylic = false })
 	Library.UseAcrylic = Config.Acrylic ~= false
 	Library.Acrylic = Config.Acrylic ~= false
-	Library.Theme = Config.Theme or "Liquid Glass"
+	Library.Theme = Config.Theme or "Dark Glass"
 	-- `Config.Transparency ~= false` chu khong phai `or false`: mac dinh cua
 	-- thu vien la CO trong suot (Library.Transparency = true o dau file), nen
 	-- neu nguoi dung khong truyen truong nay thi phai giu nguyen mac dinh.
