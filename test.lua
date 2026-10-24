@@ -14,6 +14,7 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
 local Themes = {
 	Names = {
+		"Night Hub",
 		"Dwac Dark Glass",
 		"Midnight Blue",
 		"Obsidian White",
@@ -1128,6 +1129,60 @@ local Themes = {
 		Hover = Color3.fromRGB(42, 80, 60),
 		HoverChange = 0.09,
 	},
+	["Night Hub"] = {
+		Name = "Night Hub",
+		Accent = Color3.fromRGB(64, 137, 255),
+		DarkGlassGlow = Color3.fromRGB(96, 150, 255),
+
+		DarkGlassMain = Color3.fromRGB(7, 9, 14),
+		DarkGlassBorder = Color3.fromRGB(54, 64, 86),
+		DarkGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),
+		}),
+		DarkGlassNoise = 1,
+
+		TitleBarLine = Color3.fromRGB(42, 48, 62),
+		Tab = Color3.fromRGB(245, 247, 252),
+
+		Element = Color3.fromRGB(21, 27, 38),
+		ElementBorder = Color3.fromRGB(54, 64, 86),
+		InElementBorder = Color3.fromRGB(64, 137, 255),
+		ElementTransparency = 0.08,
+
+		ToggleSlider = Color3.fromRGB(64, 137, 255),
+		ToggleToggled = Color3.fromRGB(7, 9, 14),
+
+		SliderRail = Color3.fromRGB(40, 46, 58),
+
+		DropdownFrame = Color3.fromRGB(16, 19, 27),
+		DropdownHolder = Color3.fromRGB(11, 14, 20),
+		DropdownBorder = Color3.fromRGB(54, 64, 86),
+		DropdownOption = Color3.fromRGB(21, 27, 38),
+
+		Keybind = Color3.fromRGB(21, 27, 38),
+
+		Input = Color3.fromRGB(12, 15, 21),
+		InputFocused = Color3.fromRGB(26, 32, 44),
+		InputIndicator = Color3.fromRGB(64, 137, 255),
+		InputIndicatorFocus = Color3.fromRGB(64, 137, 255),
+
+		Dialog = Color3.fromRGB(18, 21, 30),
+		DialogHolder = Color3.fromRGB(11, 14, 20),
+		DialogHolderLine = Color3.fromRGB(54, 64, 86),
+		DialogButton = Color3.fromRGB(21, 27, 38),
+		DialogButtonBorder = Color3.fromRGB(54, 64, 86),
+		DialogBorder = Color3.fromRGB(54, 64, 86),
+		DialogInput = Color3.fromRGB(12, 15, 21),
+		DialogInputLine = Color3.fromRGB(64, 137, 255),
+
+		Text = Color3.fromRGB(245, 247, 252),
+		SubText = Color3.fromRGB(158, 168, 186),
+		Hover = Color3.fromRGB(34, 40, 54),
+		HoverChange = 0.16,
+	},
 	["Dwac Dark Glass"] = {
 		Name = "Dwac Dark Glass",
 		Accent = Color3.fromRGB(126, 231, 153),
@@ -1197,12 +1252,15 @@ local Library = {
 	Creator = nil,
 
 	-- Theme mac dinh cho Dwac Hub.
-	Theme = "Dwac Dark Glass",
+	Theme = "Night Hub",
 	-- Lite mode avoids decorative image/gradient layers on frequently repeated controls.
 	PerformanceMode = true,
 
 	DialogOpen = false,
 	Transparency = true,
+	-- Numeric Roblox BackgroundTransparency values (0 = opaque, 1 = invisible).
+	GlassTransparencyValue = 0.04,
+	SidebarTransparencyValue = 0.05,
 	MinimizeKeybind = nil,
 	MinimizerIcon = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl,
@@ -1767,6 +1825,11 @@ function Creator.UpdateTheme()
 				-- Kiem tra kieu `if X then` se bo qua no -> element o cac theme
 				-- do giu nguyen do trong cua theme truoc.
 				if Theme_Property ~= nil then
+					-- UIGradient.Color bat buoc la ColorSequence; cac theme dinh
+					-- nghia gia tri don le dang Color3 thi tu dong boc lai.
+					if Object:IsA("UIGradient") and Property == "Color" and typeof(Theme_Property) == "Color3" then
+						Theme_Property = ColorSequence.new(Theme_Property)
+					end
 					Object[Property] = Theme_Property
 				end
 			end
@@ -1791,6 +1854,11 @@ function Creator.AddThemeObject(Object, Properties)
 	for Property, ColorIdx in next, Properties do
 		local Theme_Property = Creator.GetThemeProperty(ColorIdx)
 		if Theme_Property ~= nil then
+			-- UIGradient.Color bat buoc la ColorSequence; gia tri Color3 don le
+			-- (vi du DarkGlassGlow cho corner glow) duoc boc lai tu dong.
+			if Object:IsA("UIGradient") and Property == "Color" and typeof(Theme_Property) == "Color3" then
+				Theme_Property = ColorSequence.new(Theme_Property)
+			end
 			Object[Property] = Theme_Property
 		end
 	end
@@ -1816,59 +1884,83 @@ end
 function Creator.GetThemeProperty(Property)
 	local Theme = Themes[Library.Theme] or Themes["Dwac Dark Glass"] or Themes["Dark"]
 	local Accent = (Theme and Theme.Accent) or Color3.fromRGB(126, 231, 153)
-	-- Style A / Smoked Glass: slate-teal at the top, forest-black at the bottom.
-	-- Accent color only tints the dark surfaces slightly; it never replaces them.
-	local Dark = Color3.fromRGB(9, 16, 17)
-	local DarkControl = Color3.fromRGB(17, 29, 27)
-	local Border = Color3.fromRGB(96, 119, 117)
-	local SoftBorder = Color3.fromRGB(70, 91, 91)
-	local White = Color3.fromRGB(246, 249, 248)
-	local MutedWhite = Color3.fromRGB(202, 216, 214)
+	-- Night Hub matched to the reference screenshot:
+	-- deep near-black navy base, cool blue glow on top fading to near-black,
+	-- cards slightly lifted with muted borders, near-opaque glass so the
+	-- game scene does not wash out text.
+	local Dark = Color3.fromRGB(7, 9, 14)
+	local DarkControl = Color3.fromRGB(21, 27, 38)
+	local Border = Color3.fromRGB(54, 64, 86)
+	local SoftBorder = Color3.fromRGB(42, 48, 62)
+	local White = Color3.fromRGB(245, 247, 252)
+	local MutedWhite = Color3.fromRGB(158, 168, 186)
 
 	local DarkProperties = {
 		Accent = Accent,
 		Tab = White,
 		Text = White,
 		SubText = MutedWhite,
-		DarkGlassMain = BlendColor(Dark, Accent, 0.035),
+		-- Base surface: near-opaque deep navy so the game never bleeds through
+		DarkGlassMain = BlendColor(Color3.fromRGB(10, 13, 22), Accent, 0.02),
+		-- Vertical gradient (top → bottom): deep blue glow fading into near-black,
+		-- matching the Night Hub reference screenshot
 		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, BlendColor(Color3.fromRGB(25, 38, 40), Accent, 0.025)),
-			ColorSequenceKeypoint.new(0.48, BlendColor(Color3.fromRGB(11, 24, 22), Accent, 0.035)),
-			ColorSequenceKeypoint.new(1.00, BlendColor(Color3.fromRGB(5, 13, 10), Accent, 0.03)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),  -- deep blue glow top
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),  -- navy
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),   -- dark navy
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
 		}),
-		DarkGlassBorder = Color3.fromRGB(220, 232, 229),
+		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
+		-- Sidebar backing: same vertical light→dark sweep as the glass, one step
+		-- lighter, so the tab rail shifts hue together with the background
+		SidebarGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 44, 70)),  -- lighter navy (glow corner)
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(20, 29, 48)),
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(13, 17, 28)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(9, 12, 18)),   -- near-black bottom
+		}),
 		DarkGlassNoise = 1,
-		TitleBarLine = BlendColor(SoftBorder, Accent, 0.10),
-		Element = BlendColor(DarkControl, Accent, 0.055),
-		ElementBorder = BlendColor(Border, Accent, 0.13),
-		InElementBorder = BlendColor(Border, Accent, 0.28),
-		ElementTransparency = 0.24,
+		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
+		-- Cards: a step lighter than the glass so they separate without harsh contrast
+		Element = BlendColor(DarkControl, Accent, 0.04),
+		ElementBorder = BlendColor(Border, Accent, 0.10),
+		InElementBorder = BlendColor(Border, Accent, 0.22),
+		ElementTransparency = 0.08,
 		ToggleSlider = Accent,
-		ToggleToggled = BlendColor(Dark, Accent, 0.05),
-		TransparenToggle = 0.22,
-		SliderRail = BlendColor(Color3.fromRGB(43, 59, 56), Accent, 0.10),
-		DropdownFrame = BlendColor(Color3.fromRGB(16, 27, 27), Accent, 0.065),
-		DropdownHolder = BlendColor(Color3.fromRGB(9, 16, 17), Accent, 0.055),
-		DropdownBorder = BlendColor(Border, Accent, 0.13),
-		DropdownOption = BlendColor(DarkControl, Accent, 0.075),
-		Keybind = BlendColor(DarkControl, Accent, 0.06),
-		Input = BlendColor(Color3.fromRGB(10, 18, 18), Accent, 0.05),
-		InputFocused = BlendColor(Color3.fromRGB(27, 43, 41), Accent, 0.12),
-		InputIndicator = BlendColor(Color3.fromRGB(155, 171, 159), Accent, 0.12),
+		ToggleToggled = BlendColor(Dark, Accent, 0.025),
+		TransparenToggle = 0.20,
+		SliderRail = BlendColor(Color3.fromRGB(40, 46, 58), Accent, 0.08),
+		DropdownFrame = BlendColor(Color3.fromRGB(16, 19, 27), Accent, 0.04),
+		DropdownHolder = BlendColor(Color3.fromRGB(11, 14, 20), Accent, 0.03),
+		DropdownBorder = BlendColor(Border, Accent, 0.10),
+		DropdownOption = BlendColor(DarkControl, Accent, 0.05),
+		Keybind = BlendColor(DarkControl, Accent, 0.04),
+		Input = BlendColor(Color3.fromRGB(12, 15, 21), Accent, 0.03),
+		InputFocused = BlendColor(Color3.fromRGB(26, 32, 44), Accent, 0.10),
+		InputIndicator = Color3.fromRGB(160, 170, 188),
 		InputIndicatorFocus = Accent,
-		Dialog = BlendColor(Color3.fromRGB(17, 26, 20), Accent, 0.09),
-		DialogHolder = BlendColor(Color3.fromRGB(10, 16, 12), Accent, 0.075),
-		DialogHolderLine = BlendColor(Border, Accent, 0.13),
-		DialogButton = BlendColor(DarkControl, Accent, 0.10),
-		DialogButtonBorder = BlendColor(Border, Accent, 0.18),
-		DialogBorder = BlendColor(Border, Accent, 0.18),
-		DialogInput = BlendColor(Color3.fromRGB(12, 19, 14), Accent, 0.07),
+		Dialog = BlendColor(Color3.fromRGB(18, 21, 30), Accent, 0.05),
+		DialogHolder = BlendColor(Color3.fromRGB(11, 14, 20), Accent, 0.03),
+		DialogHolderLine = BlendColor(Border, Accent, 0.10),
+		DialogButton = BlendColor(DarkControl, Accent, 0.06),
+		DialogButtonBorder = BlendColor(Border, Accent, 0.14),
+		DialogBorder = BlendColor(Border, Accent, 0.14),
+		DialogInput = BlendColor(Color3.fromRGB(12, 15, 21), Accent, 0.035),
 		DialogInputLine = Accent,
-		Hover = BlendColor(Color3.fromRGB(30, 45, 34), Accent, 0.18),
+		Hover = BlendColor(Color3.fromRGB(34, 40, 54), Accent, 0.16),
 	}
+
 	local Value = DarkProperties[Property]
 	if Value ~= nil then
 		return Value
+	end
+	-- DarkGlassGlow không còn nằm trong DarkProperties nữa để mỗi theme có thể tự định nghĩa màu phát sáng ở góc cửa sổ.
+	if Property == "DarkGlassGlow" then
+		if Theme and Theme.DarkGlassGlow ~= nil then
+			return Theme.DarkGlassGlow
+		end
+		-- Fallback: màu trắng nhạt blended với accent của theme hiện tại
+		return BlendColor(Color3.fromRGB(255, 255, 255), Accent, 0.35)
 	end
 	if Theme and Theme[Property] ~= nil then
 		return Theme[Property]
@@ -3775,7 +3867,12 @@ Components.Window = (function()
 			Position = Window.Position,
 			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = Library.Transparency and 0.15 or 0.025,
+			-- Nen gan nhu DAC: gradient navy den chay doc, game khong lo qua.
+			-- Clamp 0.06 de khong che do nao (theme/transparency/config cu) lam
+			-- nen trong suot tro lai nhu ban loi.
+			BackgroundTransparency = Library.Transparency
+				and math.min(Library.GlassTransparencyValue, 0.06)
+				or 0.02,
 			BorderSizePixel = 0,
 		}, {
 			New("UICorner", {
@@ -3783,28 +3880,128 @@ Components.Window = (function()
 			}),
 			New("UIGradient", {
 				Name = "DarkGlassColorBlend",
-				Rotation = 90,
+				Rotation = 90, -- vertical: blue glow on top fading to near-black
 				ThemeTag = { Color = "DarkGlassGradient" },
+			}),
+			-- 4-corner glow system: soft light radiating from each corner,
+			-- fading toward center. Color follows DarkGlassGlow of current theme.
+			New("Frame", {
+				Name = "CornerGlowTL",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(0.55, 0.55),
+				Position = UDim2.new(0, 0, 0, 0),
+				AnchorPoint = Vector2.new(0, 0),
+				ZIndex = 0,
+				ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(1, 0),
+				}),
+				New("UIGradient", {
+					Rotation = 45,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.45), -- soft glow at corner
+						NumberSequenceKeypoint.new(0.50, 0.85),
+						NumberSequenceKeypoint.new(1.00, 1.00), -- fully faded toward center
+					}),
+				}),
+			}),
+			New("Frame", {
+				Name = "CornerGlowTR",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(0.55, 0.55),
+				Position = UDim2.new(1, 0, 0, 0),
+				AnchorPoint = Vector2.new(1, 0),
+				ZIndex = 0,
+				ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(1, 0),
+				}),
+				New("UIGradient", {
+					Rotation = 135,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.45), -- soft glow at corner
+						NumberSequenceKeypoint.new(0.50, 0.85),
+						NumberSequenceKeypoint.new(1.00, 1.00), -- fully faded toward center
+					}),
+				}),
+			}),
+			New("Frame", {
+				Name = "CornerGlowBL",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(0.55, 0.55),
+				Position = UDim2.new(0, 0, 1, 0),
+				AnchorPoint = Vector2.new(0, 1),
+				ZIndex = 0,
+				ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(1, 0),
+				}),
+				New("UIGradient", {
+					Rotation = 225,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.45), -- soft glow at corner
+						NumberSequenceKeypoint.new(0.50, 0.85),
+						NumberSequenceKeypoint.new(1.00, 1.00), -- fully faded toward center
+					}),
+				}),
+			}),
+			New("Frame", {
+				Name = "CornerGlowBR",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(0.55, 0.55),
+				Position = UDim2.new(1, 0, 1, 0),
+				AnchorPoint = Vector2.new(1, 1),
+				ZIndex = 0,
+				ThemeTag = { BackgroundColor3 = "DarkGlassGlow" },
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(1, 0),
+				}),
+				New("UIGradient", {
+					Rotation = 315,
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.45), -- soft glow at corner
+						NumberSequenceKeypoint.new(0.50, 0.85),
+						NumberSequenceKeypoint.new(1.00, 1.00), -- fully faded toward center
+					}),
+				}),
 			}),
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
 			-- before navigation content so labels and buttons stay sharp above it.
+			-- BackgroundColor3 = white + themed gradient: the sidebar shares the same
+			-- light→dark color sweep as the main glass (one step lighter) so both
+			-- surfaces read as a single pane shifting hue toward the glow corner.
 			New("Frame", {
 				Name = "DwacSidebarSurface",
 				Position = UDim2.fromOffset(6, 49),
 				Size = UDim2.new(0, Window.TabWidth + 14, 1, -56),
-				BackgroundColor3 = Color3.fromRGB(5, 13, 15),
-				BackgroundTransparency = 0.34,
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundTransparency = Library.Transparency
+					and math.min(Library.SidebarTransparencyValue, 0.10)
+					or 0.02,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 			}, {
 				New("UICorner", { CornerRadius = UDim.new(0, 18) }),
+				New("UIGradient", {
+					Name = "SidebarColorBlend",
+					Rotation = 90, -- light at the glow corner (top), dark at the opposite end
+					ThemeTag = { Color = "SidebarGlassGradient" },
+				}),
 			}),
 			New("Frame", {
 				Name = "DwacSidebarDivider",
 				Position = UDim2.new(0, Window.TabWidth + 22, 0, 52),
 				Size = UDim2.new(0, 1, 1, -60),
-				BackgroundColor3 = Color3.fromRGB(205, 222, 215),
-				BackgroundTransparency = 0.78,
+				BackgroundColor3 = Color3.fromRGB(140, 155, 185),
+				BackgroundTransparency = 0.82,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 			}),
@@ -3817,6 +4014,19 @@ Components.Window = (function()
 			}),
 			-- Foreground siblings are created after the glass decorators so text,
 			-- icons, tabs and controls always remain above the background surface.
+			-- Grain overlay: subtle noise texture to make the dark surface feel tactile,
+			-- not flat. Low opacity so it never washes out text or controls.
+			New("ImageLabel", {
+				Name = "ModernGrain",
+				BackgroundTransparency = 1,
+				Size = UDim2.fromScale(1, 1),
+				Position = UDim2.fromScale(0, 0),
+				Image = "rbxassetid://5596236568",
+				ImageTransparency = 0.93,
+				ScaleType = Enum.ScaleType.Tile,
+				TileSize = UDim2.fromOffset(256, 256),
+				ZIndex = 0,
+			}),
 			Window.TabDisplay,
 			Window.ContainerCanvas,
 			SearchBox,
@@ -3826,6 +4036,7 @@ Components.Window = (function()
 
 		Window.DarkGlassSurface = {
 			Frame = Window.Root,
+			Sidebar = Window.Root:FindFirstChild("DwacSidebarSurface"),
 		}
 
 		Window.TitleBar = Components.TitleBar({
@@ -7990,12 +8201,18 @@ function Library:CreateWindow(Config)
 	Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.RightControl
 	Library.PerformanceMode = Config.PerformanceMode ~= false
 	-- Dark Glass is a flat 2D UI surface; no live blur or 3D glass path.
-	Library.Theme = Config.Theme or "Dwac Dark Glass"
+	Library.Theme = Config.Theme or "Night Hub"
 	-- `Config.Transparency ~= false` chu khong phai `or false`: mac dinh cua
 	-- thu vien la CO trong suot (Library.Transparency = true o dau file), nen
 	-- neu nguoi dung khong truyen truong nay thi phai giu nguyen mac dinh.
 	-- Ban cu bien "khong truyen" thanh false -> nen cua so thanh DAC.
 	Library.Transparency = Config.Transparency ~= false
+	if tonumber(Config.GlassTransparency) ~= nil then
+		Library.GlassTransparencyValue = math.clamp(tonumber(Config.GlassTransparency), 0.02, 0.06)
+	end
+	if tonumber(Config.SidebarTransparency) ~= nil then
+		Library.SidebarTransparencyValue = math.clamp(tonumber(Config.SidebarTransparency), 0.02, 0.10)
+	end
 	-- Size mac dinh: Components.Window doc Config.Size.X.Offset ngay khi tinh
 	-- vi tri, nen thieu truong nay se loi "index nil with X".
 	Config.Size = Config.Size or UDim2.fromOffset(580, 460)
@@ -8360,7 +8577,16 @@ function Library:SetTheme(Value)
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Surface = Paint and Paint.Frame
 	if Surface then
-		Surface.BackgroundTransparency = Library.Transparency and 0.15 or 0.025
+		-- Clamp: nen chinh luon giu o muc gan dac, khong cho tran ra trong suot
+		Surface.BackgroundTransparency = Library.Transparency
+			and math.min(Library.GlassTransparencyValue, 0.06)
+			or 0.02
+	end
+	local Sidebar = Paint and Paint.Sidebar
+	if Sidebar then
+		Sidebar.BackgroundTransparency = Library.Transparency
+			and math.min(Library.SidebarTransparencyValue, 0.10)
+			or 0.02
 	end
 
 	if Components.Tab and Components.Tab.Tabs then
@@ -8399,17 +8625,59 @@ function Library:ToggleAcrylic(_Value)
 	return false
 end
 
+-- Set the main glass surface transparency directly.
+-- 0 = fully opaque; 1 = invisible. We clamp to a practical range for readability.
+function Library:SetGlassTransparency(Value)
+	Value = tonumber(Value)
+	if not Value then return false end
+	Library.GlassTransparencyValue = math.clamp(Value, 0.02, 0.06)
+
+	local Paint = Library.Window and Library.Window.DarkGlassSurface
+	local Frame = Paint and Paint.Frame
+	if Frame and Library.Transparency then
+		Frame.BackgroundTransparency = Library.GlassTransparencyValue
+	end
+	return true
+end
+
+function Library:GetGlassTransparency()
+	return Library.GlassTransparencyValue
+end
+
+-- Optional second control for the sidebar's inset tint.
+function Library:SetSidebarTransparency(Value)
+	Value = tonumber(Value)
+	if not Value then return false end
+	Library.SidebarTransparencyValue = math.clamp(Value, 0.02, 0.10)
+
+	local Paint = Library.Window and Library.Window.DarkGlassSurface
+	local Sidebar = Paint and Paint.Sidebar
+	if Sidebar and Library.Transparency then
+		Sidebar.BackgroundTransparency = Library.SidebarTransparencyValue
+	end
+	return true
+end
+
+function Library:GetSidebarTransparency()
+	return Library.SidebarTransparencyValue
+end
+
 function Library:ToggleTransparency(Value)
 	Library.Transparency = Value and true or false
 
-	local Window = Library.Window
-	local Paint  = Window and Window.DarkGlassSurface
-	local Frame  = Paint and Paint.Frame
-	if not Frame then
-		return
+	local Paint = Library.Window and Library.Window.DarkGlassSurface
+	local Frame = Paint and Paint.Frame
+	local Sidebar = Paint and Paint.Sidebar
+	if Frame then
+		Frame.BackgroundTransparency = Library.Transparency
+			and math.min(Library.GlassTransparencyValue, 0.06)
+			or 0.02
 	end
-
-	Frame.BackgroundTransparency = Library.Transparency and 0.15 or 0.025
+	if Sidebar then
+		Sidebar.BackgroundTransparency = Library.Transparency
+			and math.min(Library.SidebarTransparencyValue, 0.10)
+			or 0.02
+	end
 end
 
 function Library:Notify(Config)
