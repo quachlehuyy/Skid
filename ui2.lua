@@ -1131,8 +1131,56 @@ local Themes = {
 	},
 	["Night Hub"] = {
 		Name = "Night Hub",
-		-- Blue accent like the reference; shared DarkProperties keep the navy/black/purple base.
 		Accent = Color3.fromRGB(64, 137, 255),
+
+		DarkGlassMain = Color3.fromRGB(7, 9, 14),
+		DarkGlassBorder = Color3.fromRGB(54, 64, 86),
+		DarkGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),
+		}),
+		DarkGlassNoise = 1,
+
+		TitleBarLine = Color3.fromRGB(42, 48, 62),
+		Tab = Color3.fromRGB(245, 247, 252),
+
+		Element = Color3.fromRGB(21, 27, 38),
+		ElementBorder = Color3.fromRGB(54, 64, 86),
+		InElementBorder = Color3.fromRGB(64, 137, 255),
+		ElementTransparency = 0.08,
+
+		ToggleSlider = Color3.fromRGB(64, 137, 255),
+		ToggleToggled = Color3.fromRGB(7, 9, 14),
+
+		SliderRail = Color3.fromRGB(40, 46, 58),
+
+		DropdownFrame = Color3.fromRGB(16, 19, 27),
+		DropdownHolder = Color3.fromRGB(11, 14, 20),
+		DropdownBorder = Color3.fromRGB(54, 64, 86),
+		DropdownOption = Color3.fromRGB(21, 27, 38),
+
+		Keybind = Color3.fromRGB(21, 27, 38),
+
+		Input = Color3.fromRGB(12, 15, 21),
+		InputFocused = Color3.fromRGB(26, 32, 44),
+		InputIndicator = Color3.fromRGB(64, 137, 255),
+		InputIndicatorFocus = Color3.fromRGB(64, 137, 255),
+
+		Dialog = Color3.fromRGB(18, 21, 30),
+		DialogHolder = Color3.fromRGB(11, 14, 20),
+		DialogHolderLine = Color3.fromRGB(54, 64, 86),
+		DialogButton = Color3.fromRGB(21, 27, 38),
+		DialogButtonBorder = Color3.fromRGB(54, 64, 86),
+		DialogBorder = Color3.fromRGB(54, 64, 86),
+		DialogInput = Color3.fromRGB(12, 15, 21),
+		DialogInputLine = Color3.fromRGB(64, 137, 255),
+
+		Text = Color3.fromRGB(245, 247, 252),
+		SubText = Color3.fromRGB(158, 168, 186),
+		Hover = Color3.fromRGB(34, 40, 54),
+		HoverChange = 0.16,
 	},
 	["Dwac Dark Glass"] = {
 		Name = "Dwac Dark Glass",
@@ -1836,9 +1884,9 @@ function Creator.GetThemeProperty(Property)
 	local Theme = Themes[Library.Theme] or Themes["Dwac Dark Glass"] or Themes["Dark"]
 	local Accent = (Theme and Theme.Accent) or Color3.fromRGB(126, 231, 153)
 	-- Night Hub matched to the reference screenshot:
-	-- deep navy-to-black horizontal base with a restrained violet glow at the
-	-- right edge, cards slightly lifted with muted borders, and near-opaque
-	-- glass so the game scene does not wash out text.
+	-- deep near-black navy base, cool blue glow on top fading to near-black,
+	-- cards slightly lifted with muted borders, near-opaque glass so the
+	-- game scene does not wash out text.
 	local Dark = Color3.fromRGB(7, 9, 14)
 	local DarkControl = Color3.fromRGB(21, 27, 38)
 	local Border = Color3.fromRGB(54, 64, 86)
@@ -1853,33 +1901,24 @@ function Creator.GetThemeProperty(Property)
 		SubText = MutedWhite,
 		-- Base surface: near-opaque deep navy so the game never bleeds through
 		DarkGlassMain = BlendColor(Color3.fromRGB(10, 13, 22), Accent, 0.02),
-		-- Smooth Night Hub gradient. Keep the glow in ONE color sequence rather
-		-- than stacking full-window blue/purple overlays: each overlay introduced
-		-- a visible vertical transition where its alpha ramp ended.
-		-- ColorSequence interpolates between these stops; no RenderStepped loop is
-		-- required, and the background remains smooth and inexpensive to render.
+		-- Vertical gradient (top → bottom): deep blue glow fading into near-black,
+		-- matching the Night Hub reference screenshot
 		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(36, 53, 81)), -- soft navy glow
-			ColorSequenceKeypoint.new(0.14, Color3.fromRGB(27, 42, 65)),
-			ColorSequenceKeypoint.new(0.30, Color3.fromRGB(18, 29, 45)),
-			ColorSequenceKeypoint.new(0.46, Color3.fromRGB(11, 16, 24)),
-			ColorSequenceKeypoint.new(0.56, Color3.fromRGB(9, 12, 18)), -- soft black center
-			ColorSequenceKeypoint.new(0.70, Color3.fromRGB(15, 14, 23)),
-			ColorSequenceKeypoint.new(0.84, Color3.fromRGB(30, 24, 42)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(43, 32, 55)), -- muted violet tint
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),  -- deep blue glow top
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),  -- navy
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),   -- dark navy
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
 		}),
-		DarkGlassBorder = BlendColor(Color3.fromRGB(105, 123, 153), Accent, 0.10),
-		-- Subtle left-side blue glow. Accent only tints it slightly, so all themes
-		-- retain the Night Hub base rather than repainting the whole window.
-		DarkGlassGlow = BlendColor(Color3.fromRGB(87, 132, 219), Accent, 0.18),
-		-- Low-intensity violet overlay for the right edge, like the reference.
-		DarkGlassRightGlow = BlendColor(Color3.fromRGB(120, 86, 166), Accent, 0.10),
-		-- Sidebar follows the same navy-to-black direction as the left side of the
-		-- main surface. This makes the tab rail feel attached to the panel, not detached.
+		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
+		-- Soft blue light radiating from the top-left corner (corner glow overlay)
+		DarkGlassGlow = BlendColor(Color3.fromRGB(96, 150, 255), Accent, 0.35),
+		-- Sidebar backing: same vertical light→dark sweep as the glass, one step
+		-- lighter, so the tab rail shifts hue together with the background
 		SidebarGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(29, 43, 65)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(19, 29, 44)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 18, 28)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 44, 70)),  -- lighter navy (glow corner)
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(20, 29, 48)),
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(13, 17, 28)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(9, 12, 18)),   -- near-black bottom
 		}),
 		DarkGlassNoise = 1,
 		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
@@ -3821,7 +3860,7 @@ Components.Window = (function()
 			Position = Window.Position,
 			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			-- Main gradient runs navy (left) -> near-black (center) -> violet (right).
+			-- Nen gan nhu DAC: gradient navy den chay doc, game khong lo qua.
 			-- Clamp 0.06 de khong che do nao (theme/transparency/config cu) lam
 			-- nen trong suot tro lai nhu ban loi.
 			BackgroundTransparency = Library.Transparency
@@ -3834,12 +3873,31 @@ Components.Window = (function()
 			}),
 			New("UIGradient", {
 				Name = "DarkGlassColorBlend",
-				Rotation = 0, -- horizontal: blue-navy left -> black center -> violet right
+				Rotation = 90, -- vertical: blue glow on top fading to near-black
 				ThemeTag = { Color = "DarkGlassGradient" },
 			}),
-			-- Glow is baked into DarkGlassColorBlend above. Avoid overlapping
-			-- full-size gradient overlays because their separate alpha ramps can
-			-- read as vertical bands on some Roblox quality levels.
+			-- Soft corner glow: diagonal sheen radiating from the top-left corner,
+			-- fading out ~1/3 into the window. Sits below all content.
+			New("Frame", {
+				Name = "DarkGlassCornerGlow",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(1, 1),
+				ZIndex = 0,
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(0, Glass.Radius.Window),
+				}),
+				New("UIGradient", {
+					Rotation = 315, -- glow origin at top-left, fading toward bottom-right
+					ThemeTag = { Color = "DarkGlassGlow" },
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.50), -- soft glow at the corner
+						NumberSequenceKeypoint.new(0.28, 1.00), -- fully faded
+						NumberSequenceKeypoint.new(1.00, 1.00),
+					}),
+				}),
+			}),
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
 			-- before navigation content so labels and buttons stay sharp above it.
 			-- BackgroundColor3 = white + themed gradient: the sidebar shares the same
@@ -3859,7 +3917,7 @@ Components.Window = (function()
 				New("UICorner", { CornerRadius = UDim.new(0, 18) }),
 				New("UIGradient", {
 					Name = "SidebarColorBlend",
-					Rotation = 0, -- horizontal navy-to-black blend, matching the main panel's left side
+					Rotation = 90, -- light at the glow corner (top), dark at the opposite end
 					ThemeTag = { Color = "SidebarGlassGradient" },
 				}),
 			}),
