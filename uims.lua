@@ -1362,8 +1362,8 @@ local Library = {
 	Theme = "Dark Glass",
 
 	-- Do trong suot cua NEN cua so (0 = dac hoan toan, 1 = trong suot hoan toan).
-	-- Chinh duoc trong tab Settings (slider) hoac CreateWindow({ WindowTransparency = 0.55 })
-	WindowTransparency = 0.55,
+	-- Chinh duoc trong tab Settings (slider) hoac CreateWindow({ WindowTransparency = 0.25 })
+	WindowTransparency = 0.25,
 
 	DialogOpen = false,
 	UseAcrylic = false,
@@ -4541,7 +4541,19 @@ Components.Window = (function()
 		        Mid = Library.WindowTransparency,
 		        Bottom = Library.WindowTransparency,
 		    }),
-		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.90 }),
+		    New("ImageLabel", {
+		        Name = "WindowFrost",
+		        Size = UDim2.fromScale(1, 1),
+		        BackgroundTransparency = 1,
+		        Image = "rbxassetid://9968344227",
+		        ImageTransparency = 0.92,
+		        ScaleType = Enum.ScaleType.Tile,
+		        TileSize = UDim2.fromOffset(128, 128),
+		        Interactable = false,
+		        ZIndex = 0,
+		    }, {
+		        New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+		    }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.2, Transparency = 0.10, ZIndex = 4 }),
@@ -8733,7 +8745,7 @@ local InterfaceManager = {} do
 		Theme = "Dark Glass",
 		Acrylic = true,
 		Transparency = true,
-		WindowTransparency = 0.55,
+		WindowTransparency = 0.25,
 		MenuKeybind = "M"
 	}
 
@@ -9385,7 +9397,7 @@ function Library:ToggleTransparency(Value)
 		Grad.Enabled = Library.Transparency
 	end
 
-	Frame.BackgroundTransparency = 0.65
+	Frame.BackgroundTransparency = 0
 end
 
 -- Doi do trong suot cua nen cua so luc dang chay (0..1). Panel sidebar/noi dung
