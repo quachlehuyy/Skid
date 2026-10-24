@@ -2678,12 +2678,12 @@ function Glass.TransparencyGradient(Props, ArgMidOrTop, ArgMid, ArgBottom)
 		MidKeypoint = Props.MidKeypoint or 0.45
 	end
 
-	-- Dwac Dark Glass uses a medium-frost opacity curve so game colors remain
-	-- visible without making labels and controls disappear into the scene.
+	-- Style A: a medium-dark tint. Lower transparency values make the
+	-- charcoal/forest glass readable over bright sky and grass without live blur.
 	if Library.Theme == "Dwac Dark Glass" and Library.PerformanceMode then
-		Top = math.min(Top, 0.58)
-		Mid = math.min(Mid, 0.48)
-		Bottom = math.min(Bottom, 0.38)
+		Top = math.min(Top, 0.50)
+		Mid = math.min(Mid, 0.40)
+		Bottom = math.min(Bottom, 0.30)
 	end
 
 	local Grad = New("UIGradient", {
@@ -9092,8 +9092,10 @@ local InterfaceManager = {} do
 				for i, v in next, decoded do
 					InterfaceManager.Settings[i] = v
 				end
-				-- Migrate the previous default theme to Dwac Dark Glass once.
-				if InterfaceManager.Settings.Theme == "Liquid Glass" then
+				-- Use the requested Style A for old default/screenshot themes.
+				-- Other explicitly saved themes remain untouched.
+				if InterfaceManager.Settings.Theme == "Liquid Glass"
+					or InterfaceManager.Settings.Theme == "Dark Typewriter" then
 					InterfaceManager.Settings.Theme = "Dwac Dark Glass"
 				end
 			end
@@ -9596,6 +9598,26 @@ function Library:SetTheme(Value)
 
 	Library.Theme = Value
 	Creator.UpdateTheme()
+
+	-- Update the main glass opacity when switching themes at runtime too.
+	-- Previously this gradient was only calculated during window creation,
+	-- so changing from Dark Typewriter to Dwac Dark Glass changed colors but
+	-- left the window far too transparent.
+	local Paint = Library.Window and Library.Window.AcrylicPaint
+	local Surface = Paint and Paint.Frame
+	local SurfaceGradient = Surface and Surface:FindFirstChild("GlassTransparencyGradient")
+	if SurfaceGradient then
+		local Top, Mid, Bottom = 0.85, 0.78, 0.70
+		if Value == "Dwac Dark Glass" and Library.PerformanceMode then
+			Top, Mid, Bottom = 0.50, 0.40, 0.30
+		end
+		SurfaceGradient.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0.00, Top),
+			NumberSequenceKeypoint.new(0.45, Mid),
+			NumberSequenceKeypoint.new(1.00, Bottom),
+		})
+		SurfaceGradient.Enabled = Library.Transparency
+	end
 
 	if Components.Tab and Components.Tab.Tabs then
 		for _, TabObject in next, Components.Tab.Tabs do
