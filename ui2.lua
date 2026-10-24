@@ -2177,14 +2177,7 @@ function AcrylicPaint()
 				}),
 			}),
 
-			New("UIStroke", {
-				Transparency = 0.55,
-				Thickness = 1,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				ThemeTag = {
-					Color = "AcrylicBorder",
-				},
-			}),
+			Glass.Rim({ Tag = "AcrylicBorder", Thickness = 1 }),
 
 			New("UIGradient", {
 				Name = "GlassTransparencyGradient",
@@ -2294,14 +2287,27 @@ local Glass = {
 	},
 }
 
--- Vien nhe thanh lich theo tung theme
+-- Vien Fresnel mem mai theo goc tiep tuyen quang hoc (chuan boatbomber / Apple glassmorphism)
 function Glass.Rim(Props)
 	Props = Props or {}
+	local TopT = Props.Top or 0.35
+	local MidT = Props.Mid or 0.58
+	local BotT = Props.Bottom or 0.75
+
 	return New("UIStroke", {
 		Thickness       = Props.Thickness or 1,
-		Transparency    = Props.Transparency or 0.55,
+		Transparency    = 0,
 		ApplyStrokeMode = Props.Mode or Enum.ApplyStrokeMode.Border,
 		ThemeTag        = { Color = Props.Tag or "AcrylicBorder" },
+	}, {
+		New("UIGradient", {
+			Rotation = Props.Rotation or 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0.00, TopT),
+				NumberSequenceKeypoint.new(0.50, MidT),
+				NumberSequenceKeypoint.new(1.00, BotT),
+			}),
+		}),
 	})
 end
 
@@ -4363,7 +4369,7 @@ Components.Window = (function()
 				Name = "ThemeGradientLayer",
 				Size = UDim2.fromScale(1, 1),
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				BackgroundTransparency = 0.35,
+				BackgroundTransparency = 0.30,
 				Interactable = false,
 				ZIndex = 1,
 			}, {
@@ -4390,13 +4396,8 @@ Components.Window = (function()
 				New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
 			}),
 
-			-- Vien nhe thanh lich theo mau theme (AcrylicBorder)
-			New("UIStroke", {
-				Thickness = 1,
-				Transparency = 0.55,
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				ThemeTag = { Color = "AcrylicBorder" },
-			}),
+			-- Vien Fresnel mem mai theo goc tiep tuyen quang hoc (AcrylicBorder)
+			Glass.Rim({ Tag = "AcrylicBorder", Thickness = 1 }),
 
 			-- Do trong suot trong nhe mo duc (trong nhe nhe nhang, hien ro mau theme)
 			Glass.TransparencyGradient({
