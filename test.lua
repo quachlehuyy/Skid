@@ -3762,17 +3762,24 @@ Components.Window = (function()
 			Window.ContainerHolder,
 		})
 
-		-- Dwac Dark Glass surface: one static tinted panel, no refraction,
-		-- specular reflection, noise texture, frost overlay or live blur.
-		local DarkGlassFrame = New("Frame", {
+		-- Dwac Dark Glass: the Root itself IS the glass surface.
+		-- This is important: a separate ZIndex=2 overlay would dim the labels and
+		-- controls beneath it. A single root background keeps all content crisp,
+		-- while the muted dark gradient lets the game scene show through softly.
+		-- No Liquid Glass renderer, refraction, specular reflection, noise,
+		-- frost overlay, camera blur, or per-frame rendering is used.
+		Window.Root = New("Frame", {
 			Name = "DwacDarkGlassSurface",
-			Size = UDim2.fromScale(1, 1),
+			Size = Window.Size,
+			Position = Window.Position,
+			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = Library.Transparency and 0.18 or 0.035,
+			BackgroundTransparency = Library.Transparency and 0.22 or 0.04,
 			BorderSizePixel = 0,
-			ZIndex = 2,
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
+			New("UICorner", {
+				CornerRadius = UDim.new(0, Glass.Radius.Window),
+			}),
 			New("UIGradient", {
 				Name = "DarkGlassColorBlend",
 				Rotation = 90,
@@ -3785,25 +3792,18 @@ Components.Window = (function()
 				Color = Color3.fromRGB(220, 232, 224),
 				ThemeTag = { Color = "DarkGlassBorder" },
 			}),
+			-- Foreground siblings are created after the glass decorators so text,
+			-- icons, tabs and controls always remain above the background surface.
+			Window.TabDisplay,
+			Window.ContainerCanvas,
+			SearchBox,
+			TabFrame,
+			ResizeStartFrame,
 		})
 
 		Window.DarkGlassSurface = {
-			Frame = DarkGlassFrame,
+			Frame = Window.Root,
 		}
-
-		Window.Root = New("Frame", {
-		    BackgroundTransparency = 1,
-		    Size = Window.Size,
-		    Position = Window.Position,
-		    Parent = Config.Parent,
-		}, {
-		    DarkGlassFrame,
-		    Window.TabDisplay,
-		    Window.ContainerCanvas,
-		    SearchBox,
-		    TabFrame,
-		    ResizeStartFrame,
-		})
 
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
@@ -8325,7 +8325,7 @@ function Library:SetTheme(Value)
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Surface = Paint and Paint.Frame
 	if Surface then
-		Surface.BackgroundTransparency = Library.Transparency and 0.18 or 0.035
+		Surface.BackgroundTransparency = Library.Transparency and 0.22 or 0.04
 	end
 
 	if Components.Tab and Components.Tab.Tabs then
@@ -8374,7 +8374,7 @@ function Library:ToggleTransparency(Value)
 		return
 	end
 
-	Frame.BackgroundTransparency = Library.Transparency and 0.18 or 0.035
+	Frame.BackgroundTransparency = Library.Transparency and 0.22 or 0.04
 end
 
 function Library:Notify(Config)
