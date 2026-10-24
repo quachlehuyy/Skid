@@ -1852,6 +1852,8 @@ function Creator.GetThemeProperty(Property)
 			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
 		}),
 		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
+		-- Soft blue light radiating from the top-left corner (corner glow overlay)
+		DarkGlassGlow = BlendColor(Color3.fromRGB(96, 150, 255), Accent, 0.35),
 		DarkGlassNoise = 1,
 		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
 		-- Cards: a step lighter than the glass so they separate without harsh contrast
@@ -3807,6 +3809,28 @@ Components.Window = (function()
 				Name = "DarkGlassColorBlend",
 				Rotation = 90, -- vertical: blue glow on top fading to near-black
 				ThemeTag = { Color = "DarkGlassGradient" },
+			}),
+			-- Soft corner glow: diagonal sheen radiating from the top-left corner,
+			-- fading out ~1/3 into the window. Sits below all content.
+			New("Frame", {
+				Name = "DarkGlassCornerGlow",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(1, 1),
+				ZIndex = 0,
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(0, Glass.Radius.Window),
+				}),
+				New("UIGradient", {
+					Rotation = 315, -- glow origin at top-left, fading toward bottom-right
+					ThemeTag = { Color = "DarkGlassGlow" },
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.50), -- soft glow at the corner
+						NumberSequenceKeypoint.new(0.28, 1.00), -- fully faded
+						NumberSequenceKeypoint.new(1.00, 1.00),
+					}),
+				}),
 			}),
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
 			-- before navigation content so labels and buttons stay sharp above it.
