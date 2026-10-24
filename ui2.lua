@@ -1210,8 +1210,8 @@ local Library = {
 	DialogOpen = false,
 	Transparency = true,
 	-- Numeric Roblox BackgroundTransparency values (0 = opaque, 1 = invisible).
-	GlassTransparencyValue = 0.12,
-	SidebarTransparencyValue = 0.08,
+	GlassTransparencyValue = 0.14,
+	SidebarTransparencyValue = 0.10,
 	MinimizeKeybind = nil,
 	MinimizerIcon = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl,
@@ -1825,58 +1825,62 @@ end
 function Creator.GetThemeProperty(Property)
 	local Theme = Themes[Library.Theme] or Themes["Dwac Dark Glass"] or Themes["Dark"]
 	local Accent = (Theme and Theme.Accent) or Color3.fromRGB(126, 231, 153)
-	-- Night Hub palette inspired by the reference: subdued navy on the left,
-	-- near-black through the center, and a muted violet tint on the right.
-	-- The selected theme Accent colors controls/selection states, not the entire panel.
-	local Dark = Color3.fromRGB(13, 15, 21)
-	local DarkControl = Color3.fromRGB(32, 35, 42)
-	local Border = Color3.fromRGB(76, 83, 98)
-	local SoftBorder = Color3.fromRGB(53, 59, 73)
-	local White = Color3.fromRGB(244, 246, 250)
-	local MutedWhite = Color3.fromRGB(166, 173, 187)
+	-- Night Hub matched to the reference screenshot:
+	-- deep near-black navy base, cooler blue on the left, soft violet on the right,
+	-- cards slightly lifted, borders muted, glass transparency kept light so the
+	-- game scene shows through without washing out text.
+	local Dark = Color3.fromRGB(10, 12, 18)
+	local DarkControl = Color3.fromRGB(24, 28, 38)
+	local Border = Color3.fromRGB(58, 66, 84)
+	local SoftBorder = Color3.fromRGB(42, 48, 62)
+	local White = Color3.fromRGB(245, 247, 252)
+	local MutedWhite = Color3.fromRGB(158, 168, 186)
 
 	local DarkProperties = {
 		Accent = Accent,
 		Tab = White,
 		Text = White,
 		SubText = MutedWhite,
-		DarkGlassMain = BlendColor(Color3.fromRGB(13, 15, 21), Accent, 0.018),
+		-- Base surface: slightly cooler than pure black so the blue accent reads cleanly
+		DarkGlassMain = BlendColor(Color3.fromRGB(11, 13, 20), Accent, 0.015),
+		-- Horizontal glass gradient (left → right) matching the screenshot lighting
 		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(31, 51, 79)),
-			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(23, 34, 48)),
-			ColorSequenceKeypoint.new(0.52, Color3.fromRGB(14, 16, 21)),
-			ColorSequenceKeypoint.new(0.78, Color3.fromRGB(27, 24, 37)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(43, 34, 57)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 36, 58)), -- cool navy left
+			ColorSequenceKeypoint.new(0.22, Color3.fromRGB(16, 22, 34)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(11, 13, 19)), -- near-black center
+			ColorSequenceKeypoint.new(0.78, Color3.fromRGB(20, 18, 30)), -- muted violet
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(32, 26, 44)), -- soft purple rim
 		}),
-		DarkGlassBorder = Color3.fromRGB(166, 177, 195),
+		DarkGlassBorder = Color3.fromRGB(120, 132, 158),
 		DarkGlassNoise = 1,
-		TitleBarLine = BlendColor(SoftBorder, Accent, 0.10),
-		Element = BlendColor(DarkControl, Accent, 0.035),
-		ElementBorder = BlendColor(Border, Accent, 0.12),
-		InElementBorder = BlendColor(Border, Accent, 0.28),
-		ElementTransparency = 0.16,
+		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
+		-- Cards: a step lighter than the glass so they separate without harsh contrast
+		Element = BlendColor(DarkControl, Accent, 0.03),
+		ElementBorder = BlendColor(Border, Accent, 0.10),
+		InElementBorder = BlendColor(Border, Accent, 0.22),
+		ElementTransparency = 0.18,
 		ToggleSlider = Accent,
-		ToggleToggled = BlendColor(Dark, Accent, 0.03),
-		TransparenToggle = 0.22,
-		SliderRail = BlendColor(Color3.fromRGB(48, 54, 66), Accent, 0.10),
-		DropdownFrame = BlendColor(Color3.fromRGB(19, 22, 29), Accent, 0.045),
-		DropdownHolder = BlendColor(Color3.fromRGB(13, 16, 22), Accent, 0.035),
-		DropdownBorder = BlendColor(Border, Accent, 0.12),
-		DropdownOption = BlendColor(DarkControl, Accent, 0.055),
-		Keybind = BlendColor(DarkControl, Accent, 0.045),
-		Input = BlendColor(Color3.fromRGB(14, 17, 23), Accent, 0.035),
-		InputFocused = BlendColor(Color3.fromRGB(29, 35, 47), Accent, 0.12),
-		InputIndicator = Color3.fromRGB(173, 181, 195),
+		ToggleToggled = BlendColor(Dark, Accent, 0.025),
+		TransparenToggle = 0.20,
+		SliderRail = BlendColor(Color3.fromRGB(40, 46, 58), Accent, 0.08),
+		DropdownFrame = BlendColor(Color3.fromRGB(16, 19, 27), Accent, 0.04),
+		DropdownHolder = BlendColor(Color3.fromRGB(11, 14, 20), Accent, 0.03),
+		DropdownBorder = BlendColor(Border, Accent, 0.10),
+		DropdownOption = BlendColor(DarkControl, Accent, 0.05),
+		Keybind = BlendColor(DarkControl, Accent, 0.04),
+		Input = BlendColor(Color3.fromRGB(12, 15, 21), Accent, 0.03),
+		InputFocused = BlendColor(Color3.fromRGB(26, 32, 44), Accent, 0.10),
+		InputIndicator = Color3.fromRGB(160, 170, 188),
 		InputIndicatorFocus = Accent,
-		Dialog = BlendColor(Color3.fromRGB(22, 25, 33), Accent, 0.06),
-		DialogHolder = BlendColor(Color3.fromRGB(13, 16, 22), Accent, 0.035),
-		DialogHolderLine = BlendColor(Border, Accent, 0.12),
-		DialogButton = BlendColor(DarkControl, Accent, 0.07),
-		DialogButtonBorder = BlendColor(Border, Accent, 0.16),
-		DialogBorder = BlendColor(Border, Accent, 0.16),
-		DialogInput = BlendColor(Color3.fromRGB(14, 17, 23), Accent, 0.04),
+		Dialog = BlendColor(Color3.fromRGB(18, 21, 30), Accent, 0.05),
+		DialogHolder = BlendColor(Color3.fromRGB(11, 14, 20), Accent, 0.03),
+		DialogHolderLine = BlendColor(Border, Accent, 0.10),
+		DialogButton = BlendColor(DarkControl, Accent, 0.06),
+		DialogButtonBorder = BlendColor(Border, Accent, 0.14),
+		DialogBorder = BlendColor(Border, Accent, 0.14),
+		DialogInput = BlendColor(Color3.fromRGB(12, 15, 21), Accent, 0.035),
 		DialogInputLine = Accent,
-		Hover = BlendColor(Color3.fromRGB(38, 44, 57), Accent, 0.18),
+		Hover = BlendColor(Color3.fromRGB(34, 40, 54), Accent, 0.16),
 	}
 
 	local Value = DarkProperties[Property]
@@ -3805,7 +3809,7 @@ Components.Window = (function()
 				Name = "DwacSidebarSurface",
 				Position = UDim2.fromOffset(6, 49),
 				Size = UDim2.new(0, Window.TabWidth + 14, 1, -56),
-				BackgroundColor3 = Color3.fromRGB(12, 15, 22),
+				BackgroundColor3 = Color3.fromRGB(9, 11, 17),
 				BackgroundTransparency = Library.Transparency and Library.SidebarTransparencyValue or 0.035,
 				BorderSizePixel = 0,
 				ZIndex = 1,
@@ -3816,8 +3820,8 @@ Components.Window = (function()
 				Name = "DwacSidebarDivider",
 				Position = UDim2.new(0, Window.TabWidth + 22, 0, 52),
 				Size = UDim2.new(0, 1, 1, -60),
-				BackgroundColor3 = Color3.fromRGB(205, 222, 215),
-				BackgroundTransparency = 0.78,
+				BackgroundColor3 = Color3.fromRGB(140, 155, 185),
+				BackgroundTransparency = 0.82,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 			}),
