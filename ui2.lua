@@ -1853,17 +1853,20 @@ function Creator.GetThemeProperty(Property)
 		SubText = MutedWhite,
 		-- Base surface: near-opaque deep navy so the game never bleeds through
 		DarkGlassMain = BlendColor(Color3.fromRGB(10, 13, 22), Accent, 0.02),
-		-- Horizontal Night Hub gradient: navy glow on the left, near-black center,
-		-- then a restrained violet glow on the right (matching the reference image).
-		-- It is a static UIGradient: no per-frame render work is required.
+		-- Smooth Night Hub gradient. Keep the glow in ONE color sequence rather
+		-- than stacking full-window blue/purple overlays: each overlay introduced
+		-- a visible vertical transition where its alpha ramp ended.
+		-- ColorSequence interpolates between these stops; no RenderStepped loop is
+		-- required, and the background remains smooth and inexpensive to render.
 		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(31, 48, 76)), -- blue-navy left glow
-			ColorSequenceKeypoint.new(0.16, Color3.fromRGB(25, 39, 62)),
-			ColorSequenceKeypoint.new(0.34, Color3.fromRGB(17, 25, 39)),
-			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(10, 14, 20)), -- deep black center
-			ColorSequenceKeypoint.new(0.68, Color3.fromRGB(15, 16, 26)),
-			ColorSequenceKeypoint.new(0.84, Color3.fromRGB(31, 26, 43)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(48, 36, 61)), -- violet edge glow
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(36, 53, 81)), -- soft navy glow
+			ColorSequenceKeypoint.new(0.14, Color3.fromRGB(27, 42, 65)),
+			ColorSequenceKeypoint.new(0.30, Color3.fromRGB(18, 29, 45)),
+			ColorSequenceKeypoint.new(0.46, Color3.fromRGB(11, 16, 24)),
+			ColorSequenceKeypoint.new(0.56, Color3.fromRGB(9, 12, 18)), -- soft black center
+			ColorSequenceKeypoint.new(0.70, Color3.fromRGB(15, 14, 23)),
+			ColorSequenceKeypoint.new(0.84, Color3.fromRGB(30, 24, 42)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(43, 32, 55)), -- muted violet tint
 		}),
 		DarkGlassBorder = BlendColor(Color3.fromRGB(105, 123, 153), Accent, 0.10),
 		-- Subtle left-side blue glow. Accent only tints it slightly, so all themes
@@ -1874,11 +1877,9 @@ function Creator.GetThemeProperty(Property)
 		-- Sidebar follows the same navy-to-black direction as the left side of the
 		-- main surface. This makes the tab rail feel attached to the panel, not detached.
 		SidebarGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(35, 53, 83)),
-			ColorSequenceKeypoint.new(0.20, Color3.fromRGB(27, 42, 67)),
-			ColorSequenceKeypoint.new(0.44, Color3.fromRGB(20, 30, 47)),
-			ColorSequenceKeypoint.new(0.72, Color3.fromRGB(15, 22, 34)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 15, 23)),
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(29, 43, 65)),
+			ColorSequenceKeypoint.new(0.50, Color3.fromRGB(19, 29, 44)),
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 18, 28)),
 		}),
 		DarkGlassNoise = 1,
 		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
@@ -3836,54 +3837,9 @@ Components.Window = (function()
 				Rotation = 0, -- horizontal: blue-navy left -> black center -> violet right
 				ThemeTag = { Color = "DarkGlassGradient" },
 			}),
-			-- Soft blue corner glow at the left. Static overlay, behind all controls.
-			New("Frame", {
-				Name = "DarkGlassCornerGlow",
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				BackgroundTransparency = 0,
-				BorderSizePixel = 0,
-				Size = UDim2.fromScale(1, 1),
-				ZIndex = 0,
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, Glass.Radius.Window),
-				}),
-				New("UIGradient", {
-					Rotation = 0, -- blue glow starts at the left and quickly fades inward
-					ThemeTag = { Color = "DarkGlassGlow" },
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.50), -- soft glow at the corner
-						NumberSequenceKeypoint.new(0.28, 1.00), -- fully faded
-						NumberSequenceKeypoint.new(1.00, 1.00),
-					}),
-				}),
-			}),
-			-- Violet right-edge glow balances the blue left glow in the reference.
-			-- It is just one static frame + gradient; no animation/render loop.
-			New("Frame", {
-				Name = "DarkGlassRightGlow",
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				BackgroundTransparency = 0,
-				BorderSizePixel = 0,
-				Size = UDim2.fromScale(1, 1),
-				ZIndex = 0,
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, Glass.Radius.Window),
-				}),
-				New("UIGradient", {
-					Name = "NightHubVioletGlow",
-					Rotation = 0,
-					ThemeTag = { Color = "DarkGlassRightGlow" },
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 1.00),
-						NumberSequenceKeypoint.new(0.58, 1.00),
-						NumberSequenceKeypoint.new(0.78, 0.94),
-						NumberSequenceKeypoint.new(0.90, 0.84),
-						NumberSequenceKeypoint.new(1.00, 0.72),
-					}),
-				}),
-			}),
+			-- Glow is baked into DarkGlassColorBlend above. Avoid overlapping
+			-- full-size gradient overlays because their separate alpha ramps can
+			-- read as vertical bands on some Roblox quality levels.
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
 			-- before navigation content so labels and buttons stay sharp above it.
 			-- BackgroundColor3 = white + themed gradient: the sidebar shares the same
