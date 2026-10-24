@@ -1816,43 +1816,44 @@ end
 function Creator.GetThemeProperty(Property)
 	local Theme = Themes[Library.Theme] or Themes["Dwac Dark Glass"] or Themes["Dark"]
 	local Accent = (Theme and Theme.Accent) or Color3.fromRGB(126, 231, 153)
-	local Dark = Color3.fromRGB(11, 16, 13)
-	local DarkControl = Color3.fromRGB(22, 32, 25)
-	local Border = Color3.fromRGB(101, 117, 106)
-	local SoftBorder = Color3.fromRGB(76, 91, 81)
-	local White = Color3.fromRGB(246, 249, 247)
-	local MutedWhite = Color3.fromRGB(204, 216, 207)
+	-- Style A / Smoked Glass: slate-teal at the top, forest-black at the bottom.
+	-- Accent color only tints the dark surfaces slightly; it never replaces them.
+	local Dark = Color3.fromRGB(9, 16, 17)
+	local DarkControl = Color3.fromRGB(17, 29, 27)
+	local Border = Color3.fromRGB(96, 119, 117)
+	local SoftBorder = Color3.fromRGB(70, 91, 91)
+	local White = Color3.fromRGB(246, 249, 248)
+	local MutedWhite = Color3.fromRGB(202, 216, 214)
 
-	-- Theme presets are accent palettes only. The overall surface stays dark;
-	-- each palette tint is mixed into the base rather than replacing it.
 	local DarkProperties = {
 		Accent = Accent,
 		Tab = White,
 		Text = White,
 		SubText = MutedWhite,
-		DarkGlassMain = BlendColor(Dark, Accent, 0.045),
-		DarkGlassGradient = ColorSequence.new(
-			BlendColor(Color3.fromRGB(29, 43, 33), Accent, 0.13),
-			BlendColor(Color3.fromRGB(8, 13, 10), Accent, 0.055)
-		),
-		DarkGlassBorder = Color3.fromRGB(220, 232, 224),
+		DarkGlassMain = BlendColor(Dark, Accent, 0.035),
+		DarkGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, BlendColor(Color3.fromRGB(37, 55, 66), Accent, 0.055)),
+			ColorSequenceKeypoint.new(0.48, BlendColor(Color3.fromRGB(16, 34, 34), Accent, 0.075)),
+			ColorSequenceKeypoint.new(1.00, BlendColor(Color3.fromRGB(7, 20, 14), Accent, 0.06)),
+		}),
+		DarkGlassBorder = Color3.fromRGB(220, 232, 229),
 		DarkGlassNoise = 1,
-		TitleBarLine = BlendColor(SoftBorder, Accent, 0.12),
-		Element = BlendColor(DarkControl, Accent, 0.075),
-		ElementBorder = BlendColor(Border, Accent, 0.19),
-		InElementBorder = BlendColor(Border, Accent, 0.30),
-		ElementTransparency = 0.16,
+		TitleBarLine = BlendColor(SoftBorder, Accent, 0.10),
+		Element = BlendColor(DarkControl, Accent, 0.055),
+		ElementBorder = BlendColor(Border, Accent, 0.13),
+		InElementBorder = BlendColor(Border, Accent, 0.28),
+		ElementTransparency = 0.24,
 		ToggleSlider = Accent,
-		ToggleToggled = BlendColor(Dark, Accent, 0.06),
+		ToggleToggled = BlendColor(Dark, Accent, 0.05),
 		TransparenToggle = 0.22,
-		SliderRail = BlendColor(Color3.fromRGB(48, 62, 52), Accent, 0.12),
-		DropdownFrame = BlendColor(Color3.fromRGB(18, 28, 21), Accent, 0.085),
-		DropdownHolder = BlendColor(Color3.fromRGB(10, 16, 12), Accent, 0.075),
-		DropdownBorder = BlendColor(Border, Accent, 0.18),
-		DropdownOption = BlendColor(DarkControl, Accent, 0.10),
-		Keybind = BlendColor(DarkControl, Accent, 0.085),
-		Input = BlendColor(Color3.fromRGB(12, 19, 14), Accent, 0.07),
-		InputFocused = BlendColor(Color3.fromRGB(31, 45, 34), Accent, 0.15),
+		SliderRail = BlendColor(Color3.fromRGB(43, 59, 56), Accent, 0.10),
+		DropdownFrame = BlendColor(Color3.fromRGB(16, 27, 27), Accent, 0.065),
+		DropdownHolder = BlendColor(Color3.fromRGB(9, 16, 17), Accent, 0.055),
+		DropdownBorder = BlendColor(Border, Accent, 0.13),
+		DropdownOption = BlendColor(DarkControl, Accent, 0.075),
+		Keybind = BlendColor(DarkControl, Accent, 0.06),
+		Input = BlendColor(Color3.fromRGB(10, 18, 18), Accent, 0.05),
+		InputFocused = BlendColor(Color3.fromRGB(27, 43, 41), Accent, 0.12),
 		InputIndicator = BlendColor(Color3.fromRGB(155, 171, 159), Accent, 0.12),
 		InputIndicatorFocus = Accent,
 		Dialog = BlendColor(Color3.fromRGB(17, 26, 20), Accent, 0.09),
@@ -2024,9 +2025,9 @@ local Instant = Flipper.Instant.new
 local AddSignal = Creator.AddSignal
 
 -- ─────────────────────────────────────────────────────────────────────
--- DWAC DARK GLASS
--- Dark Glass uses ordinary 2D GUI only: flat surfaces and restrained borders.
--- No sheen, refraction, frost, specular, shadow images, or camera blur layers.
+-- DWAC STYLE A — SMOKED GLASS
+-- Dark teal/forest translucent 2D surfaces, thin pale rim, and a quiet sidebar tint.
+-- No legacy Liquid Glass renderer, refraction, specular, frost overlays, or camera blur.
 local Glass = {
     Radius = {
         Window = 24,
@@ -3774,7 +3775,7 @@ Components.Window = (function()
 			Position = Window.Position,
 			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = Library.Transparency and 0.22 or 0.04,
+			BackgroundTransparency = Library.Transparency and 0.24 or 0.06,
 			BorderSizePixel = 0,
 		}, {
 			New("UICorner", {
@@ -3784,6 +3785,28 @@ Components.Window = (function()
 				Name = "DarkGlassColorBlend",
 				Rotation = 90,
 				ThemeTag = { Color = "DarkGlassGradient" },
+			}),
+			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
+			-- before navigation content so labels and buttons stay sharp above it.
+			New("Frame", {
+				Name = "DwacSidebarSurface",
+				Position = UDim2.fromOffset(6, 49),
+				Size = UDim2.new(0, Window.TabWidth + 14, 1, -56),
+				BackgroundColor3 = Color3.fromRGB(5, 13, 15),
+				BackgroundTransparency = 0.34,
+				BorderSizePixel = 0,
+				ZIndex = 1,
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, 18) }),
+			}),
+			New("Frame", {
+				Name = "DwacSidebarDivider",
+				Position = UDim2.new(0, Window.TabWidth + 22, 0, 52),
+				Size = UDim2.new(0, 1, 1, -60),
+				BackgroundColor3 = Color3.fromRGB(205, 222, 215),
+				BackgroundTransparency = 0.78,
+				BorderSizePixel = 0,
+				ZIndex = 1,
 			}),
 			New("UIStroke", {
 				Thickness = 1.15,
@@ -8325,7 +8348,7 @@ function Library:SetTheme(Value)
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Surface = Paint and Paint.Frame
 	if Surface then
-		Surface.BackgroundTransparency = Library.Transparency and 0.22 or 0.04
+		Surface.BackgroundTransparency = Library.Transparency and 0.24 or 0.06
 	end
 
 	if Components.Tab and Components.Tab.Tabs then
@@ -8374,7 +8397,7 @@ function Library:ToggleTransparency(Value)
 		return
 	end
 
-	Frame.BackgroundTransparency = Library.Transparency and 0.22 or 0.04
+	Frame.BackgroundTransparency = Library.Transparency and 0.24 or 0.06
 end
 
 function Library:Notify(Config)
