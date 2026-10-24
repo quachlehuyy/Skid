@@ -2416,7 +2416,7 @@ local AddSignal = Creator.AddSignal
 local Glass = {
 	-- Do trong suot cua cac panel chinh (cua so, dropdown, dialog, thong bao).
 	-- So cang nho cang dac. Top/Mid/Bottom la dau/giua/cuoi gradient doc.
-	Panel = { Top = 0.30, Mid = 0.22, Bottom = 0.14 },
+	Panel = { Top = 0.50, Mid = 0.44, Bottom = 0.38 },
 	-- ban kinh bo goc theo tung cap do (pixel) chuan iOS 27 / visionOS Squircle
 	Radius = {
 		Window  = 26, -- cua so / dialog
@@ -4737,19 +4737,19 @@ Components.Window = (function()
 		-- va khong the anh huong layout. Client cu khong co class nay ->
 		-- Glass.Shadow tra ve anh slice-shadow (GuiObject).
 		local WindowShadow = Glass.Shadow({
-			SpreadX = 64, SpreadY = 64, OffsetY = 0, Transparency = 0.65, ZIndex = 1,
+			SpreadX = 64, SpreadY = 64, OffsetY = 0, Transparency = 0.65, ZIndex = -2,
 		})
 
 		-- Lop nen kinh long trong suot da tang (Liquid Glass iOS 27)
 		local AcrylicFrame = New("Frame", {
 		    Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 0,
-			ZIndex = 2,
+			ZIndex = 0, -- nam DUOI noi dung (ZIndex mac dinh 1), neu >= 1 se phu mo len chu
 		    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Window) }),
 		    Glass.TransparencyGradient(Glass.Panel),
-		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.97 }),
+		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.90 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
 		    Glass.TopLight({ Inset = 24, Thickness = 1.2, Transparency = 0.10, ZIndex = 4 }),
@@ -4795,7 +4795,7 @@ Components.Window = (function()
 		    Parent = Config.Parent,
 		}, {
 		    WindowShadow,   -- ZIndex = 1 (lop duoi cung, do bong an theo mau theme)
-		    Glass.Refract(Glass.Radius.Window, { Band = 1.5, Transparency = 0.60, ZIndex = 1 }),
+		    Glass.Refract(Glass.Radius.Window, { Band = 1.5, Transparency = 0.60, ZIndex = -1 }),
 		    AcrylicFrame,   -- ZIndex = 2 (nen kinh lỏng trong suot hien ro mau theme tu tren xuong)
 		    Window.TabDisplay,
 		    Window.ContainerCanvas,
@@ -9078,8 +9078,9 @@ function Library:CreateWindow(Config)
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.RightControl
-	Library.UseAcrylic = Config.Acrylic or false
-	Library.Acrylic = Config.Acrylic or false
+	-- Mac dinh BAT blur nen that (kinh mo duc). Muon tat: CreateWindow({ Acrylic = false })
+	Library.UseAcrylic = Config.Acrylic ~= false
+	Library.Acrylic = Config.Acrylic ~= false
 	Library.Theme = Config.Theme or "Liquid Glass"
 	-- `Config.Transparency ~= false` chu khong phai `or false`: mac dinh cua
 	-- thu vien la CO trong suot (Library.Transparency = true o dau file), nen
