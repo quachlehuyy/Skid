@@ -1776,6 +1776,11 @@ function Creator.UpdateTheme()
 				-- Kiem tra kieu `if X then` se bo qua no -> element o cac theme
 				-- do giu nguyen do trong cua theme truoc.
 				if Theme_Property ~= nil then
+					-- UIGradient.Color bat buoc la ColorSequence; cac theme dinh
+					-- nghia gia tri don le dang Color3 thi tu dong boc lai.
+					if Object:IsA("UIGradient") and Property == "Color" and typeof(Theme_Property) == "Color3" then
+						Theme_Property = ColorSequence.new(Theme_Property)
+					end
 					Object[Property] = Theme_Property
 				end
 			end
@@ -1800,6 +1805,11 @@ function Creator.AddThemeObject(Object, Properties)
 	for Property, ColorIdx in next, Properties do
 		local Theme_Property = Creator.GetThemeProperty(ColorIdx)
 		if Theme_Property ~= nil then
+			-- UIGradient.Color bat buoc la ColorSequence; gia tri Color3 don le
+			-- (vi du DarkGlassGlow cho corner glow) duoc boc lai tu dong.
+			if Object:IsA("UIGradient") and Property == "Color" and typeof(Theme_Property) == "Color3" then
+				Theme_Property = ColorSequence.new(Theme_Property)
+			end
 			Object[Property] = Theme_Property
 		end
 	end
@@ -1852,6 +1862,16 @@ function Creator.GetThemeProperty(Property)
 			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
 		}),
 		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
+		-- Soft blue light radiating from the top-left corner (corner glow overlay)
+		DarkGlassGlow = BlendColor(Color3.fromRGB(96, 150, 255), Accent, 0.35),
+		-- Sidebar backing: EXACTLY the same vertical light→dark sweep as the
+		-- main glass, so the tab rail and background blend as one single pane
+		SidebarGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),  -- deep blue glow top
+			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),  -- navy
+			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),   -- dark navy
+			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
+		}),
 		DarkGlassNoise = 1,
 		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
 		-- Cards: a step lighter than the glass so they separate without harsh contrast
@@ -3792,7 +3812,12 @@ Components.Window = (function()
 			Position = Window.Position,
 			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BackgroundTransparency = Library.Transparency and Library.GlassTransparencyValue or 0.025,
+			-- Nen gan nhu DAC: gradient navy den chay doc, game khong lo qua.
+			-- Clamp 0.06 de khong che do nao (theme/transparency/config cu) lam
+			-- nen trong suot tro lai nhu ban loi.
+			BackgroundTransparency = Library.Transparency
+				and math.min(Library.GlassTransparencyValue, 0.06)
+				or 0.02,
 			BorderSizePixel = 0,
 		}, {
 			New("UICorner", {
@@ -3803,18 +3828,50 @@ Components.Window = (function()
 				Rotation = 90, -- vertical: blue glow on top fading to near-black
 				ThemeTag = { Color = "DarkGlassGradient" },
 			}),
+			-- Soft corner glow: diagonal sheen radiating from the top-left corner,
+			-- fading out ~1/3 into the window. Sits below all content.
+			New("Frame", {
+				Name = "DarkGlassCornerGlow",
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Size = UDim2.fromScale(1, 1),
+				ZIndex = 0,
+			}, {
+				New("UICorner", {
+					CornerRadius = UDim.new(0, Glass.Radius.Window),
+				}),
+				New("UIGradient", {
+					Rotation = 315, -- glow origin at top-left, fading toward bottom-right
+					ThemeTag = { Color = "DarkGlassGlow" },
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0.00, 0.50), -- soft glow at the corner
+						NumberSequenceKeypoint.new(0.28, 1.00), -- fully faded
+						NumberSequenceKeypoint.new(1.00, 1.00),
+					}),
+				}),
+			}),
 			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
 			-- before navigation content so labels and buttons stay sharp above it.
+			-- BackgroundColor3 = white + themed gradient: the sidebar shares the same
+			-- light→dark color sweep as the main glass (one step lighter) so both
+			-- surfaces read as a single pane shifting hue toward the glow corner.
 			New("Frame", {
 				Name = "DwacSidebarSurface",
 				Position = UDim2.fromOffset(6, 49),
 				Size = UDim2.new(0, Window.TabWidth + 14, 1, -56),
-				BackgroundColor3 = Color3.fromRGB(9, 11, 17),
-				BackgroundTransparency = Library.Transparency and Library.SidebarTransparencyValue or 0.035,
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundTransparency = Library.Transparency
+					and math.min(Library.SidebarTransparencyValue, 0.10)
+					or 0.02,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 			}, {
 				New("UICorner", { CornerRadius = UDim.new(0, 18) }),
+				New("UIGradient", {
+					Name = "SidebarColorBlend",
+					Rotation = 90, -- light at the glow corner (top), dark at the opposite end
+					ThemeTag = { Color = "SidebarGlassGradient" },
+				}),
 			}),
 			New("Frame", {
 				Name = "DwacSidebarDivider",
@@ -8015,10 +8072,10 @@ function Library:CreateWindow(Config)
 	-- Ban cu bien "khong truyen" thanh false -> nen cua so thanh DAC.
 	Library.Transparency = Config.Transparency ~= false
 	if tonumber(Config.GlassTransparency) ~= nil then
-		Library.GlassTransparencyValue = math.clamp(tonumber(Config.GlassTransparency), 0.02, 0.80)
+		Library.GlassTransparencyValue = math.clamp(tonumber(Config.GlassTransparency), 0.02, 0.06)
 	end
 	if tonumber(Config.SidebarTransparency) ~= nil then
-		Library.SidebarTransparencyValue = math.clamp(tonumber(Config.SidebarTransparency), 0.02, 0.80)
+		Library.SidebarTransparencyValue = math.clamp(tonumber(Config.SidebarTransparency), 0.02, 0.10)
 	end
 	-- Size mac dinh: Components.Window doc Config.Size.X.Offset ngay khi tinh
 	-- vi tri, nen thieu truong nay se loi "index nil with X".
@@ -8384,11 +8441,16 @@ function Library:SetTheme(Value)
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Surface = Paint and Paint.Frame
 	if Surface then
-		Surface.BackgroundTransparency = Library.Transparency and Library.GlassTransparencyValue or 0.015
+		-- Clamp: nen chinh luon giu o muc gan dac, khong cho tran ra trong suot
+		Surface.BackgroundTransparency = Library.Transparency
+			and math.min(Library.GlassTransparencyValue, 0.06)
+			or 0.02
 	end
 	local Sidebar = Paint and Paint.Sidebar
 	if Sidebar then
-		Sidebar.BackgroundTransparency = Library.Transparency and Library.SidebarTransparencyValue or 0.035
+		Sidebar.BackgroundTransparency = Library.Transparency
+			and math.min(Library.SidebarTransparencyValue, 0.10)
+			or 0.02
 	end
 
 	if Components.Tab and Components.Tab.Tabs then
@@ -8432,7 +8494,7 @@ end
 function Library:SetGlassTransparency(Value)
 	Value = tonumber(Value)
 	if not Value then return false end
-	Library.GlassTransparencyValue = math.clamp(Value, 0.02, 0.80)
+	Library.GlassTransparencyValue = math.clamp(Value, 0.02, 0.06)
 
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Frame = Paint and Paint.Frame
@@ -8450,7 +8512,7 @@ end
 function Library:SetSidebarTransparency(Value)
 	Value = tonumber(Value)
 	if not Value then return false end
-	Library.SidebarTransparencyValue = math.clamp(Value, 0.02, 0.80)
+	Library.SidebarTransparencyValue = math.clamp(Value, 0.02, 0.10)
 
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Sidebar = Paint and Paint.Sidebar
@@ -8471,10 +8533,14 @@ function Library:ToggleTransparency(Value)
 	local Frame = Paint and Paint.Frame
 	local Sidebar = Paint and Paint.Sidebar
 	if Frame then
-		Frame.BackgroundTransparency = Library.Transparency and Library.GlassTransparencyValue or 0.015
+		Frame.BackgroundTransparency = Library.Transparency
+			and math.min(Library.GlassTransparencyValue, 0.06)
+			or 0.02
 	end
 	if Sidebar then
-		Sidebar.BackgroundTransparency = Library.Transparency and Library.SidebarTransparencyValue or 0.035
+		Sidebar.BackgroundTransparency = Library.Transparency
+			and math.min(Library.SidebarTransparencyValue, 0.10)
+			or 0.02
 	end
 end
 
