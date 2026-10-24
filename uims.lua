@@ -1361,6 +1361,10 @@ local Library = {
 	-- Theme mac dinh theo phong cach Liquid Glass.
 	Theme = "Dark Glass",
 
+	-- Do trong suot cua NEN cua so (0 = dac hoan toan, 1 = trong suot hoan toan).
+	-- Chinh duoc trong tab Settings (slider) hoac CreateWindow({ WindowTransparency = 0.55 })
+	WindowTransparency = 0.55,
+
 	DialogOpen = false,
 	UseAcrylic = false,
 	Acrylic = false,
@@ -4517,7 +4521,7 @@ Components.Window = (function()
 		        Position = UDim2.fromOffset(6, 48),
 		        Size = UDim2.new(0, Window.TabWidth + 12, 1, -54),
 		        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-		        BackgroundTransparency = 0.82,
+		        BackgroundTransparency = 0.6 + 0.4 * Library.WindowTransparency,
 		    }, {
 		        New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 		        New("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.88, Thickness = 1 }),
@@ -4527,12 +4531,16 @@ Components.Window = (function()
 		        Position = UDim2.fromOffset(Window.TabWidth + 20, 48),
 		        Size = UDim2.new(1, -(Window.TabWidth + 26), 1, -54),
 		        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-		        BackgroundTransparency = 0.82,
+		        BackgroundTransparency = 0.6 + 0.4 * Library.WindowTransparency,
 		    }, {
 		        New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 		        New("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Transparency = 0.88, Thickness = 1 }),
 		    }),
-		    Glass.TransparencyGradient(Glass.Panel),
+		    Glass.TransparencyGradient({
+		        Top = Library.WindowTransparency,
+		        Mid = Library.WindowTransparency,
+		        Bottom = Library.WindowTransparency,
+		    }),
 		    Glass.Frost(Glass.Radius.Window, { Transparency = 0.90 }),
 		    Glass.Specular(Glass.Radius.Window, { Top = 0.90, Mid = 0.96, ZIndex = 3 }),
 		    -- vach sang mong sat canh tren
@@ -8725,6 +8733,7 @@ local InterfaceManager = {} do
 		Theme = "Dark Glass",
 		Acrylic = true,
 		Transparency = true,
+		WindowTransparency = 0.55,
 		MenuKeybind = "M"
 	}
 
@@ -8802,6 +8811,7 @@ local InterfaceManager = {} do
 		-- Ap dung ngay nhung gi vua doc duoc
 		Library:SetTheme(Settings.Theme)
 		Library:ToggleTransparency(Settings.Transparency)
+		Library:SetWindowTransparency(Settings.WindowTransparency or Library.WindowTransparency)
 		if Library.UseAcrylic then
 			Library:ToggleAcrylic(Settings.Acrylic)
 		end
@@ -8845,6 +8855,20 @@ local InterfaceManager = {} do
 			end
 		})
 
+		section:AddSlider("WindowTransparencySlider", {
+			Title = "Window transparency",
+			Description = "0 = solid, 1 = see-through. Higher shows more of the blurred background.",
+			Default = Settings.WindowTransparency or Library.WindowTransparency,
+			Min = 0,
+			Max = 1,
+			Rounding = 2,
+			Callback = function(Value)
+				Library:SetWindowTransparency(Value)
+				Settings.WindowTransparency = Value
+				InterfaceManager:SaveSettings()
+			end
+		})
+
 		-- Uu tien phim da luu (Settings.MenuKeybind) hon mac dinh cua cua so:
 		-- ban cu viet `Library.MinimizeKey.Name or Settings.MenuKeybind`, ma
 		-- ve trai LUON co gia tri -> phim nguoi dung tu dat bi bo qua.
@@ -8870,6 +8894,7 @@ function Library:CreateWindow(Config)
 
 	Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.RightControl
 	-- Mac dinh BAT blur nen that (kinh mo duc). Muon tat: CreateWindow({ Acrylic = false })
+	Library.WindowTransparency = math.clamp(tonumber(Config.WindowTransparency) or Library.WindowTransparency, 0, 1)
 	Library.UseAcrylic = Config.Acrylic ~= false
 	Library.Acrylic = Config.Acrylic ~= false
 	Library.Theme = Config.Theme or "Dark Glass"
@@ -9361,6 +9386,30 @@ function Library:ToggleTransparency(Value)
 	end
 
 	Frame.BackgroundTransparency = 0
+end
+
+-- Doi do trong suot cua nen cua so luc dang chay (0..1). Panel sidebar/noi dung
+-- doi theo de nen luon mo deu.
+function Library:SetWindowTransparency(Value)
+	Value = math.clamp(tonumber(Value) or Library.WindowTransparency, 0, 1)
+	Library.WindowTransparency = Value
+
+	local Window = Library.Window
+	local Frame = Window and Window.AcrylicPaint and Window.AcrylicPaint.Frame
+	if not Frame then
+		return
+	end
+
+	local Grad = Frame:FindFirstChild("GlassTransparencyGradient")
+	if Grad then
+		Grad.Transparency = NumberSequence.new(Value)
+	end
+	for _, Name in ipairs({ "SidebarPanel", "ContentPanel" }) do
+		local Panel = Frame:FindFirstChild(Name)
+		if Panel then
+			Panel.BackgroundTransparency = 0.6 + 0.4 * Value
+		end
+	end
 end
 
 function Library:Notify(Config)
