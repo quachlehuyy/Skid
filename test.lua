@@ -12,6 +12,95 @@ local RenderStepped = RunService.RenderStepped
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
+local function BlendColor(Base, Accent, Amount)
+	return Base:Lerp(Accent, Amount)
+end
+
+local function CreateObsidianTheme(Spec)
+	local Accent = Spec.Accent
+	local Tint = Spec.Tint or Accent
+	local s = Spec.TintScale or 1.0
+	local b = Spec.BorderBoost or 1.0
+	local Glow = Spec.Glow or BlendColor(Tint, Accent, 0.55)
+
+	local Lum = 0.299 * Accent.R + 0.587 * Accent.G + 0.114 * Accent.B
+	local ToggleThumb = Lum > 0.80 and Color3.fromRGB(14, 15, 19) or Color3.fromRGB(255, 255, 255)
+
+	local BaseBlack = Color3.fromRGB(5, 5, 7)
+	local DeepObsidian = Color3.fromRGB(7, 7, 10)
+	local CardBase = Color3.fromRGB(16, 17, 21)
+	local HoverBase = Color3.fromRGB(26, 28, 35)
+	local BorderBase = Color3.fromRGB(36, 38, 46)
+	local SoftBorderBase = Color3.fromRGB(48, 51, 61)
+	local TextWhite = Color3.fromRGB(245, 247, 250)
+	local SubTextGrey = Color3.fromRGB(154, 160, 174)
+
+	return {
+		Name = Spec.Name,
+		Accent = Accent,
+		Tint = Tint,
+
+		-- Obsidian-black main surface subtly tinted toward the theme color
+		DarkGlassMain = BlendColor(DeepObsidian, Tint, math.min(0.055 * s, 0.12)),
+		DarkGlassBorder = BlendColor(SoftBorderBase, Accent, math.min(0.32 * b, 0.65)),
+		DarkGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, BlendColor(Color3.fromRGB(18, 19, 24), Tint, math.min(0.15 * s, 0.24))),
+			ColorSequenceKeypoint.new(0.32, BlendColor(Color3.fromRGB(10, 11, 14), Tint, math.min(0.07 * s, 0.14))),
+			ColorSequenceKeypoint.new(0.72, BlendColor(Color3.fromRGB(6, 6, 8), Tint, math.min(0.025 * s, 0.06))),
+			ColorSequenceKeypoint.new(1.00, BlendColor(BaseBlack, Tint, math.min(0.012 * s, 0.03))),
+		}),
+		DarkGlassGlow = Glow,
+		SidebarGlassGradient = ColorSequence.new({
+			ColorSequenceKeypoint.new(0.00, BlendColor(Color3.fromRGB(21, 22, 27), Tint, math.min(0.12 * s, 0.20))),
+			ColorSequenceKeypoint.new(0.45, BlendColor(Color3.fromRGB(13, 14, 18), Tint, math.min(0.055 * s, 0.11))),
+			ColorSequenceKeypoint.new(1.00, BlendColor(Color3.fromRGB(8, 8, 11), Tint, math.min(0.02 * s, 0.05))),
+		}),
+		DarkGlassNoise = 1,
+
+		TitleBarLine = BlendColor(BorderBase, Tint, math.min(0.18 * s, 0.35)),
+		Tab = TextWhite,
+
+		Element = BlendColor(CardBase, Tint, math.min(0.06 * s, 0.13)),
+		ElementBorder = BlendColor(BorderBase, Accent, math.min(0.16 * b, 0.45)),
+		InElementBorder = BlendColor(SoftBorderBase, Accent, math.min(0.28 * b, 0.55)),
+		ElementTransparency = 0.06,
+
+		ToggleTrack = BlendColor(Color3.fromRGB(20, 21, 26), Tint, math.min(0.07 * s, 0.14)),
+		ToggleSlider = Accent,
+		ToggleToggled = BlendColor(DeepObsidian, Tint, math.min(0.03 * s, 0.07)),
+		ToggleThumb = ToggleThumb,
+		TransparenToggle = 0.18,
+
+		SliderRail = BlendColor(Color3.fromRGB(34, 36, 44), Tint, math.min(0.12 * s, 0.24)),
+
+		DropdownFrame = BlendColor(Color3.fromRGB(13, 14, 18), Tint, math.min(0.055 * s, 0.12)),
+		DropdownHolder = BlendColor(Color3.fromRGB(9, 10, 13), Tint, math.min(0.045 * s, 0.10)),
+		DropdownBorder = BlendColor(SoftBorderBase, Accent, math.min(0.24 * b, 0.52)),
+		DropdownOption = BlendColor(Color3.fromRGB(22, 24, 30), Accent, 0.11),
+
+		Keybind = BlendColor(Color3.fromRGB(13, 14, 18), Tint, math.min(0.055 * s, 0.12)),
+
+		Input = BlendColor(Color3.fromRGB(11, 12, 16), Tint, math.min(0.05 * s, 0.11)),
+		InputFocused = BlendColor(Color3.fromRGB(18, 20, 26), Accent, 0.12),
+		InputIndicator = BlendColor(Color3.fromRGB(64, 68, 80), Accent, 0.25),
+		InputIndicatorFocus = Accent,
+
+		Dialog = BlendColor(Color3.fromRGB(13, 14, 18), Tint, math.min(0.06 * s, 0.12)),
+		DialogHolder = BlendColor(Color3.fromRGB(9, 10, 13), Tint, math.min(0.04 * s, 0.09)),
+		DialogHolderLine = BlendColor(BorderBase, Tint, math.min(0.16 * s, 0.32)),
+		DialogButton = BlendColor(Color3.fromRGB(22, 24, 30), Accent, 0.09),
+		DialogButtonBorder = BlendColor(SoftBorderBase, Accent, math.min(0.20 * b, 0.45)),
+		DialogBorder = BlendColor(SoftBorderBase, Accent, math.min(0.26 * b, 0.55)),
+		DialogInput = BlendColor(Color3.fromRGB(11, 12, 16), Tint, math.min(0.05 * s, 0.11)),
+		DialogInputLine = Accent,
+
+		Text = TextWhite,
+		SubText = BlendColor(SubTextGrey, Tint, math.min(0.08 * s, 0.16)),
+		Hover = BlendColor(HoverBase, Accent, 0.14),
+		HoverChange = 0.06,
+	}
+end
+
 local Themes = {
 	Names = {
 		"Night Hub",
@@ -20,7 +109,7 @@ local Themes = {
 		"Obsidian White",
 		"Crimson Dark",
 		"Ember",
-		"Neon Crimson",		
+		"Neon Crimson",
 		"Neon Orange",
 		"Dark Typewriter",
 		"VSC Dark High Contrast",
@@ -40,1153 +129,158 @@ local Themes = {
 		"RoyalGold",
 		"Emerald"
 	},
-	["VSC Dark High Contrast"] = {
-		Accent = Color3.fromHex("#6bb5ff"), -- Glowing Bright VSC Blue
-
-		DarkGlassMain = Color3.fromHex("#080808"),
-		DarkGlassBorder = Color3.fromHex("#FFFFFF"),
-		DarkGlassGradient = ColorSequence.new(Color3.fromHex("#141414"), Color3.fromHex("#040404")),
-		DarkGlassNoise = 1,
-
-		TitleBarLine = Color3.fromHex("#707070"),
-		Tab = Color3.fromHex("#FFFFFF"),
-
-		Element = Color3.fromHex("#161616"),
-		ElementBorder = Color3.fromHex("#FFFFFF"),
-		InElementBorder = Color3.fromHex("#6bb5ff"),
-		ElementTransparency = 0,
-
-		ToggleSlider = Color3.fromHex("#6bb5ff"),
-		ToggleToggled = Color3.fromHex("#040404"),
-
-		SliderRail = Color3.fromHex("#FFFFFF"),
-
-		DropdownFrame = Color3.fromHex("#202020"),
-		DropdownHolder = Color3.fromHex("#141414"),
-		DropdownBorder = Color3.fromHex("#FFFFFF"),
-		DropdownOption = Color3.fromHex("#202020"),
-
-		Keybind = Color3.fromHex("#202020"),
-
-		Input = Color3.fromHex("#141414"),
-		InputFocused = Color3.fromHex("#303030"),
-		InputIndicator = Color3.fromHex("#6bb5ff"),
-
-		Dialog = Color3.fromHex("#161616"),
-		DialogHolder = Color3.fromHex("#141414"),
-		DialogHolderLine = Color3.fromHex("#707070"),
-		DialogButton = Color3.fromHex("#202020"),
-		DialogButtonBorder = Color3.fromHex("#FFFFFF"),
-		DialogBorder = Color3.fromHex("#FFFFFF"),
-		DialogInput = Color3.fromHex("#141414"),
-		DialogInputLine = Color3.fromHex("#6bb5ff"),
-
-		Text = Color3.fromHex("#FFFFFF"),
-		SubText = Color3.fromHex("#e6e6e6"),
-		Hover = Color3.fromHex("#404040"),
-		HoverChange = 0.05
-	},
-	["Dark Typewriter"] = {
-		Accent = Color3.fromRGB(130, 245, 160),
-
-		DarkGlassMain = Color3.fromRGB(36, 38, 36),
-		DarkGlassBorder = Color3.fromRGB(95, 130, 110),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(42, 46, 42), Color3.fromRGB(28, 30, 28)),
-		DarkGlassNoise = 0.9,
-
-		TitleBarLine = Color3.fromRGB(80, 105, 90),
-		Tab = Color3.fromRGB(255, 255, 255),
-
-		Element = Color3.fromRGB(48, 52, 48),
-		ElementBorder = Color3.fromRGB(90, 125, 105),
-		InElementBorder = Color3.fromRGB(130, 245, 160),
-		ElementTransparency = 0,
-
-		ToggleSlider = Color3.fromRGB(130, 245, 160),
-		ToggleToggled = Color3.fromRGB(28, 30, 28),
-
-		SliderRail = Color3.fromRGB(80, 105, 90),
-
-		DropdownFrame = Color3.fromRGB(48, 52, 48),
-		DropdownHolder = Color3.fromRGB(36, 38, 36),
-		DropdownBorder = Color3.fromRGB(90, 125, 105),
-		DropdownOption = Color3.fromRGB(48, 52, 48),
-
-		Keybind = Color3.fromRGB(48, 52, 48),
-
-		Input = Color3.fromRGB(36, 38, 36),
-		InputFocused = Color3.fromRGB(60, 66, 60),
-		InputIndicator = Color3.fromRGB(130, 245, 160),
-
-		Dialog = Color3.fromRGB(48, 52, 48),
-		DialogHolder = Color3.fromRGB(36, 38, 36),
-		DialogHolderLine = Color3.fromRGB(80, 105, 90),
-		DialogButton = Color3.fromRGB(48, 52, 48),
-		DialogButtonBorder = Color3.fromRGB(90, 125, 105),
-		DialogBorder = Color3.fromRGB(90, 125, 105),
-		DialogInput = Color3.fromRGB(60, 66, 60),
-		DialogInputLine = Color3.fromRGB(130, 245, 160),
-
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(240, 235, 222),
-		Hover = Color3.fromRGB(62, 72, 62),
-		HoverChange = 0.05
-	},
-	["Midnight Blue"] = {
-	    Name = "Midnight Blue",
-	    Accent = Color3.fromRGB(55, 215, 255), -- Glowing Radiant Neon Sapphire
-	
-		DarkGlassMain = Color3.fromRGB(18, 26, 46), -- Radiant Deep Sapphire Glass
-	    DarkGlassBorder = Color3.fromRGB(90, 165, 255), -- Bright Glass Rim
-	    DarkGlassGradient = ColorSequence.new(Color3.fromRGB(26, 38, 66), Color3.fromRGB(14, 20, 36)),
-	    DarkGlassNoise = 0.94,
-	
-	    TitleBarLine = Color3.fromRGB(65, 120, 195),
-	    Tab = Color3.fromRGB(255, 255, 255),
-	
-		Element = Color3.fromRGB(26, 38, 66),
-		ElementBorder = Color3.fromRGB(75, 150, 240), -- Bright Luminous Contour
-		InElementBorder = Color3.fromRGB(55, 215, 255), -- Neon Inner Glow
-		ElementTransparency = 0.1,
-	
-	    ToggleSlider = Color3.fromRGB(55, 215, 255),
-	    ToggleToggled = Color3.fromRGB(18, 26, 46),
-	
-	    SliderRail = Color3.fromRGB(65, 120, 195),
-	
-	    DropdownFrame = Color3.fromRGB(30, 46, 78),
-	    DropdownHolder = Color3.fromRGB(22, 32, 56),
-	    DropdownBorder = Color3.fromRGB(85, 160, 255),
-	    DropdownOption = Color3.fromRGB(30, 46, 78),
-	
-	    Keybind = Color3.fromRGB(30, 46, 78),
-	
-	    Input = Color3.fromRGB(22, 32, 56),
-	    InputFocused = Color3.fromRGB(36, 54, 92),
-	    InputIndicator = Color3.fromRGB(90, 175, 255),
-	    InputIndicatorFocus = Color3.fromRGB(55, 215, 255),
-	
-	    Dialog = Color3.fromRGB(26, 38, 66),
-	    DialogHolder = Color3.fromRGB(20, 30, 52),
-	    DialogHolderLine = Color3.fromRGB(65, 120, 195),
-	    DialogButton = Color3.fromRGB(32, 48, 82),
-	    DialogButtonBorder = Color3.fromRGB(85, 160, 255),
-	    DialogBorder = Color3.fromRGB(85, 160, 255),
-	    DialogInput = Color3.fromRGB(22, 32, 56),
-	    DialogInputLine = Color3.fromRGB(55, 215, 255),
-	
-	    Text = Color3.fromRGB(255, 255, 255), -- Pure Bright White
-	    SubText = Color3.fromRGB(225, 240, 255), -- Ultra-Bright Luminous Ice-White
-	    Hover = Color3.fromRGB(45, 80, 135),
-	    HoverChange = 0.05,
-	},
-	["Obsidian White"] = {
-		Name = "Obsidian White",
-		Accent = Color3.fromHex("#ffffff"),
-	
-		DarkGlassMain = Color3.fromHex("#080808"),
-		DarkGlassBorder = Color3.fromHex("#ffffff"),
-		DarkGlassGradient = ColorSequence.new(Color3.fromHex("#141414"), Color3.fromHex("#040404")),
-		DarkGlassNoise = 0.94,
-	
-		TitleBarLine = Color3.fromHex("#707070"),
-		Tab = Color3.fromHex("#ffffff"),
-	
-		Element = Color3.fromHex("#181818"),
-		ElementBorder = Color3.fromHex("#ffffff"),
-		InElementBorder = Color3.fromHex("#ffffff"),
-		ElementTransparency = 0.85,
-	
-		ToggleSlider = Color3.fromHex("#ffffff"),
-		ToggleToggled = Color3.fromHex("#040404"),
-	
-		SliderRail = Color3.fromHex("#707070"),
-	
-		DropdownFrame = Color3.fromHex("#202020"),
-		DropdownHolder = Color3.fromHex("#141414"),
-		DropdownBorder = Color3.fromHex("#ffffff"),
-		DropdownOption = Color3.fromHex("#202020"),
-	
-		Keybind = Color3.fromHex("#202020"),
-	
-		Input = Color3.fromHex("#141414"),
-		InputFocused = Color3.fromHex("#303030"),
-		InputIndicator = Color3.fromHex("#ffffff"),
-		InputIndicatorFocus = Color3.fromHex("#ffffff"),
-	
-		Dialog = Color3.fromHex("#181818"),
-		DialogHolder = Color3.fromHex("#141414"),
-		DialogHolderLine = Color3.fromHex("#707070"),
-		DialogButton = Color3.fromHex("#202020"),
-		DialogButtonBorder = Color3.fromHex("#ffffff"),
-		DialogBorder = Color3.fromHex("#ffffff"),
-		DialogInput = Color3.fromHex("#141414"),
-		DialogInputLine = Color3.fromHex("#ffffff"),
-	
-		Text = Color3.fromHex("#ffffff"),
-		SubText = Color3.fromHex("#f0f0f0"),
-		Hover = Color3.fromHex("#404040"),
-		HoverChange = 0.08,
-	},
-	["Amethyst Dark"] = {
-		Name = "Amethyst Dark",
-		Accent = Color3.fromHex("#d466ff"), -- Glowing Electric Violet
-
-		DarkGlassMain = Color3.fromHex("#1a0033"),
-		DarkGlassBorder = Color3.fromHex("#9917eb"),
-		DarkGlassGradient = ColorSequence.new(Color3.fromHex("#260047"), Color3.fromHex("#120024")),
-		DarkGlassNoise = 0.85,
-
-		TitleBarLine = Color3.fromHex("#6e12a6"),
-		Tab = Color3.fromHex("#ffffff"),
-
-		Element = Color3.fromHex("#330052"),
-		ElementBorder = Color3.fromHex("#9917eb"),
-		InElementBorder = Color3.fromHex("#d466ff"),
-		ElementTransparency = 0.85,
-
-		ToggleSlider = Color3.fromHex("#d466ff"),
-		ToggleToggled = Color3.fromHex("#120024"),
-
-		SliderRail = Color3.fromHex("#6e12a6"),
-
-		DropdownFrame = Color3.fromHex("#330052"),
-		DropdownHolder = Color3.fromHex("#220038"),
-		DropdownBorder = Color3.fromHex("#9917eb"),
-		DropdownOption = Color3.fromHex("#330052"),
-
-		Keybind = Color3.fromHex("#330052"),
-
-		Input = Color3.fromHex("#220038"),
-		InputFocused = Color3.fromHex("#470070"),
-		InputIndicator = Color3.fromHex("#b838ff"),
-		InputIndicatorFocus = Color3.fromHex("#d466ff"),
-
-		Dialog = Color3.fromHex("#220038"),
-		DialogHolder = Color3.fromHex("#1a0033"),
-		DialogHolderLine = Color3.fromHex("#6e12a6"),
-		DialogButton = Color3.fromHex("#330052"),
-		DialogButtonBorder = Color3.fromHex("#9917eb"),
-		DialogBorder = Color3.fromHex("#9917eb"),
-		DialogInput = Color3.fromHex("#220038"),
-		DialogInputLine = Color3.fromHex("#d466ff"),
-
-		Text = Color3.fromHex("#ffffff"),
-		SubText = Color3.fromHex("#f2e0ff"),
-		Hover = Color3.fromHex("#590c87"),
-		HoverChange = 0.08,
-	},
-	["Crimson Dark"] = {
-		Name = "Crimson Dark",
-		Accent = Color3.fromHex("#ff4d4d"), -- Glowing Bright Crimson
-
-		DarkGlassMain = Color3.fromHex("#2e0004"),
-		DarkGlassBorder = Color3.fromHex("#c71a1a"),
-		DarkGlassGradient = ColorSequence.new(Color3.fromHex("#3b0006"), Color3.fromHex("#1c0002")),
-		DarkGlassNoise = 0.85,
-
-		TitleBarLine = Color3.fromHex("#8a1010"),
-		Tab = Color3.fromHex("#ffffff"),
-
-		Element = Color3.fromHex("#420007"),
-		ElementBorder = Color3.fromHex("#c71a1a"),
-		InElementBorder = Color3.fromHex("#ff4d4d"),
-		ElementTransparency = 0.85,
-
-		ToggleSlider = Color3.fromHex("#ff4d4d"),
-		ToggleToggled = Color3.fromHex("#1c0002"),
-
-		SliderRail = Color3.fromHex("#8a1010"),
-
-		DropdownFrame = Color3.fromHex("#420007"),
-		DropdownHolder = Color3.fromHex("#2e0005"),
-		DropdownBorder = Color3.fromHex("#c71a1a"),
-		DropdownOption = Color3.fromHex("#420007"),
-
-		Keybind = Color3.fromHex("#420007"),
-
-		Input = Color3.fromHex("#2e0005"),
-		InputFocused = Color3.fromHex("#59000a"),
-		InputIndicator = Color3.fromHex("#ff4d4d"),
-		InputIndicatorFocus = Color3.fromHex("#ff4d4d"),
-
-		Dialog = Color3.fromHex("#2e0005"),
-		DialogHolder = Color3.fromHex("#2e0004"),
-		DialogHolderLine = Color3.fromHex("#8a1010"),
-		DialogButton = Color3.fromHex("#420007"),
-		DialogButtonBorder = Color3.fromHex("#c71a1a"),
-		DialogBorder = Color3.fromHex("#c71a1a"),
-		DialogInput = Color3.fromHex("#2e0005"),
-		DialogInputLine = Color3.fromHex("#ff4d4d"),
-
-		Text = Color3.fromHex("#ffffff"),
-		SubText = Color3.fromHex("#ffdada"),
-		Hover = Color3.fromHex("#8a1010"),
-		HoverChange = 0.08,
-	},
-	["Neon Crimson"] = {
-		Name = "Neon Crimson",
-		Accent = Color3.fromHex("#ff246e"), -- Vivid Electric Neon Pink-Red
-
-		DarkGlassMain = Color3.fromHex("#14000a"),
-		DarkGlassBorder = Color3.fromHex("#e60040"),
-		DarkGlassGradient = ColorSequence.new(Color3.fromHex("#240012"), Color3.fromHex("#0c0006")),
-		DarkGlassNoise = 0.85,
-
-		TitleBarLine = Color3.fromHex("#99002b"),
-		Tab = Color3.fromHex("#ffffff"),
-
-		Element = Color3.fromHex("#2b0015"),
-		ElementBorder = Color3.fromHex("#e60040"),
-		InElementBorder = Color3.fromHex("#ff246e"),
-		ElementTransparency = 0.85,
-
-		ToggleSlider = Color3.fromHex("#ff246e"),
-		ToggleToggled = Color3.fromHex("#0c0006"),
-
-		SliderRail = Color3.fromHex("#99002b"),
-
-		DropdownFrame = Color3.fromHex("#2b0015"),
-		DropdownHolder = Color3.fromHex("#1a000d"),
-		DropdownBorder = Color3.fromHex("#e60040"),
-		DropdownOption = Color3.fromHex("#2b0015"),
-
-		Keybind = Color3.fromHex("#2b0015"),
-
-		Input = Color3.fromHex("#1a000d"),
-		InputFocused = Color3.fromHex("#3d001e"),
-		InputIndicator = Color3.fromHex("#ff246e"),
-		InputIndicatorFocus = Color3.fromHex("#ff246e"),
-
-		Dialog = Color3.fromHex("#1a000d"),
-		DialogHolder = Color3.fromHex("#14000a"),
-		DialogHolderLine = Color3.fromHex("#99002b"),
-		DialogButton = Color3.fromHex("#2b0015"),
-		DialogButtonBorder = Color3.fromHex("#e60040"),
-		DialogBorder = Color3.fromHex("#e60040"),
-		DialogInput = Color3.fromHex("#1a000d"),
-		DialogInputLine = Color3.fromHex("#ff246e"),
-
-		Text = Color3.fromHex("#ffffff"),
-		SubText = Color3.fromHex("#ffd6e0"),
-		Hover = Color3.fromHex("#99002b"),
-		HoverChange = 0.08,
-	},
-	["Neon Orange"] = {
-		Name = "Neon Orange",
-		Accent = Color3.fromHex("#ff881a"), -- Glowing Electric Neon Orange
-
-		DarkGlassMain = Color3.fromHex("#140a00"),
-		DarkGlassBorder = Color3.fromHex("#e65800"),
-		DarkGlassGradient = ColorSequence.new(Color3.fromHex("#261200"), Color3.fromHex("#0c0500")),
-		DarkGlassNoise = 0.85,
-
-		TitleBarLine = Color3.fromHex("#9e3d00"),
-		Tab = Color3.fromHex("#ffffff"),
-
-		Element = Color3.fromHex("#2e1700"),
-		ElementBorder = Color3.fromHex("#e65800"),
-		InElementBorder = Color3.fromHex("#ff881a"),
-		ElementTransparency = 0.85,
-
-		ToggleSlider = Color3.fromHex("#ff881a"),
-		ToggleToggled = Color3.fromHex("#0c0500"),
-
-		SliderRail = Color3.fromHex("#9e3d00"),
-
-		DropdownFrame = Color3.fromHex("#2e1700"),
-		DropdownHolder = Color3.fromHex("#1c0e00"),
-		DropdownBorder = Color3.fromHex("#e65800"),
-		DropdownOption = Color3.fromHex("#2e1700"),
-
-		Keybind = Color3.fromHex("#2e1700"),
-
-		Input = Color3.fromHex("#1c0e00"),
-		InputFocused = Color3.fromHex("#422000"),
-		InputIndicator = Color3.fromHex("#ff881a"),
-		InputIndicatorFocus = Color3.fromHex("#ff881a"),
-
-		Dialog = Color3.fromHex("#1c0e00"),
-		DialogHolder = Color3.fromHex("#140a00"),
-		DialogHolderLine = Color3.fromHex("#9e3d00"),
-		DialogButton = Color3.fromHex("#2e1700"),
-		DialogButtonBorder = Color3.fromHex("#e65800"),
-		DialogBorder = Color3.fromHex("#e65800"),
-		DialogInput = Color3.fromHex("#1c0e00"),
-		DialogInputLine = Color3.fromHex("#ff881a"),
-
-		Text = Color3.fromHex("#ffffff"),
-		SubText = Color3.fromHex("#ffdfcc"),
-		Hover = Color3.fromHex("#9e3d00"),
-		HoverChange = 0.08,
-	},
-	Ember = {
-		Name = "Ember",
-		Accent = Color3.fromRGB(255, 135, 40), -- Radiant Warm Ember
-
-		DarkGlassMain = Color3.fromRGB(28, 22, 18),
-		DarkGlassBorder = Color3.fromRGB(195, 125, 75),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(36, 26, 20), Color3.fromRGB(20, 15, 12)),
-		DarkGlassNoise = 0.9,
-
-		TitleBarLine = Color3.fromRGB(135, 80, 45),
-		Tab = Color3.fromRGB(255, 255, 255),
-
-		Element = Color3.fromRGB(40, 30, 24),
-		ElementBorder = Color3.fromRGB(175, 110, 65),
-		InElementBorder = Color3.fromRGB(255, 135, 40),
-		ElementTransparency = 0.87,
-
-		ToggleSlider = Color3.fromRGB(255, 135, 40),
-		ToggleToggled = Color3.fromRGB(20, 15, 12),
-
-		SliderRail = Color3.fromRGB(135, 80, 45),
-
-		DropdownFrame = Color3.fromRGB(44, 32, 25),
-		DropdownHolder = Color3.fromRGB(30, 22, 17),
-		DropdownBorder = Color3.fromRGB(175, 110, 65),
-		DropdownOption = Color3.fromRGB(44, 32, 25),
-
-		Keybind = Color3.fromRGB(44, 32, 25),
-
-		Input = Color3.fromRGB(30, 22, 17),
-		InputFocused = Color3.fromRGB(52, 38, 28),
-		InputIndicator = Color3.fromRGB(255, 135, 40),
-
-		Dialog = Color3.fromRGB(40, 30, 24),
-		DialogHolder = Color3.fromRGB(28, 22, 18),
-		DialogHolderLine = Color3.fromRGB(135, 80, 45),
-		DialogButton = Color3.fromRGB(44, 32, 25),
-		DialogButtonBorder = Color3.fromRGB(175, 110, 65),
-		DialogBorder = Color3.fromRGB(175, 110, 65),
-		DialogInput = Color3.fromRGB(30, 22, 17),
-		DialogInputLine = Color3.fromRGB(255, 135, 40),
-
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(255, 230, 210),
-		Hover = Color3.fromRGB(75, 52, 38),
-		HoverChange = 0.07,
-	},
-	Dark = {
-		Name = "Dark",
-		Accent = Color3.fromRGB(105, 220, 255), -- Glowing Electric Blue
-
-		DarkGlassMain = Color3.fromRGB(32, 36, 44),
-		DarkGlassBorder = Color3.fromRGB(110, 130, 160), -- Bright Glass Rim
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(38, 42, 52), Color3.fromRGB(24, 28, 36)),
-		DarkGlassNoise = 0.9,
-
-		TitleBarLine = Color3.fromRGB(70, 85, 110),
-		Tab = Color3.fromRGB(255, 255, 255),
-
-		Element = Color3.fromRGB(42, 48, 60),
-		ElementBorder = Color3.fromRGB(85, 110, 145),
-		InElementBorder = Color3.fromRGB(105, 220, 255),
-		ElementTransparency = 0.87,
-
-		ToggleSlider = Color3.fromRGB(105, 220, 255),
-		ToggleToggled = Color3.fromRGB(24, 28, 36),
-
-		SliderRail = Color3.fromRGB(70, 85, 110),
-
-		DropdownFrame = Color3.fromRGB(42, 48, 60),
-		DropdownHolder = Color3.fromRGB(30, 34, 44),
-		DropdownBorder = Color3.fromRGB(85, 110, 145),
-		DropdownOption = Color3.fromRGB(42, 48, 60),
-
-		Keybind = Color3.fromRGB(42, 48, 60),
-
-		Input = Color3.fromRGB(30, 34, 44),
-		InputFocused = Color3.fromRGB(48, 56, 70),
-		InputIndicator = Color3.fromRGB(105, 220, 255),
-
-		Dialog = Color3.fromRGB(36, 42, 52),
-		DialogHolder = Color3.fromRGB(28, 32, 40),
-		DialogHolderLine = Color3.fromRGB(70, 85, 110),
-		DialogButton = Color3.fromRGB(42, 48, 60),
-		DialogButtonBorder = Color3.fromRGB(85, 110, 145),
-		DialogBorder = Color3.fromRGB(85, 110, 145),
-		DialogInput = Color3.fromRGB(28, 32, 40),
-		DialogInputLine = Color3.fromRGB(105, 220, 255),
-
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(230, 240, 252),
-		Hover = Color3.fromRGB(55, 70, 95),
-		HoverChange = 0.07,
-	},
-	Darker = {
-		Name = "Darker",
-		Accent = Color3.fromRGB(90, 210, 255),
-
-		DarkGlassMain = Color3.fromRGB(20, 24, 32),
-		DarkGlassBorder = Color3.fromRGB(85, 110, 145),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(26, 30, 40), Color3.fromRGB(14, 18, 24)),
-		DarkGlassNoise = 0.94,
-
-		TitleBarLine = Color3.fromRGB(60, 75, 100),
-		Tab = Color3.fromRGB(255, 255, 255),
-
-		Element = Color3.fromRGB(28, 34, 46),
-		ElementBorder = Color3.fromRGB(70, 95, 130),
-		InElementBorder = Color3.fromRGB(90, 210, 255),
-		ElementTransparency = 0.82,
-
-		DropdownFrame = Color3.fromRGB(32, 38, 52),
-		DropdownHolder = Color3.fromRGB(22, 26, 36),
-		DropdownBorder = Color3.fromRGB(70, 95, 130),
-		DropdownOption = Color3.fromRGB(32, 38, 52),
-
-		Dialog = Color3.fromRGB(26, 32, 44),
-		DialogHolder = Color3.fromRGB(18, 22, 30),
-		DialogHolderLine = Color3.fromRGB(55, 70, 95),
-		DialogButton = Color3.fromRGB(32, 38, 52),
-		DialogButtonBorder = Color3.fromRGB(70, 95, 130),
-		DialogBorder = Color3.fromRGB(70, 95, 130),
-		DialogInput = Color3.fromRGB(22, 26, 36),
-		DialogInputLine = Color3.fromRGB(90, 210, 255),
-
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(225, 238, 252),
-	},
-	Light = {
-		Name = "Light",
-		Accent = Color3.fromRGB(0, 103, 192),
-
-		DarkGlassMain = Color3.fromRGB(200, 200, 200),
-		DarkGlassBorder = Color3.fromRGB(120, 120, 120),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 255, 255)),
-		DarkGlassNoise = 0.96,
-
-		TitleBarLine = Color3.fromRGB(160, 160, 160),
-		Tab = Color3.fromRGB(90, 90, 90),
-
-		Element = Color3.fromRGB(255, 255, 255),
-		ElementBorder = Color3.fromRGB(180, 180, 180),
-		InElementBorder = Color3.fromRGB(150, 150, 150),
-		ElementTransparency = 0.65,
-
-		ToggleSlider = Color3.fromRGB(40, 40, 40),
-		ToggleToggled = Color3.fromRGB(255, 255, 255),
-
-		SliderRail = Color3.fromRGB(40, 40, 40),
-
-		DropdownFrame = Color3.fromRGB(200, 200, 200),
-		DropdownHolder = Color3.fromRGB(240, 240, 240),
-		DropdownBorder = Color3.fromRGB(200, 200, 200),
-		DropdownOption = Color3.fromRGB(150, 150, 150),
-
-		Keybind = Color3.fromRGB(120, 120, 120),
-
-		Input = Color3.fromRGB(200, 200, 200),
-		InputFocused = Color3.fromRGB(100, 100, 100),
-		InputIndicator = Color3.fromRGB(80, 80, 80),
-		InputIndicatorFocus = Color3.fromRGB(0, 103, 192),
-
-		Dialog = Color3.fromRGB(255, 255, 255),
-		DialogHolder = Color3.fromRGB(240, 240, 240),
-		DialogHolderLine = Color3.fromRGB(228, 228, 228),
-		DialogButton = Color3.fromRGB(255, 255, 255),
-		DialogButtonBorder = Color3.fromRGB(190, 190, 190),
-		DialogBorder = Color3.fromRGB(140, 140, 140),
-		DialogInput = Color3.fromRGB(250, 250, 250),
-		DialogInputLine = Color3.fromRGB(160, 160, 160),
-
-		Text = Color3.fromRGB(0, 0, 0),
-		SubText = Color3.fromRGB(40, 40, 40),
-		Hover = Color3.fromRGB(50, 50, 50),
-		HoverChange = 0.16,
-	},
-	DeepOcean = {
-		Name = "DeepOcean",
-	
-		Accent = Color3.fromRGB(40, 220, 255), -- Glowing Neon Turquoise Blue
-	
-		DarkGlassMain = Color3.fromRGB(14, 24, 44),
-		DarkGlassBorder = Color3.fromRGB(55, 120, 195),
-		DarkGlassGradient = ColorSequence.new(
-			Color3.fromRGB(18, 32, 58),
-			Color3.fromRGB(10, 18, 32)
-		),
-		DarkGlassNoise = 0.8,
-	
-		TitleBarLine = Color3.fromRGB(45, 90, 150),
-		Tab = Color3.fromRGB(255, 255, 255),
-	
-		Element = Color3.fromRGB(22, 36, 64),
-		ElementBorder = Color3.fromRGB(55, 120, 195),
-		InElementBorder = Color3.fromRGB(40, 220, 255),
-		ElementTransparency = 0.82,
-	
-		ToggleSlider = Color3.fromRGB(40, 220, 255),
-		ToggleToggled = Color3.fromRGB(14, 24, 44),
-	
-		SliderRail = Color3.fromRGB(45, 90, 150),
-	
-		DropdownFrame = Color3.fromRGB(26, 42, 74),
-		DropdownHolder = Color3.fromRGB(18, 30, 52),
-		DropdownBorder = Color3.fromRGB(55, 120, 195),
-		DropdownOption = Color3.fromRGB(26, 42, 74),
-	
-		Keybind = Color3.fromRGB(26, 42, 74),
-	
-		Input = Color3.fromRGB(18, 30, 52),
-		InputFocused = Color3.fromRGB(32, 52, 90),
-		InputIndicator = Color3.fromRGB(40, 220, 255),
-		InputIndicatorFocus = Color3.fromRGB(40, 220, 255),
-	
-		Dialog = Color3.fromRGB(22, 36, 64),
-		DialogHolder = Color3.fromRGB(18, 30, 52),
-		DialogHolderLine = Color3.fromRGB(45, 90, 150),
-		DialogButton = Color3.fromRGB(28, 46, 80),
-		DialogButtonBorder = Color3.fromRGB(55, 120, 195),
-		DialogBorder = Color3.fromRGB(55, 120, 195),
-		DialogInput = Color3.fromRGB(18, 30, 52),
-		DialogInputLine = Color3.fromRGB(40, 220, 255),
-	
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(225, 242, 255),
-	
-		Hover = Color3.fromRGB(36, 64, 110),
-		HoverChange = 0.1,
-	},
-	Aqua = {
-		Name = "Aqua",
-		Accent = Color3.fromRGB(85, 245, 245), -- Radiant Electric Aqua
- 
-		DarkGlassMain = Color3.fromRGB(18, 28, 28),
-		DarkGlassBorder = Color3.fromRGB(90, 180, 180),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(45, 110, 110), Color3.fromRGB(20, 40, 40)),
-		DarkGlassNoise = 0.9,
- 
-		TitleBarLine = Color3.fromRGB(80, 160, 160),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(26, 42, 42),
-		ElementBorder = Color3.fromRGB(90, 180, 180),
-		InElementBorder = Color3.fromRGB(85, 245, 245),
-		ElementTransparency = 0.82,
- 
-		ToggleSlider = Color3.fromRGB(85, 245, 245),
-		ToggleToggled = Color3.fromRGB(18, 28, 28),
- 
-		SliderRail = Color3.fromRGB(80, 160, 160),
- 
-		DropdownFrame = Color3.fromRGB(28, 46, 46),
-		DropdownHolder = Color3.fromRGB(20, 32, 32),
-		DropdownBorder = Color3.fromRGB(90, 180, 180),
-		DropdownOption = Color3.fromRGB(28, 46, 46),
- 
-		Keybind = Color3.fromRGB(28, 46, 46),
- 
-		Input = Color3.fromRGB(20, 32, 32),
-		InputFocused = Color3.fromRGB(36, 58, 58),
-		InputIndicator = Color3.fromRGB(85, 245, 245),
- 
-		Dialog = Color3.fromRGB(26, 42, 42),
-		DialogHolder = Color3.fromRGB(18, 28, 28),
-		DialogHolderLine = Color3.fromRGB(80, 160, 160),
-		DialogButton = Color3.fromRGB(28, 46, 46),
-		DialogButtonBorder = Color3.fromRGB(90, 180, 180),
-		DialogBorder = Color3.fromRGB(90, 180, 180),
-		DialogInput = Color3.fromRGB(20, 32, 32),
-		DialogInputLine = Color3.fromRGB(85, 245, 245),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(225, 252, 252),
-		Hover = Color3.fromRGB(36, 60, 60),
-		HoverChange = 0.08,
-	},
-	Amethyst = {
-		Name = "Amethyst",
-		Accent = Color3.fromRGB(195, 150, 255), -- Glowing Radiant Lavender-Purple
- 
-		DarkGlassMain = Color3.fromRGB(24, 20, 32),
-		DarkGlassBorder = Color3.fromRGB(140, 115, 190),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(80, 60, 130), Color3.fromRGB(25, 20, 40)),
-		DarkGlassNoise = 0.88,
- 
-		TitleBarLine = Color3.fromRGB(115, 90, 155),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(32, 26, 44),
-		ElementBorder = Color3.fromRGB(140, 115, 190),
-		InElementBorder = Color3.fromRGB(195, 150, 255),
-		ElementTransparency = 0.85,
- 
-		ToggleSlider = Color3.fromRGB(195, 150, 255),
-		ToggleToggled = Color3.fromRGB(24, 20, 32),
- 
-		SliderRail = Color3.fromRGB(115, 90, 155),
- 
-		DropdownFrame = Color3.fromRGB(36, 28, 48),
-		DropdownHolder = Color3.fromRGB(26, 22, 36),
-		DropdownBorder = Color3.fromRGB(140, 115, 190),
-		DropdownOption = Color3.fromRGB(36, 28, 48),
- 
-		Keybind = Color3.fromRGB(36, 28, 48),
- 
-		Input = Color3.fromRGB(26, 22, 36),
-		InputFocused = Color3.fromRGB(46, 36, 62),
-		InputIndicator = Color3.fromRGB(195, 150, 255),
- 
-		Dialog = Color3.fromRGB(32, 26, 44),
-		DialogHolder = Color3.fromRGB(24, 20, 32),
-		DialogHolderLine = Color3.fromRGB(115, 90, 155),
-		DialogButton = Color3.fromRGB(36, 28, 48),
-		DialogButtonBorder = Color3.fromRGB(140, 115, 190),
-		DialogBorder = Color3.fromRGB(140, 115, 190),
-		DialogInput = Color3.fromRGB(26, 22, 36),
-		DialogInputLine = Color3.fromRGB(195, 150, 255),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(242, 230, 255),
-		Hover = Color3.fromRGB(50, 40, 68),
-		HoverChange = 0.08,
-	},
-	BloodRed = {
-		Name = "BloodRed",
-		Accent = Color3.fromRGB(255, 85, 85), -- Glowing Radiant Scarlet
- 
-		DarkGlassMain = Color3.fromRGB(28, 12, 12),
-		DarkGlassBorder = Color3.fromRGB(140, 45, 45),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(60, 8, 8), Color3.fromRGB(10, 5, 5)),
-		DarkGlassNoise = 0.88,
- 
-		TitleBarLine = Color3.fromRGB(110, 35, 35),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(38, 16, 16),
-		ElementBorder = Color3.fromRGB(140, 45, 45),
-		InElementBorder = Color3.fromRGB(255, 85, 85),
-		ElementTransparency = 0.83,
- 
-		ToggleSlider = Color3.fromRGB(255, 85, 85),
-		ToggleToggled = Color3.fromRGB(28, 12, 12),
- 
-		SliderRail = Color3.fromRGB(110, 35, 35),
- 
-		DropdownFrame = Color3.fromRGB(42, 18, 18),
-		DropdownHolder = Color3.fromRGB(30, 14, 14),
-		DropdownBorder = Color3.fromRGB(140, 45, 45),
-		DropdownOption = Color3.fromRGB(42, 18, 18),
- 
-		Keybind = Color3.fromRGB(42, 18, 18),
- 
-		Input = Color3.fromRGB(30, 14, 14),
-		InputFocused = Color3.fromRGB(52, 22, 22),
-		InputIndicator = Color3.fromRGB(255, 85, 85),
- 
-		Dialog = Color3.fromRGB(38, 16, 16),
-		DialogHolder = Color3.fromRGB(28, 12, 12),
-		DialogHolderLine = Color3.fromRGB(110, 35, 35),
-		DialogButton = Color3.fromRGB(42, 18, 18),
-		DialogButtonBorder = Color3.fromRGB(140, 45, 45),
-		DialogBorder = Color3.fromRGB(140, 45, 45),
-		DialogInput = Color3.fromRGB(30, 14, 14),
-		DialogInputLine = Color3.fromRGB(255, 85, 85),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(255, 230, 230),
-		Hover = Color3.fromRGB(58, 24, 24),
-		HoverChange = 0.08,
-	},
-	AmberGlow = {
-		Name = "AmberGlow",
-		Accent = Color3.fromRGB(255, 195, 95), -- Glowing Radiant Amber Gold
- 
-		DarkGlassMain = Color3.fromRGB(28, 20, 10),
-		DarkGlassBorder = Color3.fromRGB(140, 95, 45),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(65, 44, 10), Color3.fromRGB(12, 8, 4)),
-		DarkGlassNoise = 0.88,
- 
-		TitleBarLine = Color3.fromRGB(110, 75, 35),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(38, 26, 14),
-		ElementBorder = Color3.fromRGB(140, 95, 45),
-		InElementBorder = Color3.fromRGB(255, 195, 95),
-		ElementTransparency = 0.83,
- 
-		ToggleSlider = Color3.fromRGB(255, 195, 95),
-		ToggleToggled = Color3.fromRGB(28, 20, 10),
- 
-		SliderRail = Color3.fromRGB(110, 75, 35),
- 
-		DropdownFrame = Color3.fromRGB(42, 30, 16),
-		DropdownHolder = Color3.fromRGB(30, 22, 12),
-		DropdownBorder = Color3.fromRGB(140, 95, 45),
-		DropdownOption = Color3.fromRGB(42, 30, 16),
- 
-		Keybind = Color3.fromRGB(42, 30, 16),
- 
-		Input = Color3.fromRGB(30, 22, 12),
-		InputFocused = Color3.fromRGB(54, 38, 20),
-		InputIndicator = Color3.fromRGB(255, 195, 95),
- 
-		Dialog = Color3.fromRGB(38, 26, 14),
-		DialogHolder = Color3.fromRGB(28, 20, 10),
-		DialogHolderLine = Color3.fromRGB(110, 75, 35),
-		DialogButton = Color3.fromRGB(42, 30, 16),
-		DialogButtonBorder = Color3.fromRGB(140, 95, 45),
-		DialogBorder = Color3.fromRGB(140, 95, 45),
-		DialogInput = Color3.fromRGB(30, 22, 12),
-		DialogInputLine = Color3.fromRGB(255, 195, 95),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(255, 240, 220),
-		Hover = Color3.fromRGB(58, 40, 22),
-		HoverChange = 0.08,
-	},
-	NeonCyber = {
-		Name = "NeonCyber",
-		Accent = Color3.fromRGB(45, 255, 215), -- Electric Neon Turquoise
- 
-		DarkGlassMain = Color3.fromRGB(12, 16, 24),
-		DarkGlassBorder = Color3.fromRGB(70, 155, 180),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(18, 36, 54), Color3.fromRGB(8, 12, 20)),
-		DarkGlassNoise = 0.85, 
- 
-		TitleBarLine = Color3.fromRGB(55, 105, 130),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(20, 30, 46),
-		ElementBorder = Color3.fromRGB(65, 145, 175),
-		InElementBorder = Color3.fromRGB(45, 255, 215),
-		ElementTransparency = 0.83,
- 
-		ToggleSlider = Color3.fromRGB(45, 255, 215),
-		ToggleToggled = Color3.fromRGB(12, 16, 24),
- 
-		SliderRail = Color3.fromRGB(55, 105, 130),
- 
-		DropdownFrame = Color3.fromRGB(22, 34, 52),
-		DropdownHolder = Color3.fromRGB(16, 24, 36),
-		DropdownBorder = Color3.fromRGB(65, 145, 175),
-		DropdownOption = Color3.fromRGB(22, 34, 52),
- 
-		Keybind = Color3.fromRGB(22, 34, 52),
- 
-		Input = Color3.fromRGB(16, 24, 36),
-		InputFocused = Color3.fromRGB(28, 44, 66),
-		InputIndicator = Color3.fromRGB(45, 255, 215),
-		InputIndicatorFocus = Color3.fromRGB(45, 255, 215),
- 
-		Dialog = Color3.fromRGB(18, 28, 42),
-		DialogHolder = Color3.fromRGB(14, 20, 32),
-		DialogHolderLine = Color3.fromRGB(55, 105, 130),
-		DialogButton = Color3.fromRGB(24, 36, 54),
-		DialogButtonBorder = Color3.fromRGB(65, 145, 175),
-		DialogBorder = Color3.fromRGB(65, 145, 175),
-		DialogInput = Color3.fromRGB(16, 24, 36),
-		DialogInputLine = Color3.fromRGB(45, 255, 215),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(225, 255, 248),
-		Hover = Color3.fromRGB(32, 56, 80),
-		HoverChange = 0.08,
-	},
-	Orange = {
-		Name = "Orange",
-		Accent = Color3.fromRGB(255, 165, 75), -- Radiant Electric Orange
- 
-		DarkGlassMain = Color3.fromRGB(28, 16, 8),
-		DarkGlassBorder = Color3.fromRGB(145, 80, 35),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(60, 30, 8), Color3.fromRGB(12, 8, 5)),
-		DarkGlassNoise = 0.88,
- 
-		TitleBarLine = Color3.fromRGB(115, 65, 30),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(38, 22, 12),
-		ElementBorder = Color3.fromRGB(145, 80, 35),
-		InElementBorder = Color3.fromRGB(255, 165, 75),
-		ElementTransparency = 0.83,
- 
-		ToggleSlider = Color3.fromRGB(255, 165, 75),
-		ToggleToggled = Color3.fromRGB(28, 16, 8),
- 
-		SliderRail = Color3.fromRGB(115, 65, 30),
- 
-		DropdownFrame = Color3.fromRGB(44, 25, 14),
-		DropdownHolder = Color3.fromRGB(32, 18, 10),
-		DropdownBorder = Color3.fromRGB(145, 80, 35),
-		DropdownOption = Color3.fromRGB(44, 25, 14),
- 
-		Keybind = Color3.fromRGB(44, 25, 14),
- 
-		Input = Color3.fromRGB(32, 18, 10),
-		InputFocused = Color3.fromRGB(56, 32, 18),
-		InputIndicator = Color3.fromRGB(255, 165, 75),
- 
-		Dialog = Color3.fromRGB(38, 22, 12),
-		DialogHolder = Color3.fromRGB(28, 16, 8),
-		DialogHolderLine = Color3.fromRGB(115, 65, 30),
-		DialogButton = Color3.fromRGB(44, 25, 14),
-		DialogButtonBorder = Color3.fromRGB(145, 80, 35),
-		DialogBorder = Color3.fromRGB(145, 80, 35),
-		DialogInput = Color3.fromRGB(32, 18, 10),
-		DialogInputLine = Color3.fromRGB(255, 165, 75),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(255, 235, 215),
-		Hover = Color3.fromRGB(60, 35, 20),
-		HoverChange = 0.08,
-	},
-	CottonCandy = {
-		Name = "Cotton Candy",
-		Accent = Color3.fromRGB(255, 175, 225), -- Radiant Electric Pink
- 
-		DarkGlassMain = Color3.fromRGB(36, 26, 36),
-		DarkGlassBorder = Color3.fromRGB(155, 100, 140),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(70, 45, 62), Color3.fromRGB(18, 12, 18)),
-		DarkGlassNoise = 0.88,
- 
-		TitleBarLine = Color3.fromRGB(120, 80, 110),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(46, 34, 46),
-		ElementBorder = Color3.fromRGB(155, 100, 140),
-		InElementBorder = Color3.fromRGB(255, 175, 225),
-		ElementTransparency = 0.83,
- 
-		ToggleSlider = Color3.fromRGB(255, 175, 225),
-		ToggleToggled = Color3.fromRGB(36, 26, 36),
- 
-		SliderRail = Color3.fromRGB(120, 80, 110),
- 
-		DropdownFrame = Color3.fromRGB(50, 38, 50),
-		DropdownHolder = Color3.fromRGB(38, 28, 38),
-		DropdownBorder = Color3.fromRGB(155, 100, 140),
-		DropdownOption = Color3.fromRGB(50, 38, 50),
- 
-		Keybind = Color3.fromRGB(50, 38, 50),
- 
-		Input = Color3.fromRGB(38, 28, 38),
-		InputFocused = Color3.fromRGB(62, 46, 62),
-		InputIndicator = Color3.fromRGB(255, 175, 225),
- 
-		Dialog = Color3.fromRGB(46, 34, 46),
-		DialogHolder = Color3.fromRGB(36, 26, 36),
-		DialogHolderLine = Color3.fromRGB(120, 80, 110),
-		DialogButton = Color3.fromRGB(50, 38, 50),
-		DialogButtonBorder = Color3.fromRGB(155, 100, 140),
-		DialogBorder = Color3.fromRGB(155, 100, 140),
-		DialogInput = Color3.fromRGB(38, 28, 38),
-		DialogInputLine = Color3.fromRGB(255, 175, 225),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(255, 235, 250),
-		Hover = Color3.fromRGB(65, 48, 65),
-		HoverChange = 0.08,
-	},
-	BlackGlass = {
-		Name = "BlackGlass",
-		Accent = Color3.fromRGB(125, 215, 255), -- Glowing Neon Sapphire
- 
-		DarkGlassMain = Color3.fromRGB(18, 18, 22),
-		DarkGlassBorder = Color3.fromRGB(255, 255, 255),
-		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(32, 32, 40)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(14, 14, 18)),
-		}),
-		DarkGlassNoise = 0.94,
- 
-		TitleBarLine = Color3.fromRGB(75, 80, 95),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(28, 28, 36),
-		ElementBorder = Color3.fromRGB(255, 255, 255),
-		InElementBorder = Color3.fromRGB(125, 215, 255),
-		ElementTransparency = 0.4,
- 
-		ToggleSlider = Color3.fromRGB(125, 215, 255),
-		ToggleToggled = Color3.fromRGB(18, 18, 22),
- 
-		SliderRail = Color3.fromRGB(75, 80, 95),
- 
-		DropdownFrame = Color3.fromRGB(28, 28, 36),
-		DropdownHolder = Color3.fromRGB(22, 22, 28),
-		DropdownBorder = Color3.fromRGB(100, 110, 130),
-		DropdownOption = Color3.fromRGB(28, 28, 36),
- 
-		Keybind = Color3.fromRGB(28, 28, 36),
- 
-		Input = Color3.fromRGB(22, 22, 28),
-		InputFocused = Color3.fromRGB(36, 36, 46),
-		InputIndicator = Color3.fromRGB(125, 215, 255),
- 
-		Dialog = Color3.fromRGB(28, 28, 36),
-		DialogHolder = Color3.fromRGB(22, 22, 28),
-		DialogHolderLine = Color3.fromRGB(75, 80, 95),
-		DialogButton = Color3.fromRGB(28, 28, 36),
-		DialogButtonBorder = Color3.fromRGB(100, 110, 130),
-		DialogBorder = Color3.fromRGB(100, 110, 130),
-		DialogInput = Color3.fromRGB(22, 22, 28),
-		DialogInputLine = Color3.fromRGB(125, 215, 255),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(235, 242, 255),
-		Hover = Color3.fromRGB(48, 48, 60),
-		HoverChange = 0.08,
-	},
-	RoyalGold = {
-		Name = "Royal Gold",
-		Accent = Color3.fromRGB(255, 215, 105), -- Glowing Radiant Pure Gold
- 
-		DarkGlassMain = Color3.fromRGB(24, 20, 12),
-		DarkGlassBorder = Color3.fromRGB(155, 125, 65),
-		DarkGlassGradient = ColorSequence.new(Color3.fromRGB(55, 44, 20), Color3.fromRGB(12, 10, 6)),
-		DarkGlassNoise = 0.88,
- 
-		TitleBarLine = Color3.fromRGB(125, 100, 50),
-		Tab = Color3.fromRGB(255, 255, 255),
- 
-		Element = Color3.fromRGB(34, 28, 18),
-		ElementBorder = Color3.fromRGB(155, 125, 65),
-		InElementBorder = Color3.fromRGB(255, 215, 105),
-		ElementTransparency = 0.84,
- 
-		ToggleSlider = Color3.fromRGB(255, 215, 105),
-		ToggleToggled = Color3.fromRGB(24, 20, 12),
- 
-		SliderRail = Color3.fromRGB(125, 100, 50),
- 
-		DropdownFrame = Color3.fromRGB(38, 32, 20),
-		DropdownHolder = Color3.fromRGB(28, 24, 14),
-		DropdownBorder = Color3.fromRGB(155, 125, 65),
-		DropdownOption = Color3.fromRGB(38, 32, 20),
- 
-		Keybind = Color3.fromRGB(38, 32, 20),
- 
-		Input = Color3.fromRGB(28, 24, 14),
-		InputFocused = Color3.fromRGB(48, 40, 26),
-		InputIndicator = Color3.fromRGB(255, 215, 105),
- 
-		Dialog = Color3.fromRGB(34, 28, 18),
-		DialogHolder = Color3.fromRGB(24, 20, 12),
-		DialogHolderLine = Color3.fromRGB(125, 100, 50),
-		DialogButton = Color3.fromRGB(38, 32, 20),
-		DialogButtonBorder = Color3.fromRGB(155, 125, 65),
-		DialogBorder = Color3.fromRGB(155, 125, 65),
-		DialogInput = Color3.fromRGB(28, 24, 14),
-		DialogInputLine = Color3.fromRGB(255, 215, 105),
- 
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(255, 244, 215),
-		Hover = Color3.fromRGB(56, 46, 30),
-		HoverChange = 0.08,
-	},
-	Emerald = {
-		Name = "Emerald",
-	
-		Accent = Color3.fromRGB(60, 255, 175), -- Glowing Neon Emerald Mint
-	
-		DarkGlassMain = Color3.fromRGB(18, 32, 24),
-		DarkGlassBorder = Color3.fromRGB(75, 185, 135),
-		DarkGlassGradient = ColorSequence.new(
-			Color3.fromRGB(32, 80, 58),
-			Color3.fromRGB(14, 24, 18)
-		),
-		DarkGlassNoise = 0.9,
-	
-		TitleBarLine = Color3.fromRGB(65, 155, 110),
-		Tab = Color3.fromRGB(255, 255, 255),
-	
-		Element = Color3.fromRGB(26, 46, 36),
-		ElementBorder = Color3.fromRGB(75, 180, 130),
-		InElementBorder = Color3.fromRGB(60, 255, 175),
-		ElementTransparency = 0.82,
-	
-		ToggleSlider = Color3.fromRGB(60, 255, 175),
-		ToggleToggled = Color3.fromRGB(14, 24, 18),
-	
-		SliderRail = Color3.fromRGB(65, 155, 110),
-	
-		DropdownFrame = Color3.fromRGB(28, 48, 38),
-		DropdownHolder = Color3.fromRGB(20, 36, 28),
-		DropdownBorder = Color3.fromRGB(75, 180, 130),
-		DropdownOption = Color3.fromRGB(28, 48, 38),
-	
-		Keybind = Color3.fromRGB(28, 48, 38),
-	
-		Input = Color3.fromRGB(20, 36, 28),
-		InputFocused = Color3.fromRGB(36, 64, 50),
-		InputIndicator = Color3.fromRGB(60, 255, 175),
-		InputIndicatorFocus = Color3.fromRGB(60, 255, 175),
-	
-		Dialog = Color3.fromRGB(24, 42, 32),
-		DialogHolder = Color3.fromRGB(20, 36, 28),
-		DialogHolderLine = Color3.fromRGB(65, 155, 110),
-		DialogButton = Color3.fromRGB(28, 48, 38),
-		DialogButtonBorder = Color3.fromRGB(75, 180, 130),
-		DialogBorder = Color3.fromRGB(75, 180, 130),
-		DialogInput = Color3.fromRGB(20, 36, 28),
-		DialogInputLine = Color3.fromRGB(60, 255, 175),
-	
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(228, 255, 242),
-	
-		Hover = Color3.fromRGB(42, 80, 60),
-		HoverChange = 0.09,
-	},
-	["Night Hub"] = {
+	["Night Hub"] = CreateObsidianTheme({
 		Name = "Night Hub",
-		-- Blue accent like the reference; shared DarkProperties keep the navy/black/purple base.
-		Accent = Color3.fromRGB(64, 137, 255),
-	},
-	["Dwac Dark Glass"] = {
+		Accent = Color3.fromRGB(75, 145, 255),
+		Tint = Color3.fromRGB(44, 102, 235),
+		TintScale = 1.0,
+	}),
+	["Dwac Dark Glass"] = CreateObsidianTheme({
 		Name = "Dwac Dark Glass",
-		Accent = Color3.fromRGB(126, 231, 153),
-
-		-- Deep charcoal/forest glass; the restrained gradient keeps gameplay visible.
-		DarkGlassMain = Color3.fromRGB(15, 21, 17),
-		DarkGlassBorder = Color3.fromRGB(218, 232, 222),
-		DarkGlassGradient = ColorSequence.new(
-			Color3.fromRGB(35, 46, 38),
-			Color3.fromRGB(13, 18, 15)
-		),
-		DarkGlassNoise = 0.97,
-
-		TitleBarLine = Color3.fromRGB(100, 119, 105),
-		Tab = Color3.fromRGB(255, 255, 255),
-
-		Element = Color3.fromRGB(27, 36, 30),
-		ElementBorder = Color3.fromRGB(93, 111, 99),
-		InElementBorder = Color3.fromRGB(126, 231, 153),
-		ElementTransparency = 0.30,
-
-		ToggleSlider = Color3.fromRGB(126, 231, 153),
-		ToggleToggled = Color3.fromRGB(16, 23, 18),
-		TransparenToggle = 0.26,
-
-		SliderRail = Color3.fromRGB(83, 103, 89),
-
-		DropdownFrame = Color3.fromRGB(27, 36, 30),
-		DropdownHolder = Color3.fromRGB(17, 23, 19),
-		DropdownBorder = Color3.fromRGB(102, 122, 108),
-		DropdownOption = Color3.fromRGB(34, 45, 37),
-
-		Keybind = Color3.fromRGB(27, 36, 30),
-
-		Input = Color3.fromRGB(18, 25, 20),
-		InputFocused = Color3.fromRGB(35, 48, 39),
-		InputIndicator = Color3.fromRGB(155, 173, 160),
-		InputIndicatorFocus = Color3.fromRGB(126, 231, 153),
-
-		Dialog = Color3.fromRGB(25, 34, 28),
-		DialogHolder = Color3.fromRGB(17, 23, 19),
-		DialogHolderLine = Color3.fromRGB(100, 119, 105),
-		DialogButton = Color3.fromRGB(31, 42, 34),
-		DialogButtonBorder = Color3.fromRGB(102, 122, 108),
-		DialogBorder = Color3.fromRGB(102, 122, 108),
-		DialogInput = Color3.fromRGB(18, 25, 20),
-		DialogInputLine = Color3.fromRGB(126, 231, 153),
-
-		Text = Color3.fromRGB(255, 255, 255),
-		SubText = Color3.fromRGB(211, 224, 215),
-		Hover = Color3.fromRGB(43, 61, 48),
-		HoverChange = 0.06,
-	}
+		Accent = Color3.fromRGB(92, 232, 154),
+		Tint = Color3.fromRGB(41, 196, 112),
+		TintScale = 1.0,
+	}),
+	["Midnight Blue"] = CreateObsidianTheme({
+		Name = "Midnight Blue",
+		Accent = Color3.fromRGB(56, 207, 255),
+		Tint = Color3.fromRGB(26, 123, 255),
+		TintScale = 1.15,
+	}),
+	["Obsidian White"] = CreateObsidianTheme({
+		Name = "Obsidian White",
+		Accent = Color3.fromRGB(244, 246, 250),
+		Tint = Color3.fromRGB(143, 153, 171),
+		TintScale = 0.55,
+		BorderBoost = 1.15,
+	}),
+	["Crimson Dark"] = CreateObsidianTheme({
+		Name = "Crimson Dark",
+		Accent = Color3.fromRGB(255, 71, 87),
+		Tint = Color3.fromRGB(217, 30, 54),
+		TintScale = 1.15,
+	}),
+	Ember = CreateObsidianTheme({
+		Name = "Ember",
+		Accent = Color3.fromRGB(255, 136, 56),
+		Tint = Color3.fromRGB(222, 89, 20),
+		TintScale = 1.05,
+	}),
+	["Neon Crimson"] = CreateObsidianTheme({
+		Name = "Neon Crimson",
+		Accent = Color3.fromRGB(255, 42, 122),
+		Tint = Color3.fromRGB(222, 18, 96),
+		TintScale = 1.10,
+	}),
+	["Neon Orange"] = CreateObsidianTheme({
+		Name = "Neon Orange",
+		Accent = Color3.fromRGB(255, 122, 26),
+		Tint = Color3.fromRGB(230, 92, 0),
+		TintScale = 1.10,
+	}),
+	["Dark Typewriter"] = CreateObsidianTheme({
+		Name = "Dark Typewriter",
+		Accent = Color3.fromRGB(122, 240, 159),
+		Tint = Color3.fromRGB(60, 199, 108),
+		TintScale = 0.85,
+	}),
+	["VSC Dark High Contrast"] = CreateObsidianTheme({
+		Name = "VSC Dark High Contrast",
+		Accent = Color3.fromHex("#6bb5ff"),
+		Tint = Color3.fromRGB(59, 130, 214),
+		TintScale = 0.70,
+		BorderBoost = 1.50,
+	}),
+	Dark = CreateObsidianTheme({
+		Name = "Dark",
+		Accent = Color3.fromRGB(105, 200, 255),
+		Tint = Color3.fromRGB(94, 125, 158),
+		TintScale = 0.65,
+	}),
+	Darker = CreateObsidianTheme({
+		Name = "Darker",
+		Accent = Color3.fromRGB(82, 184, 255),
+		Tint = Color3.fromRGB(37, 110, 184),
+		TintScale = 0.60,
+	}),
+	Light = CreateObsidianTheme({
+		Name = "Light",
+		Accent = Color3.fromRGB(216, 226, 240),
+		Tint = Color3.fromRGB(138, 160, 194),
+		TintScale = 0.75,
+	}),
+	Aqua = CreateObsidianTheme({
+		Name = "Aqua",
+		Accent = Color3.fromRGB(68, 242, 232),
+		Tint = Color3.fromRGB(20, 184, 176),
+		TintScale = 1.05,
+	}),
+	Amethyst = CreateObsidianTheme({
+		Name = "Amethyst",
+		Accent = Color3.fromRGB(186, 140, 255),
+		Tint = Color3.fromRGB(139, 82, 230),
+		TintScale = 1.05,
+	}),
+	["Amethyst Dark"] = CreateObsidianTheme({
+		Name = "Amethyst Dark",
+		Accent = Color3.fromRGB(213, 102, 255),
+		Tint = Color3.fromRGB(157, 36, 230),
+		TintScale = 1.15,
+	}),
+	BloodRed = CreateObsidianTheme({
+		Name = "BloodRed",
+		Accent = Color3.fromRGB(255, 69, 69),
+		Tint = Color3.fromRGB(184, 20, 20),
+		TintScale = 1.20,
+	}),
+	AmberGlow = CreateObsidianTheme({
+		Name = "AmberGlow",
+		Accent = Color3.fromRGB(255, 189, 74),
+		Tint = Color3.fromRGB(214, 132, 20),
+		TintScale = 1.05,
+	}),
+	NeonCyber = CreateObsidianTheme({
+		Name = "NeonCyber",
+		Accent = Color3.fromRGB(46, 255, 212),
+		Tint = Color3.fromRGB(13, 196, 158),
+		TintScale = 1.10,
+	}),
+	DeepOcean = CreateObsidianTheme({
+		Name = "DeepOcean",
+		Accent = Color3.fromRGB(36, 196, 255),
+		Tint = Color3.fromRGB(14, 122, 196),
+		TintScale = 1.15,
+	}),
+	Orange = CreateObsidianTheme({
+		Name = "Orange",
+		Accent = Color3.fromRGB(255, 158, 66),
+		Tint = Color3.fromRGB(217, 107, 22),
+		TintScale = 1.00,
+	}),
+	CottonCandy = CreateObsidianTheme({
+		Name = "CottonCandy",
+		Accent = Color3.fromRGB(255, 148, 214),
+		Tint = Color3.fromRGB(217, 87, 168),
+		TintScale = 0.95,
+	}),
+	BlackGlass = CreateObsidianTheme({
+		Name = "BlackGlass",
+		Accent = Color3.fromRGB(124, 210, 255),
+		Tint = Color3.fromRGB(74, 146, 201),
+		TintScale = 0.50,
+	}),
+	RoyalGold = CreateObsidianTheme({
+		Name = "RoyalGold",
+		Accent = Color3.fromRGB(255, 210, 90),
+		Tint = Color3.fromRGB(201, 146, 24),
+		TintScale = 1.05,
+	}),
+	Emerald = CreateObsidianTheme({
+		Name = "Emerald",
+		Accent = Color3.fromRGB(61, 255, 158),
+		Tint = Color3.fromRGB(18, 186, 100),
+		TintScale = 1.10,
+	}),
 }
 
 local Library = {
@@ -1210,8 +304,8 @@ local Library = {
 	DialogOpen = false,
 	Transparency = true,
 	-- Numeric Roblox BackgroundTransparency values (0 = opaque, 1 = invisible).
-	GlassTransparencyValue = 0.15,
-	SidebarTransparencyValue = 0.14,
+	GlassTransparencyValue = 0.04,
+	SidebarTransparencyValue = 0.05,
 	MinimizeKeybind = nil,
 	MinimizerIcon = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl,
@@ -1828,85 +922,8 @@ function Creator.OverrideTag(Object, Properties)
 	end
 end
 
-local function BlendColor(Base, Accent, Amount)
-	return Base:Lerp(Accent, Amount)
-end
-
 function Creator.GetThemeProperty(Property)
 	local Theme = Themes[Library.Theme] or Themes["Dwac Dark Glass"] or Themes["Dark"]
-	local Accent = (Theme and Theme.Accent) or Color3.fromRGB(126, 231, 153)
-	-- Night Hub matched to the reference screenshot:
-	-- deep near-black navy base, cool blue glow on top fading to near-black,
-	-- cards slightly lifted with muted borders, near-opaque glass so the
-	-- game scene does not wash out text.
-	local Dark = Color3.fromRGB(7, 9, 14)
-	local DarkControl = Color3.fromRGB(21, 27, 38)
-	local Border = Color3.fromRGB(54, 64, 86)
-	local SoftBorder = Color3.fromRGB(42, 48, 62)
-	local White = Color3.fromRGB(245, 247, 252)
-	local MutedWhite = Color3.fromRGB(158, 168, 186)
-
-	local DarkProperties = {
-		Accent = Accent,
-		Tab = White,
-		Text = White,
-		SubText = MutedWhite,
-		-- Base surface: near-opaque deep navy so the game never bleeds through
-		DarkGlassMain = BlendColor(Color3.fromRGB(10, 13, 22), Accent, 0.02),
-		-- Vertical gradient (top → bottom): deep blue glow fading into near-black,
-		-- matching the Night Hub reference screenshot
-		DarkGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 34, 58)),  -- deep blue glow top
-			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(14, 21, 36)),  -- navy
-			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(9, 12, 20)),   -- dark navy
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(6, 8, 13)),    -- near-black bottom
-		}),
-		DarkGlassBorder = Color3.fromRGB(80, 104, 150),
-		-- Soft blue light radiating from the top-left corner (corner glow overlay)
-		DarkGlassGlow = BlendColor(Color3.fromRGB(96, 150, 255), Accent, 0.35),
-		-- Sidebar backing: same vertical light→dark sweep as the glass, one step
-		-- lighter, so the tab rail shifts hue together with the background
-		SidebarGlassGradient = ColorSequence.new({
-			ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 44, 70)),  -- lighter navy (glow corner)
-			ColorSequenceKeypoint.new(0.25, Color3.fromRGB(20, 29, 48)),
-			ColorSequenceKeypoint.new(0.60, Color3.fromRGB(13, 17, 28)),
-			ColorSequenceKeypoint.new(1.00, Color3.fromRGB(9, 12, 18)),   -- near-black bottom
-		}),
-		DarkGlassNoise = 1,
-		TitleBarLine = BlendColor(SoftBorder, Accent, 0.08),
-		-- Cards: a step lighter than the glass so they separate without harsh contrast
-		Element = BlendColor(DarkControl, Accent, 0.04),
-		ElementBorder = BlendColor(Border, Accent, 0.10),
-		InElementBorder = BlendColor(Border, Accent, 0.22),
-		ElementTransparency = 0.08,
-		ToggleSlider = Accent,
-		ToggleToggled = BlendColor(Dark, Accent, 0.025),
-		TransparenToggle = 0.20,
-		SliderRail = BlendColor(Color3.fromRGB(40, 46, 58), Accent, 0.08),
-		DropdownFrame = BlendColor(Color3.fromRGB(16, 19, 27), Accent, 0.04),
-		DropdownHolder = BlendColor(Color3.fromRGB(11, 14, 20), Accent, 0.03),
-		DropdownBorder = BlendColor(Border, Accent, 0.10),
-		DropdownOption = BlendColor(DarkControl, Accent, 0.05),
-		Keybind = BlendColor(DarkControl, Accent, 0.04),
-		Input = BlendColor(Color3.fromRGB(12, 15, 21), Accent, 0.03),
-		InputFocused = BlendColor(Color3.fromRGB(26, 32, 44), Accent, 0.10),
-		InputIndicator = Color3.fromRGB(160, 170, 188),
-		InputIndicatorFocus = Accent,
-		Dialog = BlendColor(Color3.fromRGB(18, 21, 30), Accent, 0.05),
-		DialogHolder = BlendColor(Color3.fromRGB(11, 14, 20), Accent, 0.03),
-		DialogHolderLine = BlendColor(Border, Accent, 0.10),
-		DialogButton = BlendColor(DarkControl, Accent, 0.06),
-		DialogButtonBorder = BlendColor(Border, Accent, 0.14),
-		DialogBorder = BlendColor(Border, Accent, 0.14),
-		DialogInput = BlendColor(Color3.fromRGB(12, 15, 21), Accent, 0.035),
-		DialogInputLine = Accent,
-		Hover = BlendColor(Color3.fromRGB(34, 40, 54), Accent, 0.16),
-	}
-
-	local Value = DarkProperties[Property]
-	if Value ~= nil then
-		return Value
-	end
 	if Theme and Theme[Property] ~= nil then
 		return Theme[Property]
 	end
@@ -2067,38 +1084,24 @@ local AddSignal = Creator.AddSignal
 -- No legacy Liquid Glass renderer, refraction, specular, frost overlays, or camera blur.
 local Glass = {
     Radius = {
-        Window = 24,
-        Card = 18,
-        Element = 14,
-        Control = 12,
-        Chip = 9,
+        Window = 16,
+        Card = 12,
+        Element = 10,
+        Control = 8,
+        Chip = 6,
         Pill = 999,
     },
 }
 
 function Glass.Rim(Props)
     Props = Props or {}
-    local Stroke = New("UIStroke", {
+    return New("UIStroke", {
         Thickness = Props.Thickness or 1,
-        Transparency = Props.Transparency ~= nil and Props.Transparency or 0.25,
+        Transparency = Props.Transparency ~= nil and Props.Transparency or 0.30,
         ApplyStrokeMode = Props.Mode or Enum.ApplyStrokeMode.Border,
-        Color = Color3.fromRGB(235, 244, 255),
+        Color = Color3.fromRGB(220, 232, 224),
         ThemeTag = { Color = Props.Tag or "DarkGlassBorder" },
     })
-
-    if Props.Specular ~= false then
-        New("UIGradient", {
-            Rotation = 90,
-            Transparency = NumberSequence.new({
-                NumberSequenceKeypoint.new(0.00, 0.00),
-                NumberSequenceKeypoint.new(0.45, 0.55),
-                NumberSequenceKeypoint.new(1.00, 1.00),
-            }),
-            Parent = Stroke,
-        })
-    end
-
-    return Stroke
 end
 
 -- LayoutOrder duy nhat cho moi element/section.
@@ -2193,46 +1196,41 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 		BackgroundTransparency = 1,
-		Position = UDim2.fromOffset(10, 0),
-		Size = UDim2.new(1, -28, 0, 0),
+		Position = UDim2.fromOffset(12, 0),
+		Size = UDim2.new(1, -32, 0, 0),
+		ZIndex = 2,
 	}, {
 		New("UIListLayout", {
+			Padding = UDim.new(0, 3),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 		}),
 		New("UIPadding", {
-			PaddingBottom = UDim.new(0, 13),
-			PaddingTop = UDim.new(0, 13),
+			PaddingBottom = UDim.new(0, 11),
+			PaddingTop = UDim.new(0, 11),
 		}),
 		Element.TitleLabel,
 		Element.DescLabel,
 	})
 
-	local IsInSection = Parent and Parent:GetAttribute("IsGroupedSection") == true
-
 	Element.Border = New("UIStroke", {
 		Thickness = 1,
-		Transparency = 0.70,
-		Enabled = not IsInSection,
+		Transparency = 0.35,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Color = Color3.fromRGB(255, 255, 255),
 		ThemeTag = { Color = "ElementBorder" },
 	})
 
-	local ElementCorner = New("UICorner", {
-		CornerRadius = UDim.new(0, IsInSection and 0 or Glass.Radius.Element),
-	})
-
-	local Divider = New("Frame", {
-		Name = "SectionDivider",
-		Size = UDim2.new(1, -24, 0, 1),
-		Position = UDim2.fromOffset(12, 0),
-		BackgroundTransparency = 0.82,
-		BorderSizePixel = 0,
-		Visible = false,
-		ThemeTag = {
-			BackgroundColor3 = "ElementBorder",
-		},
+	Element.HoverOverlay = New("Frame", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Interactable = false,
+		ZIndex = 1,
+		ThemeTag = { BackgroundColor3 = "Hover" },
+	}, {
+		New("UICorner", {
+			CornerRadius = UDim.new(0, Glass.Radius.Element),
+		}),
 	})
 
 	local ElementOrder = NextLayoutOrder()
@@ -2240,31 +1238,24 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	Element.Frame = New("TextButton", {
 		Visible = Options.Visible ~= false,
 		Size = UDim2.new(1, 0, 0, 0),
-		BackgroundTransparency = IsInSection and 1 or 0.15,
-		BackgroundColor3 = Color3.fromRGB(130, 130, 130),
+		BackgroundTransparency = 0.06,
+		BackgroundColor3 = Color3.fromRGB(16, 17, 21),
 		Parent = Parent,
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Text = "",
 		LayoutOrder = ElementOrder,
 		ThemeTag = {
 			BackgroundColor3 = "Element",
+			BackgroundTransparency = "ElementTransparency",
 		},
 	}, {
-		ElementCorner,
+		New("UICorner", {
+			CornerRadius = UDim.new(0, Glass.Radius.Element),
+		}),
 		Element.Border,
-		Divider,
+		Element.HoverOverlay,
 		Element.LabelHolder,
 	})
-
-	Creator.AddSignal(Element.Frame:GetPropertyChangedSignal("Parent"), function()
-		local nowGrouped = Element.Frame.Parent and Element.Frame.Parent:GetAttribute("IsGroupedSection") == true
-		Element.Border.Enabled = not nowGrouped
-		ElementCorner.CornerRadius = UDim.new(0, nowGrouped and 0 or Glass.Radius.Element)
-		Element.Frame.BackgroundTransparency = nowGrouped and 1 or 0.15
-		if not nowGrouped then
-			Divider.Visible = false
-		end
-	end)
 
 	RememberHome(Element.Frame, Parent, ElementOrder)
 
@@ -2317,52 +1308,38 @@ Components.Element = function(Title, Desc, Parent, Hover, Options)
 	Element.Original.Text = Title
 
 	if Hover then
-		local function IsGrouped()
-			return Element.Frame and Element.Frame.Parent and Element.Frame.Parent:GetAttribute("IsGroupedSection") == true
-		end
+		local HoverTweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 		Creator.AddSignal(Element.Frame.MouseEnter, function()
-			local grouped = IsGrouped()
-			TweenService:Create(Element.Frame, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {
-				BackgroundTransparency = grouped and 0.90 or 0.08,
+			TweenService:Create(Element.Border, HoverTweenInfo, {
+				Transparency = 0.12,
 			}):Play()
-			if not grouped then
-				TweenService:Create(Element.Border, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {
-					Transparency = 0.45,
-				}):Play()
-			end
+			TweenService:Create(Element.HoverOverlay, HoverTweenInfo, {
+				BackgroundTransparency = 0.55,
+			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseLeave, function()
-			local grouped = IsGrouped()
-			TweenService:Create(Element.Frame, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {
-				BackgroundTransparency = grouped and 1 or 0.15,
+			TweenService:Create(Element.Border, HoverTweenInfo, {
+				Transparency = 0.35,
 			}):Play()
-			if not grouped then
-				TweenService:Create(Element.Border, TweenInfo.new(0.2, Enum.EasingStyle.Quint), {
-					Transparency = 0.70,
-				}):Play()
-			end
+			TweenService:Create(Element.HoverOverlay, HoverTweenInfo, {
+				BackgroundTransparency = 1,
+			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Down, function()
-			local grouped = IsGrouped()
-			TweenService:Create(Element.Frame, TweenInfo.new(0.1, Enum.EasingStyle.Quint), {
-				BackgroundTransparency = grouped and 0.84 or 0.04,
+			TweenService:Create(Element.Border, TweenInfo.new(0.1, Enum.EasingStyle.Quint), {
+				Transparency = 0.04,
 			}):Play()
-			if not grouped then
-				TweenService:Create(Element.Border, TweenInfo.new(0.1, Enum.EasingStyle.Quint), {
-					Transparency = 0.35,
-				}):Play()
-			end
+			TweenService:Create(Element.HoverOverlay, TweenInfo.new(0.1, Enum.EasingStyle.Quint), {
+				BackgroundTransparency = 0.35,
+			}):Play()
 		end)
 		Creator.AddSignal(Element.Frame.MouseButton1Up, function()
-			local grouped = IsGrouped()
-			TweenService:Create(Element.Frame, TweenInfo.new(0.15, Enum.EasingStyle.Quint), {
-				BackgroundTransparency = grouped and 0.90 or 0.08,
+			TweenService:Create(Element.Border, HoverTweenInfo, {
+				Transparency = 0.12,
 			}):Play()
-			if not grouped then
-				TweenService:Create(Element.Border, TweenInfo.new(0.15, Enum.EasingStyle.Quint), {
-					Transparency = 0.45,
-				}):Play()
-			end
+			TweenService:Create(Element.HoverOverlay, HoverTweenInfo, {
+				BackgroundTransparency = 0.55,
+			}):Play()
 		end)
 	end
 
@@ -2375,65 +1352,24 @@ Components.Section = function(Title, Parent)
 	-- SortOrder phai la LayoutOrder: neu khong, cac TextButton trung ten se
 	-- xep theo thu tu child -> re-parent khi clear search lam xao tron
 	Section.Layout = New("UIListLayout", {
-		Padding = UDim.new(0, 0),
+		Padding = UDim.new(0, 6),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	})
 
 	Section.Container = New("Frame", {
 		Size = UDim2.new(1, 0, 0, 26),
-		Position = UDim2.fromOffset(0, 26),
-		BackgroundTransparency = 0.28,
-		ClipsDescendants = true,
-		ThemeTag = {
-			BackgroundColor3 = "Element",
-		},
+		Position = UDim2.fromOffset(0, 30),
+		BackgroundTransparency = 1,
 	}, {
-		New("UICorner", {
-			CornerRadius = UDim.new(0, Glass.Radius.Card),
-		}),
-		Glass.Rim({
-			Thickness = 1,
-			Transparency = 0.65,
-			Tag = "ElementBorder",
-		}),
 		Section.Layout,
 	})
-	Section.Container:SetAttribute("IsGroupedSection", true)
-
-	local function UpdateDividers()
-		local items = {}
-		for _, child in ipairs(Section.Container:GetChildren()) do
-			if child:IsA("TextButton") and child.Visible then
-				table.insert(items, child)
-			end
-		end
-		table.sort(items, function(a, b)
-			return a.LayoutOrder < b.LayoutOrder
-		end)
-		for idx, item in ipairs(items) do
-			local div = item:FindFirstChild("SectionDivider")
-			if div then
-				div.Visible = (idx > 1)
-			end
-		end
-	end
-
-	Creator.AddSignal(Section.Container.ChildAdded, function(child)
-		if child:IsA("TextButton") then
-			Creator.AddSignal(child:GetPropertyChangedSignal("Visible"), UpdateDividers)
-			task.defer(UpdateDividers)
-		end
-	end)
-	Creator.AddSignal(Section.Container.ChildRemoved, function()
-		task.defer(UpdateDividers)
-	end)
 
 	local SectionOrder = NextLayoutOrder()
 
-	local AccentBullet = New("Frame", {
-		Size = UDim2.fromOffset(6, 6),
+	local AccentBar = New("Frame", {
+		Size = UDim2.fromOffset(3, 13),
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.fromOffset(1, 13),
+		Position = UDim2.fromOffset(2, 13),
 		BackgroundTransparency = 0,
 		ThemeTag = {
 			BackgroundColor3 = "Accent",
@@ -2442,17 +1378,27 @@ Components.Section = function(Title, Parent)
 		New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 	})
 
+	local SectionLine = New("Frame", {
+		Size = UDim2.new(1, 0, 0, 1),
+		Position = UDim2.fromOffset(0, 25),
+		BackgroundTransparency = 0.55,
+		BorderSizePixel = 0,
+		ThemeTag = {
+			BackgroundColor3 = "TitleBarLine",
+		},
+	})
+
 	Section.TitleLabel = New("TextLabel", {
 		RichText = true,
 		Text = Title,
 		TextTransparency = 0,
 		FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-		TextSize = 16,
+		TextSize = 15,
 		TextXAlignment = "Left",
 		TextYAlignment = "Center",
 		AnchorPoint = Vector2.new(0, 0.5),
 		Size = UDim2.new(1, -16, 0, 20),
-		Position = UDim2.fromOffset(13, 13),
+		Position = UDim2.fromOffset(11, 13),
 		AutoLocalize = false,
 		ThemeTag = {
 			TextColor3 = "Accent",
@@ -2461,12 +1407,13 @@ Components.Section = function(Title, Parent)
 
 	Section.Root = New("Frame", {
 		BackgroundTransparency = 1,
-		Size = UDim2.new(1, 0, 0, 26),
+		Size = UDim2.new(1, 0, 0, 34),
 		LayoutOrder = SectionOrder,
 		Parent = Parent,
 	}, {
-		AccentBullet,
+		AccentBar,
 		Section.TitleLabel,
+		SectionLine,
 		Section.Container,
 	})
 
@@ -2478,7 +1425,7 @@ Components.Section = function(Title, Parent)
 
 	Creator.AddSignal(Section.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 		Section.Container.Size = UDim2.new(1, 0, 0, Section.Layout.AbsoluteContentSize.Y)
-		Section.Root.Size = UDim2.new(1, 0, 0, Section.Layout.AbsoluteContentSize.Y + 28)
+		Section.Root.Size = UDim2.new(1, 0, 0, Section.Layout.AbsoluteContentSize.Y + 36)
 	end)
 	
 	return Section
@@ -2571,18 +1518,19 @@ Components.Tab = (function()
 		-- ── Icon ──────────────────────────────────────────────
 		local IconLabel = New("ImageLabel", {
 			AnchorPoint      = Vector2.new(0, 0.5),
-			Size             = UDim2.fromOffset(16, 16),
-			Position         = UDim2.new(0, 8, 0.5, 0),
+			Size             = UDim2.fromOffset(15, 15),
+			Position         = UDim2.new(0, 10, 0.5, 0),
 			BackgroundTransparency = 1,
+			Visible          = Icon ~= nil,
 			Image            = Icon or "",
-			ImageTransparency = 0.18,
-			ThemeTag         = { ImageColor3 = "Text" },
+			ImageTransparency = 0.08,
+			ThemeTag         = { ImageColor3 = "SubText" },
 		})
 
 		-- ── Title label ───────────────────────────────────────
 		local TitleLabel = New("TextLabel", {
 			AnchorPoint      = Vector2.new(0, 0.5),
-			Position         = Icon and UDim2.new(0, 30, 0.5, 0) or UDim2.new(0, 12, 0.5, 0),
+			Position         = Icon and UDim2.new(0, 31, 0.5, 0) or UDim2.new(0, 12, 0.5, 0),
 			Text             = Title,
 			RichText         = true,
 			TextTransparency = 0,
@@ -2594,15 +1542,16 @@ Components.Tab = (function()
 			TextSize         = 12,
 			TextXAlignment   = Enum.TextXAlignment.Left,
 			TextYAlignment   = Enum.TextYAlignment.Center,
-			Size             = UDim2.new(1, -12, 1, 0),
+			Size             = UDim2.new(1, Icon and -38 or -18, 1, 0),
+			TextTruncate     = Enum.TextTruncate.AtEnd,
 			BackgroundTransparency = 1,
 			AutoLocalize     = false,
-			ThemeTag         = { TextColor3 = "Text" },
+			ThemeTag         = { TextColor3 = "SubText" },
 		})
 
 		-- ── Tab frame ─────────────────────────────────────────
 		Tab.Frame = New("TextButton", {
-			Size             = UDim2.new(1, 0, 0, 34),
+			Size             = UDim2.new(1, 0, 0, 32),
 			BackgroundTransparency = 1,
 			Parent           = Parent,
 			ThemeTag         = { BackgroundColor3 = "Tab" },
@@ -2616,7 +1565,7 @@ Components.Tab = (function()
 
 		-- ── Container scroll frame (unchanged) ───────────────
 		local ContainerLayout = New("UIListLayout", {
-			Padding      = UDim.new(0, 5),
+			Padding      = UDim.new(0, 6),
 			SortOrder    = Enum.SortOrder.LayoutOrder,
 		})
 
@@ -2629,7 +1578,7 @@ Components.Tab = (function()
 			MidImage               = "rbxassetid://6889812721",
 			TopImage               = "rbxassetid://6276641225",
 			ScrollBarImageColor3   = Color3.fromRGB(255, 255, 255),
-			ScrollBarImageTransparency = 0.75,
+			ScrollBarImageTransparency = 0.72,
 			ScrollBarThickness     = 3,
 			BorderSizePixel        = 0,
 			CanvasSize             = UDim2.fromScale(0, 0),
@@ -2641,46 +1590,41 @@ Components.Tab = (function()
 				PaddingRight  = UDim.new(0, 10),
 				PaddingLeft   = UDim.new(0, 1),
 				PaddingTop    = UDim.new(0, 1),
-				PaddingBottom = UDim.new(0, 1),
+				PaddingBottom = UDim.new(0, 4),
 			}),
 		})
 
 		Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 			Tab.ContainerFrame.CanvasSize =
-				UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 2)
+				UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 4)
 		end)
 
 		-- ── Easing presets ────────────────────────────────────
-		local TI_NORM = TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-		local TI_BACK = TweenInfo.new(0.25, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
+		local TI_NORM = TweenInfo.new(0.20, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+		local TI_BACK = TweenInfo.new(0.24, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
 
 		-- ── State appliers ────────────────────────────────────
 		local function applySelected()
-			-- pill fades in
 			TweenService:Create(PillBg, TI_NORM, {
-				BackgroundTransparency = 0.78,
+				BackgroundTransparency = 0.85,
 			}):Play()
-			-- lop kinh + vien sang len
-			TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.18 }):Play()
-			-- accent bar grows
+			TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.38 }):Play()
 			TweenService:Create(AccentBar, TI_BACK, {
-				Size                   = UDim2.new(0, 3, 0.60, 0),
+				Size                   = UDim2.new(0, 3, 0.56, 0),
 				BackgroundTransparency = 0,
 			}):Play()
-			-- cap nhat registry de khi doi theme thi giu dung mau Accent
 			if Creator.Registry[TitleLabel] then
 				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Accent" }
 			end
 			if Creator.Registry[IconLabel] then
 				Creator.Registry[IconLabel].Properties = { ImageColor3 = "Accent" }
 			end
-			-- text & icon chuyen sang mau accent cua theme va full ro net
 			TweenService:Create(TitleLabel, TI_NORM, {
 				TextColor3       = Creator.GetThemeProperty("Accent"),
 				TextTransparency = 0,
 			}):Play()
 			TweenService:Create(IconLabel,  TI_NORM, {
-				ImageColor3      = Creator.GetThemeProperty("Accent"),
+				ImageColor3       = Creator.GetThemeProperty("Accent"),
 				ImageTransparency = 0,
 			}):Play()
 		end
@@ -2694,45 +1638,44 @@ Components.Tab = (function()
 				Size                   = UDim2.new(0, 3, 0, 0),
 				BackgroundTransparency = 1,
 			}):Play()
-			-- cap nhat registry de khi doi theme thi giu mau Text
 			if Creator.Registry[TitleLabel] then
-				Creator.Registry[TitleLabel].Properties = { TextColor3 = "Text" }
+				Creator.Registry[TitleLabel].Properties = { TextColor3 = "SubText" }
 			end
 			if Creator.Registry[IconLabel] then
-				Creator.Registry[IconLabel].Properties = { ImageColor3 = "Text" }
+				Creator.Registry[IconLabel].Properties = { ImageColor3 = "SubText" }
 			end
 			TweenService:Create(TitleLabel, TI_NORM, {
-				TextColor3       = Creator.GetThemeProperty("Text"),
+				TextColor3       = Creator.GetThemeProperty("SubText"),
 				TextTransparency = 0,
 			}):Play()
 			TweenService:Create(IconLabel,  TI_NORM, {
-				ImageColor3      = Creator.GetThemeProperty("Text"),
-				ImageTransparency = 0,
+				ImageColor3       = Creator.GetThemeProperty("SubText"),
+				ImageTransparency = 0.08,
 			}):Play()
 		end
 
 		-- ── Hover (only when not selected) ───────────────────
 		Creator.AddSignal(Tab.Frame.MouseEnter, function()
 			if not Tab.Selected then
-				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.88 }):Play()
-				TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.45 }):Play()
-				TweenService:Create(TitleLabel, TI_NORM, { TextTransparency = 0 }):Play()
-				TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0 }):Play()
+				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.91 }):Play()
+				TweenService:Create(PillStroke, TI_NORM, { Transparency = 0.62 }):Play()
+				TweenService:Create(TitleLabel, TI_NORM, { TextColor3 = Creator.GetThemeProperty("Text"), TextTransparency = 0 }):Play()
+				TweenService:Create(IconLabel,  TI_NORM, { ImageColor3 = Creator.GetThemeProperty("Text"), ImageTransparency = 0 }):Play()
 			end
 		end)
 		Creator.AddSignal(Tab.Frame.MouseLeave, function()
 			if not Tab.Selected then
 				TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 1 }):Play()
 				TweenService:Create(PillStroke, TI_NORM, { Transparency = 1 }):Play()
-				TweenService:Create(TitleLabel, TI_NORM, { TextTransparency = 0 }):Play()
-				TweenService:Create(IconLabel,  TI_NORM, { ImageTransparency = 0 }):Play()
+				TweenService:Create(TitleLabel, TI_NORM, { TextColor3 = Creator.GetThemeProperty("SubText"), TextTransparency = 0 }):Play()
+				TweenService:Create(IconLabel,  TI_NORM, { ImageColor3 = Creator.GetThemeProperty("SubText"), ImageTransparency = 0.08 }):Play()
 			end
 		end)
 		Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
-			TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.70 }):Play()
+			TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = 0.78 }):Play()
 		end)
 		Creator.AddSignal(Tab.Frame.MouseButton1Up, function()
-			local t = Tab.Selected and 0.82 or 0.9
+			local t = Tab.Selected and 0.85 or 0.91
 			TweenService:Create(PillBg, TI_NORM, { BackgroundTransparency = t }):Play()
 		end)
 
@@ -2766,7 +1709,7 @@ Components.Tab = (function()
 
 		function Tab:UpdateTheme()
 			local isSelected = Tab.Selected
-			local colorKey = isSelected and "Accent" or "Text"
+			local colorKey = isSelected and "Accent" or "SubText"
 			local colorVal = Creator.GetThemeProperty(colorKey)
 			if Creator.Registry[TitleLabel] then
 				Creator.Registry[TitleLabel].Properties = { TextColor3 = colorKey }
@@ -2900,16 +1843,16 @@ Components.Button = function(Theme, Parent, DialogCheck)
 
 	local Motor, SetTransparency = Creator.SpringMotor(1, Button.HoverFrame, "BackgroundTransparency", DialogCheck)
 	Creator.AddSignal(Button.Frame.MouseEnter, function()
-		SetTransparency(0.97)
+		SetTransparency(0.45)
 	end)
 	Creator.AddSignal(Button.Frame.MouseLeave, function()
 		SetTransparency(1)
 	end)
 	Creator.AddSignal(Button.Frame.MouseButton1Down, function()
-		SetTransparency(1)
+		SetTransparency(0.25)
 	end)
 	Creator.AddSignal(Button.Frame.MouseButton1Up, function()
-		SetTransparency(0.97)
+		SetTransparency(0.45)
 	end)
 
 	return Button
@@ -2964,14 +1907,14 @@ Components.Dialog = (function()
 		NewDialog.ButtonHolderFrame = New("Frame", {
 			Size = UDim2.new(1, 0, 0, 70),
 			Position = UDim2.new(0, 0, 1, -70),
-			BackgroundTransparency = 0.70,
+			BackgroundTransparency = 0.15,
 			ThemeTag = {
 				BackgroundColor3 = "DialogHolder",
 			},
 		}, {
 			New("Frame", {
 				Size = UDim2.new(1, 0, 0, 1),
-				BackgroundTransparency = 0.55,
+				BackgroundTransparency = 0.35,
 				ThemeTag = {
 					BackgroundColor3 = "DialogHolderLine",
 				},
@@ -3033,7 +1976,7 @@ Components.Dialog = (function()
 		function NewDialog:Open()
 			Library.DialogOpen = true
 			NewDialog.Scale.Scale = 1.1
-			TintTransparency(0.75)
+			TintTransparency(0.42)
 			RootTransparency(0)
 			Scale(1)
 		end
@@ -3215,15 +2158,32 @@ Components.Notification = (function()
 		})
 
 
-		NewNotification.Root = New("Frame", {
+		NewNotification.AccentBar = New("Frame", {
+		    Size = UDim2.new(0, 3, 1, -24),
+		    Position = UDim2.fromOffset(0, 12),
 		    BackgroundTransparency = 0,
+		    BorderSizePixel = 0,
+		    ZIndex = 3,
+		    ThemeTag = { BackgroundColor3 = "Accent" },
+		}, {
+		    New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+		})
+
+		NewNotification.Root = New("Frame", {
+		    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+		    BackgroundTransparency = 0.04,
 		    Size = UDim2.new(1, 0, 1, 0),
 		    Position = UDim2.fromScale(1, 0),
 		    ZIndex = 2,
 		    ThemeTag = { BackgroundColor3 = "DarkGlassMain" },
 		}, {
 		    New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
-		    Glass.Rim({ Transparency = 0.28, Mode = Enum.ApplyStrokeMode.Contextual }),
+		    New("UIGradient", {
+		        Rotation = 115,
+		        ThemeTag = { Color = "DarkGlassGradient" },
+		    }),
+		    Glass.Rim({ Transparency = 0.22, Mode = Enum.ApplyStrokeMode.Contextual }),
+		    NewNotification.AccentBar,
 		    NewNotification.Title,
 		    NewNotification.CloseButton,
 		    NewNotification.LabelHolder,
@@ -3335,7 +2295,7 @@ Components.Textbox = function(Parent, AlternateInputStyle)
 
 	Textbox.Frame = New("Frame", {
 		Size = UDim2.new(0, 0, 0, 30),
-		BackgroundTransparency = AlternateInputStyle and 0.18 or 0.15,
+		BackgroundTransparency = AlternateInputStyle and 0.10 or 0.10,
 		Parent = Parent,
 		ThemeTag = {
 			BackgroundColor3 = AlternateInputStyle and "Input" or "DialogInput",
@@ -3345,7 +2305,7 @@ Components.Textbox = function(Parent, AlternateInputStyle)
 			CornerRadius = UDim.new(0, Glass.Radius.Control),
 		}),
 		Glass.Rim({
-			Transparency = AlternateInputStyle and 0.30 or 0.35,
+			Transparency = AlternateInputStyle and 0.32 or 0.35,
 			Tag = AlternateInputStyle and "InElementBorder" or "DialogButtonBorder",
 		}),
 		Textbox.Indicator,
@@ -3407,52 +2367,61 @@ end
 Components.TitleBar = function(Config)
 	local TitleBar = {}
 
-	local function BarButton(Icon, Pos, Parent, Callback)
+	local function BarButton(Icon, Pos, Parent, Callback, IsClose)
 		local Button = { Callback = Callback or function() end }
 
 		local ButtonStroke = New("UIStroke", {
 			Thickness       = 1,
-			Transparency    = 0.65,
+			Transparency    = 0.45,
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			Color           = Color3.fromRGB(255, 255, 255),
+			ThemeTag        = { Color = "InElementBorder" },
+		})
+
+		local IconImg = New("ImageLabel", {
+			Image       = Icon,
+			Size        = UDim2.fromOffset(12, 12),
+			Position    = UDim2.fromScale(0.5, 0.5),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Name        = "Icon",
+			ThemeTag    = { ImageColor3 = "SubText" },
 		})
 
 		Button.Frame = New("TextButton", {
 			Size             = UDim2.fromOffset(26, 26),
 			AnchorPoint      = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.92,
+			BackgroundTransparency = 0.35,
 			Parent           = Parent,
 			Position         = Pos,
 			Text             = "",
-			ThemeTag         = { BackgroundColor3 = "Text" },
+			ThemeTag         = { BackgroundColor3 = "Element" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
 			ButtonStroke,
-			New("ImageLabel", {
-				Image       = Icon,
-				Size        = UDim2.fromOffset(13, 13),
-				Position    = UDim2.fromScale(0.5, 0.5),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				BackgroundTransparency = 1,
-				Name        = "Icon",
-				ThemeTag    = { ImageColor3 = "Text" },
-			}),
+			IconImg,
 		})
 
-		local Motor, SetTransparency = Creator.SpringMotor(0.92, Button.Frame, "BackgroundTransparency")
+		local Motor, SetTransparency = Creator.SpringMotor(0.35, Button.Frame, "BackgroundTransparency")
 		AddSignal(Button.Frame.MouseEnter, function()
-			SetTransparency(0.78)
-			TweenService:Create(ButtonStroke, TweenInfo.new(0.18), { Transparency = 0.25 }):Play()
+			SetTransparency(0.08)
+			TweenService:Create(ButtonStroke, TweenInfo.new(0.16), { Transparency = 0.15 }):Play()
+			if IsClose then
+				TweenService:Create(IconImg, TweenInfo.new(0.16), { ImageColor3 = Color3.fromRGB(255, 105, 115) }):Play()
+			else
+				TweenService:Create(IconImg, TweenInfo.new(0.16), { ImageColor3 = Creator.GetThemeProperty("Text") }):Play()
+			end
 		end)
 		AddSignal(Button.Frame.MouseLeave, function()
-			SetTransparency(0.92, true)
-			TweenService:Create(ButtonStroke, TweenInfo.new(0.18), { Transparency = 0.65 }):Play()
+			SetTransparency(0.35, true)
+			TweenService:Create(ButtonStroke, TweenInfo.new(0.16), { Transparency = 0.45 }):Play()
+			TweenService:Create(IconImg, TweenInfo.new(0.16), { ImageColor3 = Creator.GetThemeProperty("SubText") }):Play()
 		end)
 		AddSignal(Button.Frame.MouseButton1Down, function()
-			SetTransparency(0.70)
+			SetTransparency(0.02)
 		end)
 		AddSignal(Button.Frame.MouseButton1Up, function()
-			SetTransparency(0.78)
+			SetTransparency(0.08)
 		end)
 		AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
 
@@ -3460,9 +2429,9 @@ Components.TitleBar = function(Config)
 		return Button
 	end
 
-	-- ── TitleBar frame (height 40) ────────────────────────────
+	-- ── TitleBar frame (height 44) ────────────────────────────
 	TitleBar.Frame = New("Frame", {
-		Size             = UDim2.new(1, 0, 0, 42),
+		Size             = UDim2.new(1, 0, 0, 44),
 		BackgroundTransparency = 1,
 		Parent           = Config.Parent,
 	})
@@ -3491,7 +2460,7 @@ Components.TitleBar = function(Config)
 		Parent           = TitleBar.Frame,
 	}, {
 		New("UIListLayout", {
-			Padding           = UDim.new(0, 6),
+			Padding           = UDim.new(0, 7),
 			FillDirection     = Enum.FillDirection.Horizontal,
 			SortOrder         = Enum.SortOrder.LayoutOrder,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
@@ -3517,13 +2486,13 @@ Components.TitleBar = function(Config)
 		New("TextLabel", {
 			RichText         = true,
 			Text             = Config.SubTitle or "",
-			TextTransparency = 0,
+			TextTransparency = 0.1,
 			FontFace         = Font.new(
 				"rbxasset://fonts/families/GothamSSm.json",
 				Enum.FontWeight.Medium,
 				Enum.FontStyle.Normal
 			),
-			TextSize         = 13,
+			TextSize         = 12,
 			TextXAlignment   = Enum.TextXAlignment.Left,
 			TextYAlignment   = Enum.TextYAlignment.Center,
 			Size             = UDim2.fromScale(0, 1),
@@ -3538,7 +2507,7 @@ Components.TitleBar = function(Config)
 	-- divider
 	New("Frame", {
 		Name             = "TitleBarDivider",
-		BackgroundTransparency = 0.50,
+		BackgroundTransparency = 0.35,
 		Size             = UDim2.new(1, 0, 0, 1),
 		Position         = UDim2.new(0, 0, 1, 0),
 		Parent           = TitleBar.Frame,
@@ -3559,7 +2528,8 @@ Components.TitleBar = function(Config)
 					{ Title = "No" },
 				},
 			})
-		end
+		end,
+		true
 	)
 	TitleBar.MaxButton = BarButton(
 		Components.Assets.Max,
@@ -3602,7 +2572,8 @@ Components.Window = (function()
 		Window.TabWidth = Config.TabWidth
 
 		local Selector = New("Frame", {
-			Size = UDim2.fromOffset(4, 0),
+			Size = UDim2.fromOffset(3, 0),
+			Visible = false,
 			BackgroundColor3 = Color3.fromRGB(76, 194, 255),
 			Position = UDim2.fromOffset(0, 17),
 			AnchorPoint = Vector2.new(0, 0.5),
@@ -3674,19 +2645,20 @@ Components.Window = (function()
 
 		local SearchStroke = New("UIStroke", {
 			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency    = 0.35,
+			Transparency    = 0.45,
 			Color           = Color3.fromRGB(255, 255, 255),
 			ThemeTag        = { Color = "InElementBorder" },
 		})
 
 		local SearchBox = New("Frame", {
-			Size     = UDim2.new(0, Window.TabWidth, 0, 32),
-			Position = UDim2.new(0, 12, 0, 52),
-			BackgroundTransparency = 0,
+			Size     = UDim2.new(0, Window.TabWidth, 0, 30),
+			Position = UDim2.new(0, 14, 0, 56),
+			BackgroundTransparency = 0.10,
 			Visible  = UseSearchBar,
+			ZIndex   = 2,
 			ThemeTag = { BackgroundColor3 = "Input" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
 			SearchStroke,
 			SearchIcon,
 			SearchInput,
@@ -3854,10 +2826,11 @@ Components.Window = (function()
 		end)
 
 		local TabFrame = New("Frame", {
-			Size             = UDim2.new(0, Window.TabWidth, 1, UseSearchBar and -104 or -64),
-			Position         = UDim2.new(0, 12, 0, UseSearchBar and 92 or 52),
+			Size             = UDim2.new(0, Window.TabWidth, 1, UseSearchBar and -104 or -68),
+			Position         = UDim2.new(0, 14, 0, UseSearchBar and 92 or 56),
 			BackgroundTransparency = 1,
 			ClipsDescendants = true,
+			ZIndex           = 2,
 		}, {
 			Window.TabHolder,
 			Selector,
@@ -3871,8 +2844,8 @@ Components.Window = (function()
 				-- reset filter khi tắt
 				SearchInput.Text = ""
 			end
-			TabFrame.Size     = UDim2.new(0, Window.TabWidth, 1, UseSearchBar and -104 or -64)
-			TabFrame.Position = UDim2.new(0, 12, 0, UseSearchBar and 92 or 52)
+			TabFrame.Size     = UDim2.new(0, Window.TabWidth, 1, UseSearchBar and -104 or -68)
+			TabFrame.Position = UDim2.new(0, 14, 0, UseSearchBar and 92 or 56)
 		end
 
 		Window.TabDisplay = New("TextLabel", {
@@ -3881,11 +2854,11 @@ Components.Window = (function()
 			TextTransparency = 0,
 			FontFace         = Font.new("rbxassetid://12187365364",
 			                   Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-			TextSize         = 22,
+			TextSize         = 20,
 			TextXAlignment   = Enum.TextXAlignment.Left,
 			TextYAlignment   = Enum.TextYAlignment.Center,
-			Size             = UDim2.new(1, -16, 0, 22),
-			Position         = UDim2.fromOffset(Window.TabWidth + 26, 56),
+			Size             = UDim2.new(1, -Window.TabWidth - 46, 0, 24),
+			Position         = UDim2.fromOffset(Window.TabWidth + 34, 54),
 			BackgroundTransparency = 1,
 			AutoLocalize     = false,
 			ThemeTag         = { TextColor3 = "Accent" },
@@ -3902,31 +2875,23 @@ Components.Window = (function()
 		})
 
 		Window.ContainerCanvas = New("Frame", {
-			Size             = UDim2.new(1, -Window.TabWidth - 32, 1, -102),
-			Position         = UDim2.fromOffset(Window.TabWidth + 26, 90),
+			Size             = UDim2.new(1, -Window.TabWidth - 42, 1, -96),
+			Position         = UDim2.fromOffset(Window.TabWidth + 34, 86),
 			BackgroundTransparency = 1,
 		}, {
 			Window.ContainerAnim,
 			Window.ContainerHolder,
 		})
 
-		-- Dwac Dark Glass: the Root itself IS the glass surface.
-		-- This is important: a separate ZIndex=2 overlay would dim the labels and
-		-- controls beneath it. A single root background keeps all content crisp,
-		-- while the muted dark gradient lets the game scene show through softly.
-		-- No Liquid Glass renderer, refraction, specular reflection, noise,
-		-- frost overlay, camera blur, or per-frame rendering is used.
+		-- Dwac Dark Glass: the Root itself IS the obsidian glass surface.
 		Window.Root = New("Frame", {
 			Name = "DwacDarkGlassSurface",
 			Size = Window.Size,
 			Position = Window.Position,
 			Parent = Config.Parent,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			-- Nen gan nhu DAC: gradient navy den chay doc, game khong lo qua.
-			-- Clamp 0.06 de khong che do nao (theme/transparency/config cu) lam
-			-- nen trong suot tro lai nhu ban loi.
 			BackgroundTransparency = Library.Transparency
-				and math.min(Library.GlassTransparencyValue, 0.30)
+				and math.min(Library.GlassTransparencyValue, 0.06)
 				or 0.02,
 			BorderSizePixel = 0,
 		}, {
@@ -3935,11 +2900,11 @@ Components.Window = (function()
 			}),
 			New("UIGradient", {
 				Name = "DarkGlassColorBlend",
-				Rotation = 90, -- vertical: blue glow on top fading to near-black
+				Rotation = 115, -- diagonal obsidian-to-theme tint sweep
 				ThemeTag = { Color = "DarkGlassGradient" },
 			}),
 			-- Soft corner glow: diagonal sheen radiating from the top-left corner,
-			-- fading out ~1/3 into the window. Sits below all content.
+			-- fading smoothly into the obsidian black base.
 			New("Frame", {
 				Name = "DarkGlassCornerGlow",
 				BackgroundTransparency = 0,
@@ -3951,51 +2916,57 @@ Components.Window = (function()
 					CornerRadius = UDim.new(0, Glass.Radius.Window),
 				}),
 				New("UIGradient", {
-					Rotation = 315, -- glow origin at top-left, fading toward bottom-right
+					Rotation = 45, -- top-left (0) to bottom-right (1)
 					ThemeTag = { Color = "DarkGlassGlow" },
 					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0.00, 0.50), -- soft glow at the corner
-						NumberSequenceKeypoint.new(0.28, 1.00), -- fully faded
+						NumberSequenceKeypoint.new(0.00, 0.78),
+						NumberSequenceKeypoint.new(0.22, 0.92),
+						NumberSequenceKeypoint.new(0.42, 1.00),
 						NumberSequenceKeypoint.new(1.00, 1.00),
 					}),
 				}),
 			}),
-			-- Quiet, inset sidebar backing: no blur/texture/animation. It is inserted
-			-- before navigation content so labels and buttons stay sharp above it.
-			-- BackgroundColor3 = white + themed gradient: the sidebar shares the same
-			-- light→dark color sweep as the main glass (one step lighter) so both
-			-- surfaces read as a single pane shifting hue toward the glow corner.
+			-- Quiet, inset sidebar backing tinted harmoniously with the active theme.
 			New("Frame", {
 				Name = "DwacSidebarSurface",
-				Position = UDim2.fromOffset(6, 49),
-				Size = UDim2.new(0, Window.TabWidth + 14, 1, -56),
+				Position = UDim2.fromOffset(8, 50),
+				Size = UDim2.new(0, Window.TabWidth + 12, 1, -58),
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				BackgroundTransparency = Library.Transparency
-					and math.min(Library.SidebarTransparencyValue, 0.30)
+					and math.min(Library.SidebarTransparencyValue, 0.10)
 					or 0.02,
 				BorderSizePixel = 0,
 				ZIndex = 1,
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 18) }),
+				New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Card) }),
 				New("UIGradient", {
 					Name = "SidebarColorBlend",
-					Rotation = 90, -- light at the glow corner (top), dark at the opposite end
+					Rotation = 110,
 					ThemeTag = { Color = "SidebarGlassGradient" },
+				}),
+				New("UIStroke", {
+					Thickness = 1,
+					Transparency = 0.55,
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					ThemeTag = { Color = "TitleBarLine" },
 				}),
 			}),
 			New("Frame", {
 				Name = "DwacSidebarDivider",
-				Position = UDim2.new(0, Window.TabWidth + 22, 0, 52),
-				Size = UDim2.new(0, 1, 1, -60),
-				BackgroundColor3 = Color3.fromRGB(140, 155, 185),
-				BackgroundTransparency = 0.82,
+				Position = UDim2.new(0, Window.TabWidth + 24, 0, 50),
+				Size = UDim2.new(0, 1, 1, -58),
+				BackgroundColor3 = Color3.fromRGB(45, 48, 58),
+				BackgroundTransparency = 0.45,
 				BorderSizePixel = 0,
 				ZIndex = 1,
+				ThemeTag = { BackgroundColor3 = "TitleBarLine" },
 			}),
-			Glass.Rim({
-				Thickness = 1.15,
-				Transparency = 0.20,
-				Tag = "DarkGlassBorder",
+			New("UIStroke", {
+				Thickness = 1,
+				Transparency = 0.22,
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Color = Color3.fromRGB(220, 232, 224),
+				ThemeTag = { Color = "DarkGlassBorder" },
 			}),
 			-- Foreground siblings are created after the glass decorators so text,
 			-- icons, tabs and controls always remain above the background surface.
@@ -4316,11 +3287,12 @@ ElementsTable.Button = (function()
 			Image = "rbxassetid://10734898476",
 			Size = UDim2.fromOffset(16, 16),
 			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, -10, 0.5, 0),
+			Position = UDim2.new(1, -12, 0.5, 0),
 			BackgroundTransparency = 1,
+			ZIndex = 2,
 			Parent = ButtonFrame.Frame,
 			ThemeTag = {
-				ImageColor3 = "Text",
+				ImageColor3 = "SubText",
 			},
 		})
 
@@ -4368,18 +3340,20 @@ ElementsTable.Toggle = (function()
 		Toggle.GetOriginalText = ToggleFrame.GetOriginalText
 		Toggle.Elements        = ToggleFrame
 
-		-- ── Track (pill 42x22 iOS/macOS) ──────────────────────
+		-- ── Track (pill) ──────────────────────────────────────
 		local Track = New("Frame", {
-			Size             = UDim2.fromOffset(42, 22),
+			Size             = UDim2.fromOffset(44, 24),
 			AnchorPoint      = Vector2.new(1, 0.5),
 			Position         = UDim2.new(1, -12, 0.5, 0),
-			BackgroundColor3 = Color3.fromRGB(24, 28, 40),
-			BackgroundTransparency = 0.65,
+			BackgroundColor3 = Color3.fromRGB(20, 21, 26),
+			BackgroundTransparency = 0.10,
+			ZIndex           = 2,
 			Parent           = ToggleFrame.Frame,
+			ThemeTag         = { BackgroundColor3 = "ToggleTrack" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 			New("UIStroke", {
-				Transparency    = 0.70,
+				Transparency    = 0.35,
 				Thickness       = 1,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color           = Color3.fromRGB(255, 255, 255),
@@ -4391,7 +3365,7 @@ ElementsTable.Toggle = (function()
 		local Fill = New("Frame", {
 			Size             = UDim2.new(0, 0, 1, 0),   -- starts empty
 			BackgroundColor3 = Color3.fromRGB(0, 122, 255),
-			BackgroundTransparency = 0.10,
+			BackgroundTransparency = 0.04,
 			ZIndex           = 2,
 			ThemeTag         = { BackgroundColor3 = "Accent" },
 			Parent           = Track,
@@ -4400,39 +3374,41 @@ ElementsTable.Toggle = (function()
 		})
 
 
-		-- ── Thumb (18x18) ─────────────────────────────────────
+		-- ── Thumb ─────────────────────────────────────────────
 		local Thumb = New("Frame", {
 			Size             = UDim2.fromOffset(18, 18),
 			AnchorPoint      = Vector2.new(0, 0.5),
-			Position         = UDim2.new(0, 2, 0.5, 0),
+			Position         = UDim2.new(0, 3, 0.5, 0),
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			ZIndex           = 3,
+			ThemeTag         = { BackgroundColor3 = "ToggleThumb" },
 			Parent           = Track,
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
 			New("UIStroke", {
 				Thickness       = 1,
-				Transparency    = 0.75,
+				Transparency    = 0.50,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Color           = Color3.fromRGB(255, 255, 255),
+				Color           = Color3.fromRGB(10, 10, 12),
+				ThemeTag        = { Color = "ToggleToggled" },
 			}),
 		})
 
 		-- ── Easing helpers ────────────────────────────────────
-		local TI_FAST  = TweenInfo.new(0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-		local TI_BACK  = TweenInfo.new(0.20, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
+		local TI_FAST  = TweenInfo.new(0.20, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+		local TI_BACK  = TweenInfo.new(0.22, Enum.EasingStyle.Back,  Enum.EasingDirection.Out)
 		local TI_QUICK = TweenInfo.new(0.10, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 		-- OFF state
 		local function applyOff()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.new(0, 0, 1, 0)   }):Play()
-			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 2, 0.5, 0) }):Play()
+			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 3, 0.5, 0) }):Play()
 		end
 
-		-- ON state (42 - 18 - 2 = 22)
+		-- ON state
 		local function applyOn()
 			TweenService:Create(Fill,  TI_FAST, { Size     = UDim2.fromScale(1, 1)    }):Play()
-			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 22, 0.5, 0)}):Play()
+			TweenService:Create(Thumb, TI_BACK, { Position = UDim2.new(0, 23, 0.5, 0)}):Play()
 		end
 
 		-- Press squish
@@ -4586,15 +3562,16 @@ ElementsTable.Dropdown = (function()
 
 		local DropdownInner = New("TextButton", {
 			Size            = UDim2.fromOffset(160, 28),
-			Position        = UDim2.new(1, -10, 0.5, 0),
+			Position        = UDim2.new(1, -12, 0.5, 0),
 			AnchorPoint     = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.18,
+			BackgroundTransparency = 0.08,
+			ZIndex          = 2,
 			Parent          = DropdownFrame.Frame,
 			AutoLocalize    = false,
 			ThemeTag        = { BackgroundColor3 = "DropdownFrame" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Control) }),
-			Glass.Rim({ Transparency = 0.4, Tag = "InElementBorder" }),
+			Glass.Rim({ Transparency = 0.35, Tag = "InElementBorder" }),
 			DropdownUnderline,
 			DropdownIco,
 			DropdownDisplay,
@@ -4612,12 +3589,12 @@ ElementsTable.Dropdown = (function()
 		end)
 
 		-- เพิ่ม hover effect สำหรับ dropdown
-		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.18, DropdownInner, "BackgroundTransparency")
+		local DropdownHoverMotor, SetDropdownHover = Creator.SpringMotor(0.08, DropdownInner, "BackgroundTransparency")
 		Creator.AddSignal(DropdownInner.MouseEnter, function()
-			SetDropdownHover(0.10)
+			SetDropdownHover(0.02)
 		end)
 		Creator.AddSignal(DropdownInner.MouseLeave, function()
-			SetDropdownHover(0.18)
+			SetDropdownHover(0.08)
 		end)
 
 		-- Nut "xoa het" cho dropdown Multi. Toan bo phan noi day (hover, hit-test
@@ -4796,7 +3773,7 @@ ElementsTable.Dropdown = (function()
 
 		local DropdownHolderFrame = New("Frame", {
 		    Size             = UDim2.fromScale(1, 0.6),
-		    BackgroundTransparency = 0,
+		    BackgroundTransparency = 0.03,
 		    ClipsDescendants = true,
 		    ZIndex           = 2,
 		    ThemeTag         = { BackgroundColor3 = "DropdownHolder" },
@@ -4804,7 +3781,7 @@ ElementsTable.Dropdown = (function()
 		    New("UICorner", {
 		        CornerRadius = UDim.new(0, Glass.Radius.Card),
 		    }),
-		    Glass.Rim({ Transparency = 0.28, Tag = "DropdownBorder" }),
+		    Glass.Rim({ Transparency = 0.24, Tag = "DropdownBorder" }),
 		    SearchBase,
 		    DropdownScrollFrame,
 		})
@@ -5209,10 +4186,10 @@ ElementsTable.Dropdown = (function()
 
 			local function applyState(sel)
 				TweenService:Create(Button, TI, {
-					BackgroundTransparency = sel and 0.18 or 1,
+					BackgroundTransparency = sel and 0.22 or 1,
 				}):Play()
 				TweenService:Create(ButtonStroke, TI, {
-					Transparency = sel and 0.3 or 1,
+					Transparency = sel and 0.30 or 1,
 				}):Play()
 				TweenService:Create(ButtonAccent, TI, {
 					BackgroundTransparency = sel and 0 or 1,
@@ -5228,28 +4205,28 @@ ElementsTable.Dropdown = (function()
 
 			Creator.AddSignal(Button.MouseEnter, function()
 				if not Selected then
-					TweenService:Create(Button, TI, { BackgroundTransparency = 0.72 }):Play()
-					TweenService:Create(ButtonStroke, TI, { Transparency = 0.6 }):Play()
+					TweenService:Create(Button, TI, { BackgroundTransparency = 0.55 }):Play()
+					TweenService:Create(ButtonStroke, TI, { Transparency = 0.55 }):Play()
 					TweenService:Create(ButtonLabel, TI, { TextTransparency = 0 }):Play()
 				end
 			end)
 			Creator.AddSignal(Button.MouseLeave, function()
 				TweenService:Create(Button, TI, {
-					BackgroundTransparency = Selected and 0.78 or 1,
+					BackgroundTransparency = Selected and 0.22 or 1,
 				}):Play()
 				TweenService:Create(ButtonStroke, TI, {
-					Transparency = Selected and 0.3 or 1,
+					Transparency = Selected and 0.30 or 1,
 				}):Play()
 				TweenService:Create(ButtonLabel, TI, {
 					TextTransparency = 0,
 				}):Play()
 			end)
 			Creator.AddSignal(Button.MouseButton1Down, function()
-				TweenService:Create(Button, TI, { BackgroundTransparency = 0.7 }):Play()
+				TweenService:Create(Button, TI, { BackgroundTransparency = 0.15 }):Play()
 			end)
 			Creator.AddSignal(Button.MouseButton1Up, function()
 				TweenService:Create(Button, TI, {
-					BackgroundTransparency = Selected and 0.78 or 0.88,
+					BackgroundTransparency = Selected and 0.22 or 0.55,
 				}):Play()
 			end)
 
@@ -5679,8 +4656,8 @@ ElementsTable.Paragraph = (function()
 		-- tag, lan doi theme dau tien Creator.UpdateTheme se ghi de lai bang
 		-- ElementTransparency cua theme -> paragraph trong y nhu mot cai nut.
 		Creator.OverrideTag(Frame.Frame, { BackgroundColor3 = "Element" })
-		Frame.Frame.BackgroundTransparency = 0.92
-		Frame.Border.Transparency = 0.45
+		Frame.Frame.BackgroundTransparency = 0.35
+		Frame.Border.Transparency = 0.50
 
 		-- Cho phep goi ca SetContent (chuan Fluent) va SetDesc
 		Frame.SetContent = Frame.SetDesc
@@ -5746,19 +4723,19 @@ ElementsTable.Slider = (function()
 			TextSize         = 12,
 			TextWrapped      = false,
 			TextXAlignment   = Enum.TextXAlignment.Center,
-			BackgroundTransparency = 0.16,
-			Size             = UDim2.new(0, 50, 0, 22),
-			Position         = UDim2.new(1, -10, 0, 7),
+			BackgroundTransparency = 0.10,
+			Size             = UDim2.new(0, 52, 0, 22),
+			Position         = UDim2.new(1, -12, 0, 8),
 			AnchorPoint      = Vector2.new(1, 0),
 			ZIndex           = 4,
 			ClearTextOnFocus = false,
 			Parent           = SliderFrame.Frame,
-			ThemeTag         = { TextColor3 = "Text", BackgroundColor3 = "Element" },
+			ThemeTag         = { TextColor3 = "Text", BackgroundColor3 = "Input" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("UICorner", { CornerRadius = UDim.new(0, Glass.Radius.Chip) }),
 			New("UIStroke", {
 				Thickness       = 1,
-				Transparency    = 0.32,
+				Transparency    = 0.35,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				Color           = Color3.fromRGB(255, 255, 255),
 				ThemeTag        = { Color = "InElementBorder" },
@@ -5774,10 +4751,10 @@ ElementsTable.Slider = (function()
 
 		-- ── Thin visual rail ──────────────────────────────────
 		local RailBg = New("Frame", {
-			Size             = UDim2.new(1, 0, 0, 4),
+			Size             = UDim2.new(1, 0, 0, 5),
 			AnchorPoint      = Vector2.new(0, 0.5),
 			Position         = UDim2.fromScale(0, 0.5),
-			BackgroundTransparency = 0.60,
+			BackgroundTransparency = 0.20,
 			Parent           = SliderRail,
 			ThemeTag         = { BackgroundColor3 = "SliderRail" },
 		}, {
@@ -5796,40 +4773,31 @@ ElementsTable.Slider = (function()
 
 		-- ── Thumb ─────────────────────────────────────────────
 		local SliderDot = New("Frame", {
-			Size             = UDim2.fromOffset(16, 16),
+			Size             = UDim2.fromOffset(14, 14),
 			AnchorPoint      = Vector2.new(0, 0.5),
-			Position         = UDim2.new(0, -8, 0.5, 0),
+			Position         = UDim2.new(0, -7, 0.5, 0),
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			ZIndex           = 5,
 			Parent           = SliderRail,
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			New("UIGradient", {
-				Rotation = 90,
-				Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-					ColorSequenceKeypoint.new(1.00, Color3.fromRGB(228, 234, 246)),
-				}),
-			}),
 			New("UIStroke", {
-				Thickness       = 1.5,
-				Transparency    = 0.20,
+				Thickness       = 2,
+				Transparency    = 0.05,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				ThemeTag        = { Color = "Accent" },
 			}),
 		})
 
-		-- ── Rail track ────────────────────────────────────────
+		-- ── Rail hit area (transparent so RailBg renders cleanly) ──
 		local SliderTrack = New("Frame", {
-			Size        = UDim2.new(1, -20, 0, 6),
+			Size        = UDim2.new(1, -24, 0, 18),
 			AnchorPoint = Vector2.new(0, 1),
-			Position    = UDim2.new(0, 10, 1, -8),
-			BackgroundTransparency = 0.50,
+			Position    = UDim2.new(0, 12, 1, -5),
+			BackgroundTransparency = 1,
+			ZIndex      = 3,
 			Parent      = SliderFrame.Frame,
-			ThemeTag    = { BackgroundColor3 = "SliderRail" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-			RailBg,
 			SliderRail,
 		})
 
@@ -5839,7 +4807,7 @@ ElementsTable.Slider = (function()
 			SliderLabelPadding.PaddingBottom = UDim.new(0, 28)
 		else
 			New("UIPadding", {
-				PaddingTop    = UDim.new(0, 13),
+				PaddingTop    = UDim.new(0, 11),
 				PaddingBottom = UDim.new(0, 28),
 				Parent        = SliderFrame.LabelHolder,
 			})
@@ -5865,19 +4833,30 @@ ElementsTable.Slider = (function()
 			end
 		end)
 
-		Creator.AddSignal(SliderDot.InputBegan, function(Input)
+		local function BeginSliderDrag(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1
 				or Input.UserInputType == Enum.UserInputType.Touch
 			then
 				Dragging = true
-				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(18, 18) }):Play()
+				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(17, 17) }):Play()
+				if Input.Position and SliderRail.AbsoluteSize.X > 0 then
+					local SizeScale = math.clamp(
+						(Input.Position.X - SliderRail.AbsolutePosition.X) / SliderRail.AbsoluteSize.X,
+						0, 1
+					)
+					Slider:SetValue(Slider.Min + (Slider.Max - Slider.Min) * SizeScale)
+				end
 			end
-		end)
+		end
 
-		Creator.AddSignal(SliderDot.InputEnded, function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1
+		Creator.AddSignal(SliderDot.InputBegan, BeginSliderDrag)
+		Creator.AddSignal(SliderTrack.InputBegan, BeginSliderDrag)
+
+		Creator.AddSignal(UserInputService.InputEnded, function(Input)
+			if Dragging and (
+				Input.UserInputType == Enum.UserInputType.MouseButton1
 				or Input.UserInputType == Enum.UserInputType.Touch
-			then
+			) then
 				Dragging = false
 				TweenService:Create(SliderDot, TI_THUMB, { Size = UDim2.fromOffset(14, 14) }):Play()
 			end
@@ -5887,7 +4866,7 @@ ElementsTable.Slider = (function()
 			if Dragging and (
 				Input.UserInputType == Enum.UserInputType.MouseMovement
 				or Input.UserInputType == Enum.UserInputType.Touch
-			) then
+			) and SliderRail.AbsoluteSize.X > 0 then
 				local SizeScale = math.clamp(
 					(Input.Position.X - SliderRail.AbsolutePosition.X) / SliderRail.AbsoluteSize.X,
 					0, 1
@@ -5990,10 +4969,11 @@ ElementsTable.Keybind = (function()
 		})
 
 		local KeybindDisplayFrame = New("TextButton", {
-			Size = UDim2.fromOffset(0, 28),
-			Position = UDim2.new(1, -10, 0.5, 0),
+			Size = UDim2.fromOffset(0, 26),
+			Position = UDim2.new(1, -12, 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
-			BackgroundTransparency = 0.85,
+			BackgroundTransparency = 0.12,
+			ZIndex = 2,
 			Parent = KeybindFrame.Frame,
 			AutomaticSize = Enum.AutomaticSize.X,
 			ThemeTag = {
@@ -6197,9 +5177,10 @@ ElementsTable.Colorpicker = (function()
 		})
 
 		local DisplayFrame = New("ImageLabel", {
-			Size = UDim2.fromOffset(28, 28),
-			Position = UDim2.new(1, -10, 0.5, 0),
+			Size = UDim2.fromOffset(26, 26),
+			Position = UDim2.new(1, -12, 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
+			ZIndex = 2,
 			Parent = ColorpickerFrame.Frame,
 			Image = "http://www.roblox.com/asset/?id=14204231522",
 			ImageTransparency = 0.55,
@@ -6207,7 +5188,7 @@ ElementsTable.Colorpicker = (function()
 			TileSize = UDim2.fromOffset(40, 40),
 		}, {
 			New("UICorner", {
-				CornerRadius = UDim.new(0, 10),
+				CornerRadius = UDim.new(0, Glass.Radius.Control),
 			}),
 			DisplayFrameColor,
 			-- vien kinh quang hoc quanh o mau
@@ -6732,9 +5713,10 @@ ElementsTable.Input = (function()
 		Input.Elements = InputFrame
 
 		local Textbox = Components.Textbox(InputFrame.Frame, true)
-		Textbox.Frame.Position = UDim2.new(1, -10, 0.5, 0)
+		Textbox.Frame.Position = UDim2.new(1, -12, 0.5, 0)
 		Textbox.Frame.AnchorPoint = Vector2.new(1, 0.5)
-		Textbox.Frame.Size = UDim2.fromOffset(160, 30)
+		Textbox.Frame.Size = UDim2.fromOffset(160, 28)
+		Textbox.Frame.ZIndex = 2
 		Textbox.Input.Text = Config.Default or ""
 		Textbox.Input.PlaceholderText = Config.Placeholder or ""
 		Textbox.MultiLine = Config.MultiLine or false
@@ -8180,10 +7162,10 @@ function Library:CreateWindow(Config)
 	-- Ban cu bien "khong truyen" thanh false -> nen cua so thanh DAC.
 	Library.Transparency = Config.Transparency ~= false
 	if tonumber(Config.GlassTransparency) ~= nil then
-		Library.GlassTransparencyValue = math.clamp(tonumber(Config.GlassTransparency), 0.02, 0.30)
+		Library.GlassTransparencyValue = math.clamp(tonumber(Config.GlassTransparency), 0.02, 0.06)
 	end
 	if tonumber(Config.SidebarTransparency) ~= nil then
-		Library.SidebarTransparencyValue = math.clamp(tonumber(Config.SidebarTransparency), 0.02, 0.30)
+		Library.SidebarTransparencyValue = math.clamp(tonumber(Config.SidebarTransparency), 0.02, 0.10)
 	end
 	-- Size mac dinh: Components.Window doc Config.Size.X.Offset ngay khi tinh
 	-- vi tri, nen thieu truong nay se loi "index nil with X".
@@ -8393,8 +7375,8 @@ function Library:CreateWindow(Config)
 
 	Main.Name = "Main"
 	Main.Parent = PidUi
-	Main.BackgroundColor3 = Creator.GetThemeProperty("DarkGlassMain")
-	Main.BackgroundTransparency = 0.14
+	Main.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	Main.BackgroundTransparency = 0.06
 	Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	Main.BorderSizePixel = 0
 	Main.ClipsDescendants = false
@@ -8406,18 +7388,23 @@ function Library:CreateWindow(Config)
 	UICorner.CornerRadius = UDim.new(0, 14)
 	UICorner.Parent = Main
 
-	-- Plain dark-glass outline, without reflection layers or gradient rims.
+	local MainGradient = Instance.new("UIGradient")
+	MainGradient.Rotation = 115
+	MainGradient.Color = Creator.GetThemeProperty("DarkGlassGradient")
+	MainGradient.Parent = Main
+
+	-- Obsidian-tinted outline matching the active theme
 	local MainStroke = Instance.new("UIStroke")
-	MainStroke.Thickness = 1
-	MainStroke.Transparency = 0.28
+	MainStroke.Thickness = 1.2
+	MainStroke.Transparency = 0.22
 	MainStroke.Color = Creator.GetThemeProperty("DarkGlassBorder")
 	MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	MainStroke.Parent = Main
 
-	-- Icon hien thi ro rang, sac net, trang sang (khong bi gradient lam mo), do lon tieu chuan 50x50
+	-- Icon hien thi ro rang, sac net, can giua khung
 	local MainIcon = Instance.new("ImageLabel")
 	MainIcon.Name = "Icon"
-	MainIcon.Size = UDim2.fromScale(1, 1)
+	MainIcon.Size = UDim2.fromScale(0.84, 0.84)
 	MainIcon.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainIcon.Position = UDim2.fromScale(0.5, 0.5)
 	MainIcon.BackgroundTransparency = 1
@@ -8429,27 +7416,27 @@ function Library:CreateWindow(Config)
 	MainIcon.Parent = Main
 
 	local MainIconCorner = Instance.new("UICorner")
-	MainIconCorner.CornerRadius = UDim.new(0, 14)
+	MainIconCorner.CornerRadius = UDim.new(0, 11)
 	MainIconCorner.Parent = MainIcon
 
 	-- Lightweight icon scale animation on hover
 	AddSignal(Main.MouseEnter, function()
-		TweenService:Create(MainStroke, TweenInfo.new(0.2), { Transparency = 0.05 }):Play()
-		TweenService:Create(MainIcon, TweenInfo.new(0.2), { Size = UDim2.new(1, 2, 1, 2) }):Play()
+		TweenService:Create(MainStroke, TweenInfo.new(0.2), { Transparency = 0.04 }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.2), { Size = UDim2.fromScale(0.90, 0.90) }):Play()
 	end)
 	AddSignal(Main.MouseLeave, function()
-		TweenService:Create(MainStroke, TweenInfo.new(0.25), { Transparency = 0.28 }):Play()
-		TweenService:Create(MainIcon, TweenInfo.new(0.25), { Size = UDim2.fromScale(1, 1) }):Play()
+		TweenService:Create(MainStroke, TweenInfo.new(0.25), { Transparency = 0.22 }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.25), { Size = UDim2.fromScale(0.84, 0.84) }):Play()
 	end)
 	AddSignal(Main.MouseButton1Down, function()
-		TweenService:Create(MainIcon, TweenInfo.new(0.1), { Size = UDim2.new(1, -6, 1, -6) }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.1), { Size = UDim2.fromScale(0.76, 0.76) }):Play()
 	end)
 	AddSignal(Main.MouseButton1Up, function()
-		TweenService:Create(MainIcon, TweenInfo.new(0.15), { Size = UDim2.fromScale(1, 1) }):Play()
+		TweenService:Create(MainIcon, TweenInfo.new(0.15), { Size = UDim2.fromScale(0.84, 0.84) }):Play()
 	end)
 
 	-- dang ky vao Creator.Registry de tu doi mau khi Library:SetTheme()
-	Creator.AddThemeObject(Main, { BackgroundColor3 = "DarkGlassMain" })
+	Creator.AddThemeObject(MainGradient, { Color = "DarkGlassGradient" })
 	Creator.AddThemeObject(MainStroke, { Color = "DarkGlassBorder" })
 
 	local function MakeDraggable(topbarobject, object)
@@ -8551,13 +7538,13 @@ function Library:SetTheme(Value)
 	if Surface then
 		-- Clamp: nen chinh luon giu o muc gan dac, khong cho tran ra trong suot
 		Surface.BackgroundTransparency = Library.Transparency
-			and math.min(Library.GlassTransparencyValue, 0.30)
+			and math.min(Library.GlassTransparencyValue, 0.06)
 			or 0.02
 	end
 	local Sidebar = Paint and Paint.Sidebar
 	if Sidebar then
 		Sidebar.BackgroundTransparency = Library.Transparency
-			and math.min(Library.SidebarTransparencyValue, 0.30)
+			and math.min(Library.SidebarTransparencyValue, 0.10)
 			or 0.02
 	end
 
@@ -8602,7 +7589,7 @@ end
 function Library:SetGlassTransparency(Value)
 	Value = tonumber(Value)
 	if not Value then return false end
-	Library.GlassTransparencyValue = math.clamp(Value, 0.02, 0.30)
+	Library.GlassTransparencyValue = math.clamp(Value, 0.02, 0.06)
 
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Frame = Paint and Paint.Frame
@@ -8620,7 +7607,7 @@ end
 function Library:SetSidebarTransparency(Value)
 	Value = tonumber(Value)
 	if not Value then return false end
-	Library.SidebarTransparencyValue = math.clamp(Value, 0.02, 0.30)
+	Library.SidebarTransparencyValue = math.clamp(Value, 0.02, 0.10)
 
 	local Paint = Library.Window and Library.Window.DarkGlassSurface
 	local Sidebar = Paint and Paint.Sidebar
@@ -8642,12 +7629,12 @@ function Library:ToggleTransparency(Value)
 	local Sidebar = Paint and Paint.Sidebar
 	if Frame then
 		Frame.BackgroundTransparency = Library.Transparency
-			and math.min(Library.GlassTransparencyValue, 0.30)
+			and math.min(Library.GlassTransparencyValue, 0.06)
 			or 0.02
 	end
 	if Sidebar then
 		Sidebar.BackgroundTransparency = Library.Transparency
-			and math.min(Library.SidebarTransparencyValue, 0.30)
+			and math.min(Library.SidebarTransparencyValue, 0.10)
 			or 0.02
 	end
 end
